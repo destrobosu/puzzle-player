@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puzzle Player</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; user-select: none; }
+  h1 { font-size: 2rem; margin-bottom: 10px; background: linear-gradient(135deg, #2ecc71, #0f3460); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  .controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; align-items: center; }
+  .controls button { padding: 8px 18px; border: 2px solid #0f3460; background: #16213e; color: #eee; border-radius: 8px; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; }
+  .controls button:hover { background: #0f3460; }
+  .controls button.active { background: #e94560; border-color: #e94560; }
+
+  .status { margin-bottom: 15px; font-size: 1rem; color: #aaa; text-align: center; }
+  .status .highlight { color: #e94560; font-weight: bold; }
+
+  .game-layout { display: flex; gap: 30px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+
+  /* Board */
+  .board-area { display: flex; flex-direction: column; align-items: center; }
+  .board-area h2 { margin-bottom: 10px; font-size: 1.1rem; color: #aaa; }
+  .board { display: grid; gap: 2px; background: #0f3460; padding: 2px; border-radius: 8px; border: 2px solid #16213e; }
+  .board .cell { width: 55px; height: 55px; background: #16213e; border-radius: 4px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; position: relative; }
+  .board .cell:hover { outline: 2px solid rgba(255,255,255,0.3); outline-offset: -2px; }
+  .board .cell.filled { border: 2px solid rgba(255,255,255,0.15); cursor: grab; }
+  .board .cell.filled:active { cursor: grabbing; }
+  .board .cell.cell-svg { background: transparent; border: none; padding: 2px; }
+  .board .cell.cell-svg svg { width: 100%; height: 100%; }
+  .board .cell.obstacle { background: #111; border: 2px solid #333; cursor: default; }
+  .board .cell.obstacle::after { content: 'X'; color: #444; font-size: 1.2rem; font-weight: bold; }
+  .board .cell.connected { box-shadow: 0 0 12px rgba(200, 200, 200, 0.6); outline: 2px solid rgba(200, 200, 200, 0.5); outline-offset: -2px; }
+  .board .cell.drop-valid { outline: 3px solid rgba(100, 255, 100, 0.7); outline-offset: -3px; }
+  .board .cell.drop-invalid { outline: 3px solid rgba(255, 80, 80, 0.7); outline-offset: -3px; }
+
+  /* Piece palette */
+  .palette-section { background: #16213e; padding: 15px; border-radius: 8px; border: 2px solid #0f3460; min-width: 160px; }
+  .palette-section h3 { font-size: 0.95rem; color: #aaa; margin-bottom: 12px; text-align: center; }
+  .palette-group-label { font-size: 0.85rem; color: #ccc; margin-bottom: 4px; }
+  .palette-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 8px; }
+  .palette-item { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px; border-radius: 6px; cursor: grab; border: 2px solid transparent; transition: all 0.2s; }
+  .palette-item:active { cursor: grabbing; }
+  .palette-item:hover { border-color: rgba(255,255,255,0.2); }
+  .palette-swatch { width: 32px; height: 32px; border-radius: 4px; border: 2px solid rgba(255,255,255,0.15); flex-shrink: 0; }
+  .swatch-svg { background: transparent; border: none; display: flex; align-items: center; justify-content: center; }
+  .palette-label { font-size: 0.8rem; color: #ccc; }
+  .swatch-white { background: #e8e8e8; }
+
+  /* Drag ghost */
+  .drag-ghost { position: fixed; pointer-events: none; z-index: 1000; width: 50px; height: 50px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.3); opacity: 0.9; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transform: translate(-50%, -50%); }
+  .drag-ghost.ghost-svg { background: transparent; border: none; box-shadow: none; }
+
+  /* Stars */
+  .stars { display: flex; gap: 5px; justify-content: center; margin: 10px 0; }
+  .star { font-size: 2rem; color: #333; transition: all 0.3s; }
+  .star.earned { color: #f1c40f; text-shadow: 0 0 10px rgba(241,196,15,0.5); }
+
+  /* Board selector */
+  .board-selector { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 15px; }
+  .board-card { padding: 10px 18px; background: #16213e; border: 2px solid #0f3460; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .board-card:hover { border-color: #e94560; }
+  .board-card.active { border-color: #2ecc71; background: #1a3a2e; }
+  .board-card-name { font-size: 0.9rem; color: #eee; font-weight: bold; }
+  .board-card-info { font-size: 0.75rem; color: #888; margin-top: 3px; }
+
+  /* Power-ups */
+  .powerup-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; cursor: grab; border: 2px solid transparent; transition: all 0.2s; }
+  .powerup-item:hover { border-color: rgba(255,255,255,0.2); }
+  .powerup-item:active { cursor: grabbing; }
+
+  /* Power-up preview states */
+  .board .cell.powerup-target { box-shadow: 0 0 20px rgba(255,255,255,0.8), 0 0 40px rgba(255,255,255,0.4); outline: 3px solid rgba(255,255,255,0.9); outline-offset: -3px; z-index: 2; }
+  .board .cell.fill-preview { background: rgba(200,200,200,0.15) !important; outline: 2px dashed rgba(200,200,200,0.4); outline-offset: -2px; cursor: pointer; }
+  .board .cell.fill-preview-last { outline-color: rgba(156,39,176,0.6); }
+  .board .cell.extend-preview { background: rgba(200,200,200,0.15) !important; outline: 2px dashed rgba(100,200,255,0.5); outline-offset: -2px; cursor: pointer; }
+  .board .cell.teleport-preview { background: rgba(200,150,255,0.15) !important; outline: 2px dashed rgba(200,150,255,0.6); outline-offset: -2px; cursor: pointer; }
+  .fill-arrow { position: absolute; width: 20px; height: 20px; background: rgba(255,255,255,0.7); border-radius: 50%; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1a1a2e; font-weight: bold; transition: all 0.2s; }
+  .fill-arrow:hover { background: #fff; transform: scale(1.3); box-shadow: 0 0 10px rgba(255,255,255,0.8); }
+  .fill-arrow.dir-T { top: -12px; left: 50%; transform: translateX(-50%); }
+  .fill-arrow.dir-B { bottom: -12px; left: 50%; transform: translateX(-50%); }
+  .fill-arrow.dir-L { left: -12px; top: 50%; transform: translateY(-50%); }
+  .fill-arrow.dir-R { right: -12px; top: 50%; transform: translateY(-50%); }
+  .fill-arrow.dir-T:hover { transform: translateX(-50%) scale(1.3); }
+  .fill-arrow.dir-B:hover { transform: translateX(-50%) scale(1.3); }
+  .fill-arrow.dir-L:hover { transform: translateY(-50%) scale(1.3); }
+  .fill-arrow.dir-R:hover { transform: translateY(-50%) scale(1.3); }
+
+  .win-banner { font-size: 1.3rem; color: #2ecc71; font-weight: bold; margin-top: 10px; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>Puzzle Player</h1>
+
+<div class="board-selector" id="board-selector"></div>
+
+<div class="status" id="status">Select a board to play</div>
+
+<div class="stars" id="stars">
+  <span class="star" id="star1">&#9733;</span>
+  <span class="star" id="star2">&#9733;</span>
+  <span class="star" id="star3">&#9733;</span>
+</div>
+
+<div class="game-layout">
+  <div class="palette-section">
+    <h3>Player Pieces</h3>
+    <div class="palette-group-label">Common</div>
+    <div class="palette-group" id="common-pieces"></div>
+    <div class="palette-group-label">Rare</div>
+    <div class="palette-group" id="rare-pieces"></div>
+    <div class="palette-group-label">Epic</div>
+    <div class="palette-group" id="epic-pieces"></div>
+    <div class="palette-group-label">Legendary</div>
+    <div class="palette-group" id="legendary-pieces"></div>
+  </div>
+
+  <div class="board-area">
+    <div class="board" id="board"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button onclick="undoLast()" style="padding:6px 14px;border:1px solid #0f3460;background:#16213e;color:#ccc;border-radius:6px;cursor:pointer;font-size:0.85rem;">Undo</button>
+      <button onclick="resetBoard()" style="padding:6px 14px;border:1px solid #0f3460;background:#16213e;color:#ccc;border-radius:6px;cursor:pointer;font-size:0.85rem;">Reset</button>
+    </div>
+    <div id="win-banner"></div>
+  </div>
+
+  <div class="palette-section">
+    <h3>Power Ups</h3>
+    <div class="powerup-item" data-color="fill"><div class="palette-swatch swatch-white" style="width:28px;height:28px;"></div><span class="palette-label">Fill</span></div>
+    <div class="powerup-item" data-color="extend"><div class="palette-swatch swatch-white" style="width:28px;height:28px;"></div><span class="palette-label">Extend</span></div>
+    <div class="powerup-item" data-color="teleport"><div class="palette-swatch swatch-white" style="width:28px;height:28px;"></div><span class="palette-label">Teleport</span></div>
+  </div>
+</div>
+
+<div class="drag-ghost" id="drag-ghost"></div>
+
+<script src="shared-piece-data.js"></script>
+<script>
+// === GAME STATE ===
+let boardSize = 0;
+let boardState = [];
+let originalBoard = []; // immutable copy of loaded board for reset
+let history = [];
+let dragging = false;
+let dragColor = null;
+let dragSource = null;
+const ghost = document.getElementById('drag-ghost');
+const DIR_DELTA = { T: [-1,0], B: [1,0], L: [0,-1], R: [0,1] };
+const DIR_ARROWS = { T: '\u25B2', B: '\u25BC', L: '\u25C0', R: '\u25B6' };
+
+// Available boards
+const BOARDS = [
+  { file: 'boards/starter-path-3x3.json' },
+  { file: 'boards/forest-trail-4x4.json' },
+  { file: 'boards/mountain-pass-5x5.json' },
+  { file: 'boards/dragon-maze-6x6.json' },
+];
+
+// === SHARED UTILITIES (same as admin) ===
+function findPresetVariant(needed, forbidden) {
+  const presets = [
+    {id:'white',sides:['T','B']},{id:'white2',sides:['L','R']},
+    {id:'white3',sides:['L','T']},{id:'white4',sides:['T','R']},
+    {id:'white5',sides:['R','B']},{id:'white6',sides:['B','L']},
+    {id:'white7',sides:['T','L','R']},{id:'white8',sides:['T','R','B']},
+    {id:'white9',sides:['B','L','R']},{id:'white10',sides:['T','B','L']},
+    {id:'white11',sides:['T','R','B','L']},
+  ];
+  const neededSet = new Set(needed);
+  const forbiddenSet = new Set(forbidden || []);
+  const required = needed[0];
+  let best = null, bestCov = -1, bestExt = 999;
+  for (const p of presets) {
+    if (!p.sides.includes(required)) continue;
+    if (p.sides.some(s => forbiddenSet.has(s))) continue;
+    const cov = p.sides.filter(s => neededSet.has(s)).length;
+    const ext = p.sides.filter(s => !neededSet.has(s)).length;
+    if (cov > bestCov || (cov === bestCov && ext < bestExt)) { bestCov=cov; bestExt=ext; best=p.id; }
+  }
+  return best || 'white11';
+}
+
+function computeFillPath(row, col, dir) {
+  const [dr,dc] = DIR_DELTA[dir]; const path = [];
+  let r = row+dr, c = col+dc;
+  while (r>=0 && r<boardSize && c>=0 && c<boardSize) {
+    if (boardState[r][c] !== null) break;
+    path.push({row:r,col:c}); r+=dr; c+=dc;
+  }
+  return path;
+}
+
+function getConnectedCells() {
+  const connected = new Set();
+  for (let r=0; r<boardSize; r++) for (let c=0; c<boardSize; c++) {
+    const cell = boardState[r][c];
+    if (!cell || !cell.variant) continue;
+    const sides = CONNECTORS[cell.variant]; if (!sides) continue;
+    for (const dir of ['T','B','L','R']) {
+      if (!sides.includes(dir)) continue;
+      const [dr,dc] = DIR_DELTA[dir]; const nr=r+dr, nc=c+dc;
+      if (nr<0||nr>=boardSize||nc<0||nc>=boardSize) continue;
+      const n = boardState[nr][nc]; if (!n||!n.variant) continue;
+      const ns = CONNECTORS[n.variant]; if (!ns) continue;
+      if (ns.includes(OPPOSITE[dir])) { connected.add(`${r},${c}`); connected.add(`${nr},${nc}`); }
+    }
+  }
+  return connected;
+}
+
+// === POWER-UP SYSTEM (same modular pattern as admin) ===
+const PowerUpManager = {
+  active: null,
+  activate(pu, target) { if (this.active) this.active.cancel(); this.active = pu; pu.activate(target); renderBoard(); },
+  cancel() { if (this.active) { this.active.cancel(); this.active = null; } renderBoard(); },
+  isActive() { return this.active !== null; },
+  renderCell(cell, r, c) { if (this.active) this.active.renderCell(cell, r, c); }
+};
+
+const FillPowerUp = {
+  target:null, directions:[], previewDir:null, previewClass:'fill-preview',
+  activate(t) {
+    this.target={row:t.row,col:t.col};
+    this.directions = CONNECTORS[boardState[t.row][t.col].variant].filter(d => computeFillPath(t.row,t.col,d).length>0);
+    this.previewDir=null;
+  },
+  _variant(dir,isLast,row,col) {
+    if (!isLast) return (dir==='T'||dir==='B')?'white':'white2';
+    const inc=OPPOSITE[dir], needed=[inc], forbidden=[];
+    for (const s of ['T','B','L','R']) { if (s===inc) continue; const [dr,dc]=DIR_DELTA[s]; const nr=row+dr,nc=col+dc;
+      if (nr>=0&&nr<boardSize&&nc>=0&&nc<boardSize&&boardState[nr][nc]===null) needed.push(s); else forbidden.push(s);
+    } return findPresetVariant(needed,forbidden);
+  },
+  renderCell(cell,r,c) {
+    if (this.target&&this.target.row===r&&this.target.col===c) {
+      cell.classList.add('powerup-target');
+      this.directions.forEach(dir => {
+        const arrow=document.createElement('div'); arrow.className='fill-arrow dir-'+dir; arrow.innerHTML=DIR_ARROWS[dir];
+        arrow.addEventListener('mouseenter',()=>{this.previewDir=dir;renderBoard();});
+        arrow.addEventListener('click',e=>{e.stopPropagation();this.execute(dir);}); cell.appendChild(arrow);
+      });
+    }
+    if (this.previewDir&&this.target) {
+      const path=computeFillPath(this.target.row,this.target.col,this.previewDir);
+      for (let i=0;i<path.length;i++) if (path[i].row===r&&path[i].col===c) {
+        const isLast=i===path.length-1, v=this._variant(this.previewDir,isLast,r,c);
+        cell.classList.add('fill-preview'); if (isLast) cell.classList.add('fill-preview-last');
+        if (PIECE_SVGS[v]) {cell.classList.add('cell-svg');cell.innerHTML=PIECE_SVGS[v];cell.style.opacity='0.5';}
+        cell.style.cursor='pointer'; cell.addEventListener('click',e=>{e.stopPropagation();this.execute(this.previewDir);});
+      }
+    }
+  },
+  execute(dir) {
+    const path=computeFillPath(this.target.row,this.target.col,dir);
+    for (let i=0;i<path.length;i++) { const {row,col}=path[i]; const v=this._variant(dir,i===path.length-1,row,col);
+      history.push({row,col,prev:boardState[row][col]}); boardState[row][col]={type:'preset',color:'white',variant:v};
+    } PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
+  },
+  cancel() {this.target=null;this.directions=[];this.previewDir=null;},
+  canActivate(t) { const c=boardState[t.row][t.col]; return c&&c.variant&&CONNECTORS[c.variant]&&CONNECTORS[c.variant].some(d=>computeFillPath(t.row,t.col,d).length>0); }
+};
+
+const ExtendPowerUp = {
+  target:null, cells:[], previewClass:'extend-preview',
+  activate(t) {
+    this.target={row:t.row,col:t.col}; const sides=CONNECTORS[boardState[t.row][t.col].variant]; this.cells=[];
+    for (const dir of sides) { const [dr,dc]=DIR_DELTA[dir]; const nr=t.row+dr,nc=t.col+dc;
+      if (nr>=0&&nr<boardSize&&nc>=0&&nc<boardSize&&boardState[nr][nc]===null) this.cells.push({row:nr,col:nc,dir});
+    }
+  },
+  _variant(row,col,fromDir) {
+    const inc=OPPOSITE[fromDir], needed=[inc], forbidden=[];
+    for (const s of ['T','B','L','R']) { if (s===inc) continue; const [dr,dc]=DIR_DELTA[s]; const nr=row+dr,nc=col+dc;
+      if (nr>=0&&nr<boardSize&&nc>=0&&nc<boardSize&&boardState[nr][nc]===null) needed.push(s); else forbidden.push(s);
+    } return findPresetVariant(needed,forbidden);
+  },
+  renderCell(cell,r,c) {
+    if (this.target&&this.target.row===r&&this.target.col===c) cell.classList.add('powerup-target');
+    for (const ec of this.cells) if (ec.row===r&&ec.col===c) {
+      const v=this._variant(r,c,ec.dir); cell.classList.add('extend-preview');
+      if (PIECE_SVGS[v]) {cell.classList.add('cell-svg');cell.innerHTML=PIECE_SVGS[v];cell.style.opacity='0.5';}
+      cell.addEventListener('click',e=>{e.stopPropagation();this.execute();});
+    }
+  },
+  execute() {
+    for (const {row,col,dir} of this.cells) { const v=this._variant(row,col,dir);
+      history.push({row,col,prev:boardState[row][col]}); boardState[row][col]={type:'preset',color:'white',variant:v};
+    } PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
+  },
+  cancel() {this.target=null;this.cells=[];},
+  canActivate(t) { const c=boardState[t.row][t.col]; if (!c||!c.variant||!CONNECTORS[c.variant]) return false;
+    return CONNECTORS[c.variant].some(d=>{const [dr,dc]=DIR_DELTA[d];const nr=t.row+dr,nc=t.col+dc;return nr>=0&&nr<boardSize&&nc>=0&&nc<boardSize&&boardState[nr][nc]===null;});
+  }
+};
+
+const TeleportPowerUp = {
+  target:null, cells:[], previewClass:'teleport-preview',
+  activate(t) {
+    this.target={row:t.row,col:t.col}; const sides=CONNECTORS[boardState[t.row][t.col].variant]; this.cells=[];
+    for (const dir of sides) { const [dr,dc]=DIR_DELTA[dir]; const nr=t.row+dr,nc=t.col+dc;
+      if (nr<0||nr>=boardSize||nc<0||nc>=boardSize) continue;
+      const neighbor=boardState[nr][nc]; if (!neighbor||(neighbor.type!=='preset'&&neighbor.type!=='obstacle')) continue;
+      let tr=nr+dr,tc=nc+dc;
+      while (tr>=0&&tr<boardSize&&tc>=0&&tc<boardSize) {
+        const through=boardState[tr][tc];
+        if (!through) {
+          const inc=OPPOSITE[dir],needed=[inc],forbidden=[];
+          for (const s of ['T','B','L','R']) { if (s===inc) continue; const [sdr,sdc]=DIR_DELTA[s]; const snr=tr+sdr,snc=tc+sdc;
+            if (snr<0||snr>=boardSize||snc<0||snc>=boardSize){forbidden.push(s);continue;} const adj=boardState[snr][snc];
+            if (adj===null){needed.push(s);continue;} if (adj.type==='obstacle'||adj.type==='preset'){forbidden.push(s);continue;}
+            if (adj.variant&&CONNECTORS[adj.variant]&&CONNECTORS[adj.variant].includes(OPPOSITE[s])) needed.push(s); else forbidden.push(s);
+          } this.cells.push({row:tr,col:tc,dir,variant:findPresetVariant(needed,forbidden)}); break;
+        } if (through.type!=='preset'&&through.type!=='obstacle') break; tr+=dr;tc+=dc;
+      }
+    }
+  },
+  renderCell(cell,r,c) {
+    if (this.target&&this.target.row===r&&this.target.col===c) cell.classList.add('powerup-target');
+    for (const tc of this.cells) if (tc.row===r&&tc.col===c) {
+      cell.classList.add('teleport-preview');
+      if (PIECE_SVGS[tc.variant]) {cell.classList.add('cell-svg');cell.innerHTML=PIECE_SVGS[tc.variant];cell.style.opacity='0.5';}
+      cell.addEventListener('click',e=>{e.stopPropagation();this.execute();});
+    }
+  },
+  execute() {
+    for (const {row,col,variant} of this.cells) { history.push({row,col,prev:boardState[row][col]}); boardState[row][col]={type:'preset',color:'white',variant}; }
+    PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
+  },
+  cancel() {this.target=null;this.cells=[];},
+  canActivate(t) { const c=boardState[t.row][t.col]; if (!c||!c.variant||!CONNECTORS[c.variant]) return false;
+    return CONNECTORS[c.variant].some(d=>{const [dr,dc]=DIR_DELTA[d];const nr=t.row+dr,nc=t.col+dc;if(nr<0||nr>=boardSize||nc<0||nc>=boardSize)return false;const n=boardState[nr][nc];return n&&(n.type==='preset'||n.type==='obstacle');});
+  }
+};
+
+const powerUpMap = { fill: FillPowerUp, extend: ExtendPowerUp, teleport: TeleportPowerUp };
+
+// === BOARD LOADING ===
+async function loadBoardFile(file) {
+  const resp = await fetch(file);
+  const data = await resp.json();
+  boardSize = data.metadata.boardSize;
+  boardState = Array.from({length:boardSize}, ()=>Array(boardSize).fill(null));
+  for (let r=0;r<boardSize;r++) for (let c=0;c<boardSize;c++) {
+    const cell = data.board[r]?.[c];
+    if (!cell) continue;
+    boardState[r][c] = {type:cell.type, color:cell.color};
+    if (cell.variant) boardState[r][c].variant = cell.variant;
+  }
+  originalBoard = boardState.map(row => row.map(cell => cell ? {...cell} : null));
+  history = [];
+  document.querySelectorAll('.board-card').forEach(c => c.classList.remove('active'));
+  event?.target?.closest?.('.board-card')?.classList?.add('active');
+  renderBoard(); updateStatus(); checkStars();
+  document.getElementById('win-banner').innerHTML = '';
+}
+
+function resetBoard() {
+  if (!originalBoard.length) return;
+  boardState = originalBoard.map(row => row.map(cell => cell ? {...cell} : null));
+  history = [];
+  if (PowerUpManager.isActive()) PowerUpManager.cancel();
+  renderBoard(); updateStatus(); checkStars();
+  document.getElementById('win-banner').innerHTML = '';
+}
+
+// === RENDER ===
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.style.gridTemplateColumns = `repeat(${boardSize}, 55px)`;
+  board.innerHTML = '';
+  const connectedCells = getConnectedCells();
+
+  for (let r=0; r<boardSize; r++) for (let c=0; c<boardSize; c++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell'; cell.dataset.row=r; cell.dataset.col=c;
+    const state = boardState[r][c];
+
+    if (state) {
+      if (state.type==='obstacle') cell.classList.add('obstacle');
+      else if (state.variant && PIECE_SVGS[state.variant]) { cell.classList.add('filled','cell-svg'); cell.innerHTML=PIECE_SVGS[state.variant]; }
+      else cell.classList.add('filled','color-'+(state.color||'white'));
+    }
+
+    if (connectedCells.has(`${r},${c}`)) cell.classList.add('connected');
+    PowerUpManager.renderCell(cell, r, c);
+
+    // Drag from board
+    cell.addEventListener('mousedown', e => {
+      if (e.button!==0) return;
+      if (state && state.type==='piece') {
+        e.preventDefault();
+        dragColor = state.variant || state.color;
+        dragSource = {row:r,col:c}; dragging=true;
+        if (PIECE_SVGS[dragColor]) { ghost.className='drag-ghost ghost-svg'; ghost.innerHTML=PIECE_SVGS[dragColor]; }
+        else { ghost.className='drag-ghost'; ghost.innerHTML=''; }
+        ghost.style.display='block'; ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px';
+      }
+    });
+
+    // Right-click to remove player pieces only
+    cell.addEventListener('contextmenu', e => {
+      e.preventDefault();
+      if (state && state.type==='piece') {
+        history.push({row:r,col:c,prev:boardState[r][c]});
+        boardState[r][c] = null;
+        renderBoard(); updateStatus(); checkStars();
+      }
+    });
+
+    board.appendChild(cell);
+  }
+}
+
+function getCellAt(x, y) {
+  const board = document.getElementById('board');
+  const rect = board.getBoundingClientRect();
+  const col = Math.floor((x-rect.left-2)/57);
+  const row = Math.floor((y-rect.top-2)/57);
+  return (row>=0&&row<boardSize&&col>=0&&col<boardSize) ? {row,col} : null;
+}
+
+function canDrop(row, col, color) {
+  const cur = boardState[row][col];
+  if (cur && cur.type==='obstacle') return false;
+  if (cur && (cur.type==='preset'||cur.type==='entry'||cur.type==='exit')) return false;
+  return true;
+}
+
+function undoLast() {
+  if (!history.length) return;
+  const last = history.pop();
+  boardState[last.row][last.col] = last.prev;
+  renderBoard(); updateStatus(); checkStars();
+}
+
+function updateStatus() {
+  const total = boardSize*boardSize;
+  const obstacles = boardState.flat().filter(c=>c&&c.type==='obstacle').length;
+  const filled = boardState.flat().filter(c=>c!==null).length;
+  const empty = total - filled;
+  document.getElementById('status').innerHTML =
+    `Board: <span class="highlight">${boardSize}x${boardSize}</span> | ` +
+    `Empty: <span class="highlight">${empty}</span> | ` +
+    `Filled: <span class="highlight">${filled}/${total}</span>`;
+}
+
+// === 3-STAR WIN SYSTEM ===
+function findPath() {
+  let entry=null, exit=null;
+  for (let r=0;r<boardSize;r++) for (let c=0;c<boardSize;c++) {
+    const s=boardState[r][c]; if (!s) continue;
+    if (s.type==='entry') entry={r,c}; if (s.type==='exit') exit={r,c};
+  }
+  if (!entry||!exit) return false;
+  // BFS through connected pieces only
+  const visited = Array.from({length:boardSize},()=>Array(boardSize).fill(false));
+  const queue = [{r:entry.r,c:entry.c}]; visited[entry.r][entry.c]=true;
+  while (queue.length) {
+    const {r,c} = queue.shift();
+    if (r===exit.r&&c===exit.c) return true;
+    const cell = boardState[r][c]; if (!cell||!cell.variant) continue;
+    const sides = CONNECTORS[cell.variant]; if (!sides) continue;
+    for (const dir of sides) {
+      const [dr,dc]=DIR_DELTA[dir]; const nr=r+dr,nc=c+dc;
+      if (nr<0||nr>=boardSize||nc<0||nc>=boardSize||visited[nr][nc]) continue;
+      const n=boardState[nr][nc]; if (!n||!n.variant) continue;
+      const ns=CONNECTORS[n.variant]; if (!ns||!ns.includes(OPPOSITE[dir])) continue;
+      visited[nr][nc]=true; queue.push({r:nr,c:nc});
+    }
+  }
+  return false;
+}
+
+function checkStars() {
+  const total = boardSize*boardSize;
+  const obstacles = boardState.flat().filter(c=>c&&c.type==='obstacle').length;
+  const filled = boardState.flat().filter(c=>c!==null).length;
+  const allFilled = filled === total;
+  const pathExists = findPath();
+  const allConnected = allFilled && getConnectedCells().size === filled - obstacles;
+
+  // Star 1: path from entry to exit
+  const s1 = pathExists;
+  // Star 2: all cells filled
+  const s2 = allFilled;
+  // Star 3: all filled AND all pieces connect correctly
+  const s3 = allFilled && allConnected;
+
+  document.getElementById('star1').className = 'star' + (s1 ? ' earned' : '');
+  document.getElementById('star2').className = 'star' + (s2 ? ' earned' : '');
+  document.getElementById('star3').className = 'star' + (s3 ? ' earned' : '');
+
+  const stars = (s1?1:0)+(s2?1:0)+(s3?1:0);
+  if (stars === 3) document.getElementById('win-banner').innerHTML = '<div class="win-banner">Perfect! 3 Stars!</div>';
+  else if (stars > 0) document.getElementById('win-banner').innerHTML = '<div class="win-banner">' + stars + ' Star' + (stars>1?'s':'') + '!</div>';
+  else document.getElementById('win-banner').innerHTML = '';
+}
+
+// === DRAG & DROP ===
+document.querySelectorAll('.palette-item, .powerup-item').forEach(item => {
+  item.addEventListener('mousedown', e => {
+    if (e.button!==0) return; e.preventDefault();
+    const color = item.dataset.color; dragColor=color; dragSource=null; dragging=true;
+    if (PIECE_SVGS[color]) { ghost.className='drag-ghost ghost-svg'; ghost.innerHTML=PIECE_SVGS[color]; }
+    else { ghost.className='drag-ghost'; ghost.innerHTML=''; }
+    ghost.style.display='block'; ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px';
+  });
+});
+
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px';
+  document.querySelectorAll('.drop-valid,.drop-invalid').forEach(c=>c.classList.remove('drop-valid','drop-invalid'));
+  const target = getCellAt(e.clientX,e.clientY);
+  if (target) {
+    const idx=target.row*boardSize+target.col;
+    const cells=document.querySelectorAll('#board .cell');
+    if (cells[idx]) cells[idx].classList.add(canDrop(target.row,target.col,dragColor)?'drop-valid':'drop-invalid');
+  }
+});
+
+document.addEventListener('mouseup', e => {
+  if (!dragging) return;
+  ghost.style.display='none';
+  document.querySelectorAll('.drop-valid,.drop-invalid').forEach(c=>c.classList.remove('drop-valid','drop-invalid'));
+  const target = getCellAt(e.clientX,e.clientY);
+
+  if (dragSource) {
+    // Board-to-board drag
+    const sameCell = target&&target.row===dragSource.row&&target.col===dragSource.col;
+    if (target&&!sameCell&&canDrop(target.row,target.col,dragColor)) {
+      const srcPrev=boardState[dragSource.row][dragSource.col];
+      history.push({row:dragSource.row,col:dragSource.col,prev:srcPrev});
+      boardState[dragSource.row][dragSource.col]=null;
+      history.push({row:target.row,col:target.col,prev:boardState[target.row][target.col]});
+      const colorMap={green2:'green',blue2:'blue',blue3:'blue',blue4:'blue',purple2:'purple',purple3:'purple',purple4:'purple'};
+      const variant = PIECE_SVGS[dragColor] ? dragColor : null;
+      const boardColor = colorMap[dragColor]||dragColor;
+      boardState[target.row][target.col]={type:'piece',color:boardColor,variant};
+      renderBoard(); updateStatus(); checkStars();
+    } else if (!target) {
+      history.push({row:dragSource.row,col:dragSource.col,prev:boardState[dragSource.row][dragSource.col]});
+      boardState[dragSource.row][dragSource.col]=null;
+      renderBoard(); updateStatus(); checkStars();
+    }
+  } else if (powerUpMap[dragColor]) {
+    if (target) { const pu=powerUpMap[dragColor]; if (pu.canActivate(target)) PowerUpManager.activate(pu,target); }
+  } else {
+    // Palette to board
+    if (target&&canDrop(target.row,target.col,dragColor)) {
+      const colorMap={green2:'green',blue2:'blue',blue3:'blue',blue4:'blue',purple2:'purple',purple3:'purple',purple4:'purple'};
+      const variant = PIECE_SVGS[dragColor] ? dragColor : null;
+      const boardColor = colorMap[dragColor]||dragColor;
+      history.push({row:target.row,col:target.col,prev:boardState[target.row][target.col]});
+      boardState[target.row][target.col]={type:'piece',color:boardColor,variant};
+      renderBoard(); updateStatus(); checkStars();
+    }
+  }
+  dragging=false; dragColor=null; dragSource=null;
+});
+
+// Cancel power-ups
+document.addEventListener('keydown', e => { if (e.key==='Escape'&&PowerUpManager.isActive()) PowerUpManager.cancel(); });
+document.addEventListener('click', e => {
+  if (!PowerUpManager.isActive()) return;
+  const pu=PowerUpManager.active;
+  if (!e.target.closest('.'+pu.previewClass)&&!e.target.closest('.fill-arrow')) PowerUpManager.cancel();
+});
+
+// === POPULATE PIECE PALETTES ===
+function populatePieces() {
+  const groups = {
+    'common-pieces': ['green','green2'],
+    'rare-pieces': ['blue','blue2','blue3','blue4'],
+    'epic-pieces': ['purple','purple2','purple3','purple4'],
+    'legendary-pieces': ['orange'],
+  };
+  for (const [id,variants] of Object.entries(groups)) {
+    const container = document.getElementById(id);
+    for (const v of variants) {
+      const item = document.createElement('div');
+      item.className = 'palette-item'; item.dataset.color = v;
+      const swatch = document.createElement('div');
+      swatch.className = 'palette-swatch swatch-svg';
+      if (PIECE_SVGS[v]) swatch.innerHTML = PIECE_SVGS[v].replace(/100%/g,'32');
+      item.appendChild(swatch);
+      item.addEventListener('mousedown', e => {
+        if (e.button!==0) return; e.preventDefault();
+        dragColor=v; dragSource=null; dragging=true;
+        if (PIECE_SVGS[v]) { ghost.className='drag-ghost ghost-svg'; ghost.innerHTML=PIECE_SVGS[v]; }
+        ghost.style.display='block'; ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px';
+      });
+      container.appendChild(item);
+    }
+  }
+}
+
+// === BOARD SELECTOR ===
+async function initBoardSelector() {
+  const container = document.getElementById('board-selector');
+  for (const b of BOARDS) {
+    try {
+      const resp = await fetch(b.file);
+      const data = await resp.json();
+      const card = document.createElement('div');
+      card.className = 'board-card';
+      card.innerHTML = `<div class="board-card-name">${data.metadata.name}</div><div class="board-card-info">${data.metadata.boardSize}x${data.metadata.boardSize} | ${data.metadata.difficulty}</div>`;
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.board-card').forEach(c=>c.classList.remove('active'));
+        card.classList.add('active');
+        loadBoardFile(b.file);
+      });
+      container.appendChild(card);
+    } catch(e) { console.error('Failed to load board:', b.file, e); }
+  }
+}
+
+// === INIT ===
+populatePieces();
+initBoardSelector();
+</script>
+</body>
+</html>

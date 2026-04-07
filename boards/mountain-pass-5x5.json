@@ -1,0 +1,22 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Mountain Pass",
+    "boardSize": 5,
+    "difficulty": "hard",
+    "notes": "Challenging 5x5 with multiple obstacles",
+    "createdAt": "2026-04-07T19:25:45.113Z",
+    "updatedAt": "2026-04-07T20:00:00.000Z",
+    "shortestPath": 8,
+    "pieceCounts": {"common":0,"rare":0,"epic":0,"legendary":0,"preset":2,"obstacle":3,"entry":1,"exit":1}
+  },
+  "board": [
+    [{"type":"entry","color":"yellow","variant":"entryC2","code":"ENCUDL"},null,null,null,{"type":"obstacle","color":"black"}],
+    [null,{"type":"obstacle","color":"black"},null,{"type":"obstacle","color":"black"},null],
+    [null,null,{"type":"preset","color":"white","variant":"white","code":"PSCUD"},null,null],
+    [{"type":"obstacle","color":"black"},null,null,{"type":"preset","color":"white","variant":"white2","code":"PSCLR"},null],
+    [null,null,null,null,{"type":"exit","color":"yellow","variant":"exitC1","code":"EXCLRD"}]
+  ],
+  "connectors": {"entryC2":["T","B","L"],"white":["T","B"],"white2":["L","R"],"exitC1":["L","R","B"]},
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

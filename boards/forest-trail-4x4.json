@@ -1,0 +1,21 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Forest Trail",
+    "boardSize": 4,
+    "difficulty": "medium",
+    "notes": "Medium 4x4 board with obstacles",
+    "createdAt": "2026-04-07T19:25:45.113Z",
+    "updatedAt": "2026-04-07T20:00:00.000Z",
+    "shortestPath": 4,
+    "pieceCounts": {"common":0,"rare":0,"epic":0,"legendary":0,"preset":1,"obstacle":2,"entry":1,"exit":1}
+  },
+  "board": [
+    [null,{"type":"entry","color":"yellow","variant":"entryC4","code":"ENCULR"},null,null],
+    [{"type":"obstacle","color":"black"},null,null,{"type":"obstacle","color":"black"}],
+    [null,{"type":"preset","color":"white","variant":"white","code":"PSCUD"},null,null],
+    [null,null,{"type":"exit","color":"yellow","variant":"exitC1","code":"EXCLRD"},null]
+  ],
+  "connectors": {"entryC4":["L","R","T"],"white":["T","B"],"exitC1":["L","R","B"]},
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}
