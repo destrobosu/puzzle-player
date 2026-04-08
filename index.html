@@ -189,7 +189,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.2.7</div>
+<div class="build-info">Build 0.2.8</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -522,8 +522,8 @@ function renderBoard() {
   const maxWidth = Math.min(vw - 40, 400);
   const cellFromWidth = Math.floor((maxWidth - (boardSize - 1) * cellGap - 4) / boardSize);
   // Height constraint: reserve space for UI above and below the board
-  const uiAbove = isMobile ? 100 : 130; // title, selector, header, status
-  const uiBelow = isMobile ? 140 : 130; // bottom panels, margins
+  const uiAbove = isMobile ? 105 : 130; // title, selector, header, status
+  const uiBelow = isMobile ? 180 : 130; // bottom panels, browser chrome, margins
   const availHeight = vh - uiAbove - uiBelow - wrapPadding * 2;
   const cellFromHeight = Math.floor((availHeight - (boardSize - 1) * cellGap - 4) / boardSize);
   cellSize = Math.min(55, Math.max(28, Math.min(cellFromWidth, cellFromHeight)));
