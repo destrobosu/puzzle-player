@@ -55,7 +55,7 @@
     .palette-item { padding: 2px; }
     .powerups-row { gap: 3px; }
     .powerup-item { padding: 2px 4px; }
-    .powerup-item .palette-label { font-size: 0.6rem; }
+    .powerup-name { font-size: 0.65rem; }
     .powerup-item .palette-swatch { width: 20px; height: 20px; }
     .win-banner { font-size: 0.85rem; margin-top: 2px; }
     .build-info { font-size: 0.5rem; bottom: 2px; right: 4px; }
@@ -94,6 +94,12 @@
 
   /* Pieces inventory */
   .pieces-inventory { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+
+  /* Power-up names */
+  .powerup-name { font-size: 0.8rem; color: #eee; font-weight: 700; cursor: pointer; }
+
+  /* Tooltip */
+  .powerup-tooltip { position: fixed; background: #0f3460; border: 1px solid #1a5276; border-radius: 6px; padding: 8px 12px; color: #ccc; font-size: 0.75rem; max-width: 200px; z-index: 1001; line-height: 1.4; box-shadow: 0 4px 15px rgba(0,0,0,0.5); pointer-events: auto; }
 
   /* Drag ghost */
   .drag-ghost { position: fixed; pointer-events: none; z-index: 1000; width: 50px; height: 50px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.3); opacity: 0.9; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transform: translate(-50%, -50%); }
@@ -179,16 +185,16 @@
     <div class="inventory-section">
       <span class="inventory-label">Power Ups</span>
       <div class="powerups-row">
-        <div class="powerup-item" data-color="fill"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Fill</span></div>
-        <div class="powerup-item" data-color="extend"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Extend</span></div>
-        <div class="powerup-item" data-color="teleport"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Teleport</span></div>
+        <div class="powerup-item" data-color="fill"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="powerup-name" data-tip="Fills an entire row or column with preset pieces from your piece to the edge">Path</span></div>
+        <div class="powerup-item" data-color="extend"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="powerup-name" data-tip="Places one preset piece on each open connector side of your piece">Spread</span></div>
+        <div class="powerup-item" data-color="teleport"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="powerup-name" data-tip="Jumps through an obstacle to place a piece on the other side">Warp</span></div>
       </div>
     </div>
   </div>
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.3.2</div>
+<div class="build-info">Build 0.3.3</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -832,6 +838,26 @@ document.addEventListener('touchend', e => {
     }
   }
   dragging=false; dragColor=null; dragSource=null;
+});
+
+// === POWER-UP TOOLTIPS ===
+let activeTooltip = null;
+document.querySelectorAll('.powerup-name').forEach(name => {
+  name.addEventListener('click', e => {
+    e.stopPropagation();
+    if (activeTooltip) { activeTooltip.remove(); activeTooltip = null; }
+    const tip = document.createElement('div');
+    tip.className = 'powerup-tooltip';
+    tip.textContent = name.dataset.tip;
+    document.body.appendChild(tip);
+    const rect = name.getBoundingClientRect();
+    tip.style.left = Math.min(rect.left, window.innerWidth - 210) + 'px';
+    tip.style.bottom = (window.innerHeight - rect.top + 6) + 'px';
+    activeTooltip = tip;
+  });
+});
+document.addEventListener('click', () => {
+  if (activeTooltip) { activeTooltip.remove(); activeTooltip = null; }
 });
 
 // Cancel power-ups
