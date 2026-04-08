@@ -17,7 +17,7 @@
   .status { margin-bottom: 15px; font-size: 1rem; color: #aaa; text-align: center; }
   .status .highlight { color: #e94560; font-weight: bold; }
 
-  .game-layout { display: flex; gap: 30px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+  .game-layout { display: flex; flex-direction: column; align-items: center; gap: 15px; }
 
   /* Board */
   .board-area { display: flex; flex-direction: column; align-items: center; }
@@ -46,16 +46,16 @@
     .board-title span { font-size: 0.7rem; }
     .star { font-size: 1.1rem; }
     .status { font-size: 0.75rem; margin-bottom: 4px; }
-    .game-layout { flex-direction: column; align-items: center; gap: 8px; }
-    .board-area { order: 1; }
+    .game-layout { gap: 6px; }
+    .bottom-panels { gap: 8px; }
     .board-wrapper { padding: 16px; }
     .board-wrapper { padding: 16px; }
-    .pieces-panel { order: 2; min-width: auto; width: 100%; max-width: 360px; padding: 6px; }
+    .pieces-panel { min-width: auto; width: 100%; max-width: 360px; padding: 6px; }
     .pieces-panel h3 { font-size: 0.75rem; margin-bottom: 4px; }
     .pieces-inventory { gap: 3px; }
     .palette-swatch { width: 26px; height: 26px; }
     .palette-item { padding: 2px; }
-    .powerups-panel { order: 3; min-width: auto; width: 100%; max-width: 360px; padding: 8px; }
+    .powerups-panel { min-width: auto; width: 100%; max-width: 360px; padding: 6px; }
     .powerups-panel h3 { font-size: 0.8rem; margin-bottom: 4px; }
     .powerups-row { justify-content: center; }
     .powerup-item { padding: 3px 6px; }
@@ -89,6 +89,9 @@
   .swatch-svg { background: transparent; border: none; display: flex; align-items: center; justify-content: center; }
   .palette-label { font-size: 0.8rem; color: #ccc; }
   .swatch-white { background: #e8e8e8; }
+
+  /* Bottom panels: pieces + power-ups side by side */
+  .bottom-panels { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 600px; }
 
   /* Pieces inventory */
   .pieces-inventory { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
@@ -159,11 +162,6 @@
 <div class="status" id="status">Select a board to play</div>
 
 <div class="game-layout">
-  <div class="palette-section pieces-panel">
-    <h3>Pieces</h3>
-    <div class="pieces-inventory" id="pieces-inventory"></div>
-  </div>
-
   <div class="board-area">
     <div class="board-wrapper" id="board-wrapper">
       <div class="board" id="board"></div>
@@ -174,18 +172,24 @@
     <div id="win-banner"></div>
   </div>
 
-  <div class="palette-section powerups-panel">
-    <h3>Power Ups</h3>
-    <div class="powerups-row">
-      <div class="powerup-item" data-color="fill"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Fill</span></div>
-      <div class="powerup-item" data-color="extend"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Extend</span></div>
-      <div class="powerup-item" data-color="teleport"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Teleport</span></div>
+  <div class="bottom-panels">
+    <div class="palette-section pieces-panel">
+      <h3>Pieces</h3>
+      <div class="pieces-inventory" id="pieces-inventory"></div>
+    </div>
+    <div class="palette-section powerups-panel">
+      <h3>Power Ups</h3>
+      <div class="powerups-row">
+        <div class="powerup-item" data-color="fill"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Fill</span></div>
+        <div class="powerup-item" data-color="extend"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Extend</span></div>
+        <div class="powerup-item" data-color="teleport"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Teleport</span></div>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.2.3</div>
+<div class="build-info">Build 0.2.4</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
