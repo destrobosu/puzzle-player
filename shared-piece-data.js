@@ -116,8 +116,8 @@ const CONNECTORS = {
   entryR2: ['T','R'], exitR2: ['T','R'],
   entryR3: ['T','R'], exitR3: ['T','R'],
   entryR4: ['B','R'], exitR4: ['B','R'],
-  entryR5: ['L','T'], exitR5: ['L','T'],
-  entryR6: ['T','B'], exitR6: ['T','B'],
+  entryR5: ['L','B'], exitR5: ['L','B'],
+  entryR6: ['L','T'], exitR6: ['L','T'],
   entryR7: ['R','B'], exitR7: ['R','B'],
   entryR8: ['B','L'], exitR8: ['B','L'],
   // Entry/Exit - Epic (3 jigsaw connectors, opening excluded)
