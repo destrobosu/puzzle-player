@@ -22,8 +22,10 @@
   /* Board */
   .board-area { display: flex; flex-direction: column; align-items: center; }
   .board-area h2 { margin-bottom: 10px; font-size: 1.1rem; color: #aaa; }
-  .board-wrapper { position: relative; display: inline-block; padding: 22px; }
-  .board-label { position: absolute; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; pointer-events: none; opacity: 0.85; }
+  .board-title { font-size: 1.1rem; color: #ccc; font-weight: 600; margin-bottom: 8px; text-align: center; letter-spacing: 0.5px; }
+  .board-title span { color: #888; font-weight: 400; font-size: 0.85rem; }
+  .board-wrapper { position: relative; display: inline-block; padding: 24px; }
+  .board-label { position: absolute; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; pointer-events: none; }
   .board-label.label-in { color: #2ecc71; }
   .board-label.label-out { color: #e94560; }
   .build-info { position: fixed; bottom: 8px; right: 12px; font-size: 0.65rem; color: #444; letter-spacing: 0.5px; }
@@ -124,6 +126,7 @@
   </div>
 
   <div class="board-area">
+    <div class="board-title" id="board-title"></div>
     <div class="board-wrapper" id="board-wrapper">
       <div class="board" id="board"></div>
     </div>
@@ -446,6 +449,7 @@ async function loadBoardFile(file) {
   powerUpLinks = {};
   document.querySelectorAll('.board-card').forEach(c => c.classList.remove('active'));
   event?.target?.closest?.('.board-card')?.classList?.add('active');
+  document.getElementById('board-title').innerHTML = data.metadata.name + ' <span>' + data.metadata.boardSize + 'x' + data.metadata.boardSize + ' ' + data.metadata.difficulty + '</span>';
   renderBoard(); updateStatus(); checkStars();
   document.getElementById('win-banner').innerHTML = '';
 }
@@ -520,13 +524,13 @@ function renderBoard() {
     const label = document.createElement('div');
     label.className = 'board-label ' + (isEntry ? 'label-in' : 'label-out');
     label.textContent = isEntry ? 'IN' : 'OUT';
-    const wrapPad = 22; // wrapper padding
+    const wrapPad = 24;
     const cx = wrapPad + pad + c * cellStep + 27;
     const cy = wrapPad + pad + r * cellStep + 27;
-    if (opening === 'T') { label.style.left = cx + 'px'; label.style.top = '4px'; label.style.transform = 'translateX(-50%)'; }
-    else if (opening === 'B') { label.style.left = cx + 'px'; label.style.bottom = '4px'; label.style.transform = 'translateX(-50%)'; }
-    else if (opening === 'L') { label.style.left = '0px'; label.style.top = cy + 'px'; label.style.transform = 'translateY(-50%)'; }
-    else if (opening === 'R') { label.style.right = '0px'; label.style.top = cy + 'px'; label.style.transform = 'translateY(-50%)'; }
+    if (opening === 'T') { label.style.left = cx + 'px'; label.style.top = '5px'; label.style.transform = 'translateX(-50%)'; }
+    else if (opening === 'B') { label.style.left = cx + 'px'; label.style.bottom = '5px'; label.style.transform = 'translateX(-50%)'; }
+    else if (opening === 'L') { label.style.left = '2px'; label.style.top = cy + 'px'; label.style.transform = 'translateY(-50%)'; }
+    else if (opening === 'R') { label.style.right = '2px'; label.style.top = cy + 'px'; label.style.transform = 'translateY(-50%)'; }
     wrapper.appendChild(label);
   }
 }
