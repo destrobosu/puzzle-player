@@ -29,6 +29,35 @@
   .board-label.label-in { color: #2ecc71; }
   .board-label.label-out { color: #e94560; }
   .build-info { position: fixed; bottom: 8px; right: 12px; font-size: 0.65rem; color: #444; letter-spacing: 0.5px; }
+
+  /* Touch support */
+  .palette-item, .powerup-item, .board .cell { touch-action: none; }
+
+  /* Mobile responsive */
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    h1 { font-size: 1.4rem; margin-bottom: 6px; }
+    .board-selector { gap: 5px; }
+    .board-card { padding: 6px 10px; font-size: 0.8rem; }
+    .board-card-name { font-size: 0.8rem; }
+    .board-card-info { font-size: 0.65rem; }
+    .status { font-size: 0.85rem; margin-bottom: 8px; }
+    .stars { margin: 6px 0; }
+    .star { font-size: 1.5rem; }
+    .game-layout { flex-direction: column; align-items: center; gap: 12px; }
+    .board-area { order: 1; }
+    .board-title { font-size: 0.95rem; }
+    .board-wrapper { padding: 18px; }
+    .palette-section { min-width: auto; width: 100%; max-width: 340px; order: 2; padding: 10px; }
+    .palette-section h3 { font-size: 0.85rem; margin-bottom: 8px; }
+    .palette-group { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+    .palette-group-label { font-size: 0.75rem; }
+    .palette-swatch { width: 28px; height: 28px; }
+    .palette-item { padding: 4px; }
+    .powerup-item { padding: 4px 8px; }
+    .board-label { font-size: 0.6rem; }
+    .win-banner { font-size: 1rem; }
+  }
   .board { display: grid; gap: 2px; background: #0f3460; padding: 2px; border-radius: 8px; border: 2px solid #16213e; }
   .board .cell { width: 55px; height: 55px; background: #16213e; border-radius: 4px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; position: relative; }
   .board .cell:hover { outline: 2px solid rgba(255,255,255,0.3); outline-offset: -2px; }
@@ -145,7 +174,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.1.7</div>
+<div class="build-info">Build 0.2.0</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -179,6 +208,8 @@ let dragColor = null;
 let dragSource = null;
 const ghost = document.getElementById('drag-ghost');
 const DIR_DELTA = { T: [-1,0], B: [1,0], L: [0,-1], R: [0,1] };
+let cellSize = 55; // dynamic, recalculated on render
+const cellGap = 2;
 const DIR_ARROWS = { T: '\u25B2', B: '\u25BC', L: '\u25C0', R: '\u25B6' };
 
 // Available boards
@@ -467,13 +498,19 @@ function resetBoard() {
 // === RENDER ===
 function renderBoard() {
   const board = document.getElementById('board');
-  board.style.gridTemplateColumns = `repeat(${boardSize}, 55px)`;
+  // Dynamic cell size: fit board within viewport
+  const maxWidth = Math.min(window.innerWidth - 80, 400); // leave margin
+  const maxCellSize = Math.floor((maxWidth - (boardSize - 1) * cellGap - 4) / boardSize); // 4 for board padding
+  cellSize = Math.min(55, Math.max(35, maxCellSize));
+  board.style.gridTemplateColumns = `repeat(${boardSize}, ${cellSize}px)`;
+  board.style.gap = cellGap + 'px';
   board.innerHTML = '';
   const connectedCells = getConnectedCells();
 
   for (let r=0; r<boardSize; r++) for (let c=0; c<boardSize; c++) {
     const cell = document.createElement('div');
     cell.className = 'cell'; cell.dataset.row=r; cell.dataset.col=c;
+    cell.style.width = cellSize + 'px'; cell.style.height = cellSize + 'px';
     const state = boardState[r][c];
 
     if (state) {
@@ -490,13 +527,15 @@ function renderBoard() {
       if (e.button!==0) return;
       if (state && state.type==='piece') {
         e.preventDefault();
-        dragColor = state.variant || state.color;
-        dragSource = {row:r,col:c}; dragging=true;
-        if (PIECE_SVGS[dragColor]) { ghost.className='drag-ghost ghost-svg'; ghost.innerHTML=PIECE_SVGS[dragColor]; }
-        else { ghost.className='drag-ghost'; ghost.innerHTML=''; }
-        ghost.style.display='block'; ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px';
+        startDragFromBoard(state, r, c, e.clientX, e.clientY);
       }
     });
+    cell.addEventListener('touchstart', e => {
+      if (state && state.type==='piece') {
+        e.preventDefault(); document.body.style.overflow='hidden';
+        const {x,y}=getEventXY(e); startDragFromBoard(state, r, c, x, y);
+      }
+    }, {passive:false});
 
     // Right-click to remove player pieces only
     cell.addEventListener('contextmenu', e => {
@@ -513,7 +552,7 @@ function renderBoard() {
   // Add IN/OUT labels outside the board for entry/exit pieces
   const wrapper = document.getElementById('board-wrapper');
   wrapper.querySelectorAll('.board-label').forEach(l => l.remove());
-  const cellStep = 57; // 55px cell + 2px gap
+  const cellStep = cellSize + cellGap;
   const pad = 2; // board padding
   for (let r=0; r<boardSize; r++) for (let c=0; c<boardSize; c++) {
     const s = boardState[r][c];
@@ -524,9 +563,9 @@ function renderBoard() {
     const label = document.createElement('div');
     label.className = 'board-label ' + (isEntry ? 'label-in' : 'label-out');
     label.textContent = isEntry ? 'IN' : 'OUT';
-    const wrapPad = 24;
-    const cx = wrapPad + pad + c * cellStep + 27;
-    const cy = wrapPad + pad + r * cellStep + 27;
+    const wrapPad = window.innerWidth <= 600 ? 18 : 24;
+    const cx = wrapPad + pad + c * cellStep + cellSize/2;
+    const cy = wrapPad + pad + r * cellStep + cellSize/2;
     if (opening === 'T') { label.style.left = cx + 'px'; label.style.top = '5px'; label.style.transform = 'translateX(-50%)'; }
     else if (opening === 'B') { label.style.left = cx + 'px'; label.style.bottom = '5px'; label.style.transform = 'translateX(-50%)'; }
     else if (opening === 'L') { label.style.left = '2px'; label.style.top = cy + 'px'; label.style.transform = 'translateY(-50%)'; }
@@ -538,8 +577,9 @@ function renderBoard() {
 function getCellAt(x, y) {
   const board = document.getElementById('board');
   const rect = board.getBoundingClientRect();
-  const col = Math.floor((x-rect.left-2)/57);
-  const row = Math.floor((y-rect.top-2)/57);
+  const step = cellSize + cellGap;
+  const col = Math.floor((x-rect.left-2)/step);
+  const row = Math.floor((y-rect.top-2)/step);
   return (row>=0&&row<boardSize&&col>=0&&col<boardSize) ? {row,col} : null;
 }
 
@@ -624,11 +664,12 @@ function checkStars() {
 document.querySelectorAll('.palette-item, .powerup-item').forEach(item => {
   item.addEventListener('mousedown', e => {
     if (e.button!==0) return; e.preventDefault();
-    const color = item.dataset.color; dragColor=color; dragSource=null; dragging=true;
-    if (PIECE_SVGS[color]) { ghost.className='drag-ghost ghost-svg'; ghost.innerHTML=PIECE_SVGS[color]; }
-    else { ghost.className='drag-ghost'; ghost.innerHTML=''; }
-    ghost.style.display='block'; ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px';
+    startDragFromPalette(item.dataset.color, e.clientX, e.clientY);
   });
+  item.addEventListener('touchstart', e => {
+    e.preventDefault(); document.body.style.overflow='hidden';
+    const {x,y}=getEventXY(e); startDragFromPalette(item.dataset.color, x, y);
+  }, {passive:false});
 });
 
 document.addEventListener('mousemove', e => {
@@ -682,6 +723,84 @@ document.addEventListener('mouseup', e => {
   dragging=false; dragColor=null; dragSource=null;
 });
 
+// === TOUCH SUPPORT ===
+function getEventXY(e) {
+  if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  if (e.changedTouches && e.changedTouches.length > 0) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+  return { x: e.clientX, y: e.clientY };
+}
+
+function startDragFromPalette(color, x, y) {
+  dragColor = color; dragSource = null; dragging = true;
+  if (PIECE_SVGS[color]) { ghost.className='drag-ghost ghost-svg'; ghost.innerHTML=PIECE_SVGS[color]; }
+  else { ghost.className='drag-ghost'; ghost.innerHTML=''; }
+  ghost.style.display='block'; ghost.style.left=x+'px'; ghost.style.top=y+'px';
+}
+
+function startDragFromBoard(state, r, c, x, y) {
+  dragColor = state.variant || state.color;
+  dragSource = {row:r,col:c}; dragging = true;
+  if (PIECE_SVGS[dragColor]) { ghost.className='drag-ghost ghost-svg'; ghost.innerHTML=PIECE_SVGS[dragColor]; }
+  else { ghost.className='drag-ghost'; ghost.innerHTML=''; }
+  ghost.style.display='block'; ghost.style.left=x+'px'; ghost.style.top=y+'px';
+}
+
+function handleDragMove(x, y) {
+  ghost.style.left=x+'px'; ghost.style.top=y+'px';
+  document.querySelectorAll('.drop-valid,.drop-invalid').forEach(c=>c.classList.remove('drop-valid','drop-invalid'));
+  const target = getCellAt(x, y);
+  if (target) {
+    const idx=target.row*boardSize+target.col;
+    const cells=document.querySelectorAll('#board .cell');
+    if (cells[idx]) cells[idx].classList.add(canDrop(target.row,target.col,dragColor)?'drop-valid':'drop-invalid');
+  }
+}
+
+// Touch events on document
+document.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  e.preventDefault();
+  const {x,y} = getEventXY(e);
+  handleDragMove(x, y);
+}, {passive: false});
+
+document.addEventListener('touchend', e => {
+  if (!dragging) return;
+  const {x,y} = getEventXY(e);
+  ghost.style.display='none';
+  document.querySelectorAll('.drop-valid,.drop-invalid').forEach(c=>c.classList.remove('drop-valid','drop-invalid'));
+  document.body.style.overflow = '';
+  const target = getCellAt(x, y);
+
+  if (dragSource) {
+    const sameCell = target&&target.row===dragSource.row&&target.col===dragSource.col;
+    if (target&&!sameCell&&canDrop(target.row,target.col,dragColor)) {
+      const colorMap={green2:'green',blue2:'blue',blue3:'blue',blue4:'blue',purple2:'purple',purple3:'purple',purple4:'purple'};
+      const variant = PIECE_SVGS[dragColor] ? dragColor : null;
+      const boardColor = colorMap[dragColor]||dragColor;
+      removePieceWithLinks(dragSource.row, dragSource.col);
+      history.push({row:target.row,col:target.col,prev:boardState[target.row][target.col]});
+      boardState[target.row][target.col]={type:'piece',color:boardColor,variant};
+      renderBoard(); updateStatus(); checkStars();
+    } else if (!target) {
+      removePieceWithLinks(dragSource.row, dragSource.col);
+      renderBoard(); updateStatus(); checkStars();
+    }
+  } else if (powerUpMap[dragColor]) {
+    if (target) { const pu=powerUpMap[dragColor]; if (pu.canActivate(target)) PowerUpManager.activate(pu,target); }
+  } else {
+    if (target&&canDrop(target.row,target.col,dragColor)) {
+      const colorMap={green2:'green',blue2:'blue',blue3:'blue',blue4:'blue',purple2:'purple',purple3:'purple',purple4:'purple'};
+      const variant = PIECE_SVGS[dragColor] ? dragColor : null;
+      const boardColor = colorMap[dragColor]||dragColor;
+      history.push({row:target.row,col:target.col,prev:boardState[target.row][target.col]});
+      boardState[target.row][target.col]={type:'piece',color:boardColor,variant};
+      renderBoard(); updateStatus(); checkStars();
+    }
+  }
+  dragging=false; dragColor=null; dragSource=null;
+});
+
 // Cancel power-ups
 document.addEventListener('keydown', e => { if (e.key==='Escape'&&PowerUpManager.isActive()) PowerUpManager.cancel(); });
 document.addEventListener('click', e => {
@@ -709,10 +828,12 @@ function populatePieces() {
       item.appendChild(swatch);
       item.addEventListener('mousedown', e => {
         if (e.button!==0) return; e.preventDefault();
-        dragColor=v; dragSource=null; dragging=true;
-        if (PIECE_SVGS[v]) { ghost.className='drag-ghost ghost-svg'; ghost.innerHTML=PIECE_SVGS[v]; }
-        ghost.style.display='block'; ghost.style.left=e.clientX+'px'; ghost.style.top=e.clientY+'px';
+        startDragFromPalette(v, e.clientX, e.clientY);
       });
+      item.addEventListener('touchstart', e => {
+        e.preventDefault(); document.body.style.overflow='hidden';
+        const {x,y}=getEventXY(e); startDragFromPalette(v, x, y);
+      }, {passive:false});
       container.appendChild(item);
     }
   }
@@ -737,6 +858,9 @@ async function initBoardSelector() {
     } catch(e) { console.error('Failed to load board:', b.file, e); }
   }
 }
+
+// Re-render on resize for responsive cell sizing
+window.addEventListener('resize', () => { if (boardSize > 0) renderBoard(); });
 
 // === INIT ===
 populatePieces();
