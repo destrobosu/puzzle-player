@@ -32,6 +32,7 @@
   .board .cell.obstacle { background: #111; border: 2px solid #333; cursor: default; }
   .board .cell.obstacle::after { content: 'X'; color: #444; font-size: 1.2rem; font-weight: bold; }
   .board .cell.connected { box-shadow: 0 0 12px rgba(200, 200, 200, 0.6); outline: 2px solid rgba(200, 200, 200, 0.5); outline-offset: -2px; }
+  .board .cell.connected svg { filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.3)); }
   .board .cell.drop-valid { outline: 3px solid rgba(100, 255, 100, 0.7); outline-offset: -3px; }
   .board .cell.drop-invalid { outline: 3px solid rgba(255, 80, 80, 0.7); outline-offset: -3px; }
 
@@ -152,10 +153,10 @@ const DIR_ARROWS = { T: '\u25B2', B: '\u25BC', L: '\u25C0', R: '\u25B6' };
 
 // Available boards
 const BOARDS = [
-  { file: 'boards/starter-path-3x3.json' },
-  { file: 'boards/forest-trail-4x4.json' },
-  { file: 'boards/mountain-pass-5x5.json' },
-  { file: 'boards/dragon-maze-6x6.json' },
+  { file: 'boards/level-1-3x3.json' },
+  { file: 'boards/level-2-4x4.json' },
+  { file: 'boards/level-3-5x5.json' },
+  { file: 'boards/level-4-6x6.json' },
 ];
 
 // === SHARED UTILITIES (same as admin) ===
@@ -202,9 +203,27 @@ function getConnectedCells() {
       if (!sides.includes(dir)) continue;
       const [dr,dc] = DIR_DELTA[dir]; const nr=r+dr, nc=c+dc;
       if (nr<0||nr>=boardSize||nc<0||nc>=boardSize) continue;
-      const n = boardState[nr][nc]; if (!n||!n.variant) continue;
-      const ns = CONNECTORS[n.variant]; if (!ns) continue;
-      if (ns.includes(OPPOSITE[dir])) { connected.add(`${r},${c}`); connected.add(`${nr},${nc}`); }
+      const n = boardState[nr][nc];
+      // Direct connection
+      if (n && n.variant) {
+        const ns = CONNECTORS[n.variant];
+        if (ns && ns.includes(OPPOSITE[dir])) { connected.add(`${r},${c}`); connected.add(`${nr},${nc}`); }
+        continue;
+      }
+      // Teleport connection: check all sides of adjacent obstacle for connectable pieces
+      if (n && n.type==='obstacle') {
+        for (const exitDir of ['T','B','L','R']) {
+          const [edr,edc]=DIR_DELTA[exitDir]; const er=nr+edr, ec=nc+edc;
+          if (er===r&&ec===c) continue;
+          if (er<0||er>=boardSize||ec<0||ec>=boardSize) continue;
+          const exitCell=boardState[er][ec];
+          if (!exitCell||!exitCell.variant) continue;
+          const exitSides=CONNECTORS[exitCell.variant];
+          if (exitSides&&exitSides.includes(OPPOSITE[exitDir])) {
+            connected.add(`${r},${c}`); connected.add(`${er},${ec}`);
+          }
+        }
+      }
     }
   }
   return connected;
