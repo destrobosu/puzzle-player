@@ -23,9 +23,11 @@
   .board-area { display: flex; flex-direction: column; align-items: center; }
   .board-area h2 { margin-bottom: 10px; font-size: 1.1rem; color: #aaa; }
   .board-wrapper { position: relative; display: inline-block; padding: 24px; }
-  .board-label { position: absolute; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; pointer-events: none; }
-  .board-label.label-in { color: #2ecc71; }
-  .board-label.label-out { color: #e94560; }
+  .board-label { position: absolute; pointer-events: none; border-radius: 2px; }
+  .board-label.label-in { background: #2ecc71; }
+  .board-label.label-out { background: #e94560; }
+  .board-label.label-h { height: 4px; } /* horizontal bar (top/bottom) */
+  .board-label.label-v { width: 4px; } /* vertical bar (left/right) */
   .build-info { position: fixed; bottom: 8px; right: 12px; font-size: 0.65rem; color: #444; letter-spacing: 0.5px; }
 
   /* Touch support */
@@ -47,7 +49,7 @@
     .game-layout { flex-direction: column; align-items: center; gap: 8px; }
     .board-area { order: 1; }
     .board-wrapper { padding: 16px; }
-    .board-label { font-size: 0.55rem; }
+    .board-wrapper { padding: 16px; }
     .pieces-panel { order: 2; min-width: auto; width: 100%; max-width: 360px; padding: 6px; }
     .pieces-panel h3 { font-size: 0.75rem; margin-bottom: 4px; }
     .pieces-inventory { gap: 3px; }
@@ -183,7 +185,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.2.2</div>
+<div class="build-info">Build 0.2.3</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -571,14 +573,22 @@ function renderBoard() {
     const isEntry = s.type === 'entry';
     const label = document.createElement('div');
     label.className = 'board-label ' + (isEntry ? 'label-in' : 'label-out');
-    label.textContent = isEntry ? 'IN' : 'OUT';
-    const wrapPad = window.innerWidth <= 600 ? 18 : 24;
-    const cx = wrapPad + pad + c * cellStep + cellSize/2;
-    const cy = wrapPad + pad + r * cellStep + cellSize/2;
-    if (opening === 'T') { label.style.left = cx + 'px'; label.style.top = '5px'; label.style.transform = 'translateX(-50%)'; }
-    else if (opening === 'B') { label.style.left = cx + 'px'; label.style.bottom = '5px'; label.style.transform = 'translateX(-50%)'; }
-    else if (opening === 'L') { label.style.left = '2px'; label.style.top = cy + 'px'; label.style.transform = 'translateY(-50%)'; }
-    else if (opening === 'R') { label.style.right = '2px'; label.style.top = cy + 'px'; label.style.transform = 'translateY(-50%)'; }
+    const wrapPad = window.innerWidth <= 600 ? 16 : 24;
+    const cellLeft = wrapPad + pad + c * cellStep;
+    const cellTop = wrapPad + pad + r * cellStep;
+    if (opening === 'T') {
+      label.classList.add('label-h');
+      label.style.left = cellLeft + 'px'; label.style.width = cellSize + 'px'; label.style.top = (wrapPad - 6) + 'px';
+    } else if (opening === 'B') {
+      label.classList.add('label-h');
+      label.style.left = cellLeft + 'px'; label.style.width = cellSize + 'px'; label.style.bottom = (wrapPad - 6) + 'px';
+    } else if (opening === 'L') {
+      label.classList.add('label-v');
+      label.style.top = cellTop + 'px'; label.style.height = cellSize + 'px'; label.style.left = (wrapPad - 6) + 'px';
+    } else if (opening === 'R') {
+      label.classList.add('label-v');
+      label.style.top = cellTop + 'px'; label.style.height = cellSize + 'px'; label.style.right = (wrapPad - 6) + 'px';
+    }
     wrapper.appendChild(label);
   }
 }
