@@ -48,17 +48,15 @@
     .reset-btn { font-size: 0.65rem; padding: 2px 8px; }
     .status { font-size: 0.7rem; margin-bottom: 2px; }
     .game-layout { gap: 4px; flex: 1; min-height: 0; }
-    .bottom-panels { gap: 6px; flex-shrink: 0; }
-    .pieces-panel { min-width: auto; width: 100%; padding: 5px; }
-    .pieces-panel h3 { font-size: 0.7rem; margin-bottom: 3px; }
+    .inventory-panel { padding: 6px 8px; gap: 6px; max-width: 100%; flex-shrink: 0; }
+    .inventory-label { font-size: 0.6rem; }
+    .inventory-divider { height: 24px; }
     .pieces-inventory { gap: 2px; }
     .palette-swatch { width: 24px; height: 24px; }
     .palette-item { padding: 2px; }
-    .powerups-panel { min-width: auto; width: auto; padding: 5px; }
-    .powerups-panel h3 { font-size: 0.7rem; margin-bottom: 3px; }
-    .powerups-row { justify-content: center; gap: 4px; }
-    .powerup-item { padding: 2px 5px; }
-    .powerup-item .palette-label { font-size: 0.65rem; }
+    .powerups-row { gap: 3px; }
+    .powerup-item { padding: 2px 4px; }
+    .powerup-item .palette-label { font-size: 0.6rem; }
     .powerup-item .palette-swatch { width: 20px; height: 20px; }
     .win-banner { font-size: 0.85rem; margin-top: 2px; }
     .build-info { font-size: 0.5rem; bottom: 2px; right: 4px; }
@@ -90,8 +88,11 @@
   .palette-label { font-size: 0.8rem; color: #ccc; }
   .swatch-white { background: #e8e8e8; }
 
-  /* Bottom panels: pieces + power-ups side by side */
-  .bottom-panels { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 600px; }
+  /* Unified inventory panel */
+  .inventory-panel { background: #16213e; border: 2px solid #0f3460; border-radius: 8px; padding: 10px 12px; width: 100%; max-width: 500px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .inventory-section { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .inventory-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; white-space: nowrap; }
+  .inventory-divider { width: 1px; height: 30px; background: #0f3460; flex-shrink: 0; }
 
   /* Pieces inventory */
   .pieces-inventory { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
@@ -172,13 +173,14 @@
     <div id="win-banner"></div>
   </div>
 
-  <div class="bottom-panels">
-    <div class="palette-section pieces-panel">
-      <h3>Pieces</h3>
+  <div class="inventory-panel">
+    <div class="inventory-section">
+      <span class="inventory-label">Pieces</span>
       <div class="pieces-inventory" id="pieces-inventory"></div>
     </div>
-    <div class="palette-section powerups-panel">
-      <h3>Power Ups</h3>
+    <div class="inventory-divider"></div>
+    <div class="inventory-section">
+      <span class="inventory-label">Power Ups</span>
       <div class="powerups-row">
         <div class="powerup-item" data-color="fill"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Fill</span></div>
         <div class="powerup-item" data-color="extend"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Extend</span></div>
@@ -189,7 +191,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.2.8</div>
+<div class="build-info">Build 0.2.9</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -523,7 +525,7 @@ function renderBoard() {
   const cellFromWidth = Math.floor((maxWidth - (boardSize - 1) * cellGap - 4) / boardSize);
   // Height constraint: reserve space for UI above and below the board
   const uiAbove = isMobile ? 105 : 130; // title, selector, header, status
-  const uiBelow = isMobile ? 180 : 130; // bottom panels, browser chrome, margins
+  const uiBelow = isMobile ? 130 : 120; // inventory panel, browser chrome, margins
   const availHeight = vh - uiAbove - uiBelow - wrapPadding * 2;
   const cellFromHeight = Math.floor((availHeight - (boardSize - 1) * cellGap - 4) / boardSize);
   cellSize = Math.min(55, Math.max(28, Math.min(cellFromWidth, cellFromHeight)));
