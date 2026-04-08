@@ -5,19 +5,19 @@
     "boardSize": 6,
     "difficulty": "expert",
     "notes": "Expert 6x6 maze with many obstacles and presets",
-    "createdAt": "2026-04-07T19:25:45.113Z",
-    "updatedAt": "2026-04-07T20:00:00.000Z",
+    "createdAt": "2026-04-08T07:40:00.000Z",
+    "updatedAt": "2026-04-08T07:40:00.000Z",
     "shortestPath": 10,
-    "pieceCounts": {"common":0,"rare":0,"epic":0,"legendary":0,"preset":3,"obstacle":5,"entry":1,"exit":1}
+    "pieceCounts": {"common":0,"rare":0,"epic":0,"legendary":0,"preset":3,"obstacle":6,"entry":1,"exit":1}
   },
   "board": [
-    [null,null,{"type":"entry","color":"yellow","variant":"entryC4","code":"ENCULR"},null,null,null],
+    [null,null,{"type":"entry","color":"yellow","variant":"entryE4","code":"ENEUDLR4"},null,null,null],
     [{"type":"obstacle","color":"black"},null,{"type":"obstacle","color":"black"},null,{"type":"obstacle","color":"black"},null],
     [null,null,null,{"type":"preset","color":"white","variant":"white","code":"PSCUD"},null,null],
     [null,{"type":"obstacle","color":"black"},null,{"type":"obstacle","color":"black"},null,{"type":"preset","color":"white","variant":"white2","code":"PSCLR"}],
     [null,null,{"type":"preset","color":"white","variant":"white5","code":"PSRDR"},null,{"type":"obstacle","color":"black"},null],
-    [null,null,null,{"type":"exit","color":"yellow","variant":"exitC1","code":"EXCLRD"},null,null]
+    [null,null,null,{"type":"exit","color":"yellow","variant":"exitE1","code":"EXEUDLR1"},null,null]
   ],
-  "connectors": {"entryC4":["L","R","T"],"white":["T","B"],"white2":["L","R"],"white5":["R","B"],"exitC1":["L","R","B"]},
+  "connectors": {"entryE4":["B","L","R"],"white":["T","B"],"white2":["L","R"],"white5":["R","B"],"exitE1":["T","L","R"]},
   "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
 }

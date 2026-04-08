@@ -259,7 +259,7 @@ const FillPowerUp = {
     } PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
   },
   cancel() {this.target=null;this.directions=[];this.previewDir=null;},
-  canActivate(t) { const c=boardState[t.row][t.col]; return c&&c.variant&&CONNECTORS[c.variant]&&CONNECTORS[c.variant].some(d=>computeFillPath(t.row,t.col,d).length>0); }
+  canActivate(t) { const c=boardState[t.row][t.col]; if (!c||c.type!=='piece') return false; return c.variant&&CONNECTORS[c.variant]&&CONNECTORS[c.variant].some(d=>computeFillPath(t.row,t.col,d).length>0); }
 };
 
 const ExtendPowerUp = {
@@ -290,46 +290,68 @@ const ExtendPowerUp = {
     } PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
   },
   cancel() {this.target=null;this.cells=[];},
-  canActivate(t) { const c=boardState[t.row][t.col]; if (!c||!c.variant||!CONNECTORS[c.variant]) return false;
+  canActivate(t) { const c=boardState[t.row][t.col]; if (!c||c.type!=='piece'||!c.variant||!CONNECTORS[c.variant]) return false;
     return CONNECTORS[c.variant].some(d=>{const [dr,dc]=DIR_DELTA[d];const nr=t.row+dr,nc=t.col+dc;return nr>=0&&nr<boardSize&&nc>=0&&nc<boardSize&&boardState[nr][nc]===null;});
   }
 };
 
 const TeleportPowerUp = {
-  target:null, cells:[], previewClass:'teleport-preview',
+  target:null, directions:[], previewDir:null, previewClass:'teleport-preview',
   activate(t) {
-    this.target={row:t.row,col:t.col}; const sides=CONNECTORS[boardState[t.row][t.col].variant]; this.cells=[];
+    this.target={row:t.row,col:t.col}; this.previewDir=null;
+    const sides=CONNECTORS[boardState[t.row][t.col].variant]; this.directions=[];
+    const seen=new Set();
     for (const dir of sides) { const [dr,dc]=DIR_DELTA[dir]; const nr=t.row+dr,nc=t.col+dc;
       if (nr<0||nr>=boardSize||nc<0||nc>=boardSize) continue;
       const neighbor=boardState[nr][nc]; if (!neighbor||(neighbor.type!=='preset'&&neighbor.type!=='obstacle')) continue;
-      let tr=nr+dr,tc=nc+dc;
-      while (tr>=0&&tr<boardSize&&tc>=0&&tc<boardSize) {
-        const through=boardState[tr][tc];
-        if (!through) {
-          const inc=OPPOSITE[dir],needed=[inc],forbidden=[];
-          for (const s of ['T','B','L','R']) { if (s===inc) continue; const [sdr,sdc]=DIR_DELTA[s]; const snr=tr+sdr,snc=tc+sdc;
-            if (snr<0||snr>=boardSize||snc<0||snc>=boardSize){forbidden.push(s);continue;} const adj=boardState[snr][snc];
-            if (adj===null){needed.push(s);continue;} if (adj.type==='obstacle'||adj.type==='preset'){forbidden.push(s);continue;}
-            if (adj.variant&&CONNECTORS[adj.variant]&&CONNECTORS[adj.variant].includes(OPPOSITE[s])) needed.push(s); else forbidden.push(s);
-          } this.cells.push({row:tr,col:tc,dir,variant:findPresetVariant(needed,forbidden)}); break;
-        } if (through.type!=='preset'&&through.type!=='obstacle') break; tr+=dr;tc+=dc;
+      const obsKey=nr+','+nc; if (seen.has(obsKey)) continue; seen.add(obsKey);
+      for (const exitDir of ['T','B','L','R']) {
+        const [edr,edc]=DIR_DELTA[exitDir]; const er=nr+edr,ec=nc+edc;
+        if (er===t.row&&ec===t.col) continue;
+        if (er<0||er>=boardSize||ec<0||ec>=boardSize) continue;
+        if (boardState[er][ec]===null) { const key=obsKey+':'+exitDir; if (!seen.has(key)) { seen.add(key);
+          this.directions.push({exitDir,obstacleRow:nr,obstacleCol:nc,landingRow:er,landingCol:ec}); } }
       }
     }
   },
+  _computeLanding(exitDir,obsR,obsC,landR,landC) {
+    const inc=OPPOSITE[exitDir],needed=[inc],forbidden=[];
+    for (const s of ['T','B','L','R']) { if (s===inc) continue; const [sdr,sdc]=DIR_DELTA[s]; const snr=landR+sdr,snc=landC+sdc;
+      if (snr<0||snr>=boardSize||snc<0||snc>=boardSize){forbidden.push(s);continue;} const adj=boardState[snr][snc];
+      if (adj===null){needed.push(s);continue;} if (adj.type==='obstacle'){forbidden.push(s);continue;}
+      if (adj.variant&&CONNECTORS[adj.variant]&&CONNECTORS[adj.variant].includes(OPPOSITE[s])) needed.push(s); else forbidden.push(s);
+    } return {row:landR,col:landC,variant:findPresetVariant(needed,forbidden)};
+  },
   renderCell(cell,r,c) {
     if (this.target&&this.target.row===r&&this.target.col===c) cell.classList.add('powerup-target');
-    for (const tc of this.cells) if (tc.row===r&&tc.col===c) {
-      cell.classList.add('teleport-preview');
-      if (PIECE_SVGS[tc.variant]) {cell.classList.add('cell-svg');cell.innerHTML=PIECE_SVGS[tc.variant];cell.style.opacity='0.5';}
-      cell.addEventListener('click',e=>{e.stopPropagation();this.execute();});
+    for (let i=0;i<this.directions.length;i++) { const d=this.directions[i];
+      if (d.obstacleRow===r&&d.obstacleCol===c) {
+        const arrow=document.createElement('div'); arrow.className='fill-arrow dir-'+d.exitDir; arrow.innerHTML=DIR_ARROWS[d.exitDir];
+        arrow.style.zIndex='10'; const idx=i;
+        arrow.addEventListener('mouseenter',()=>{this._previewIdx=idx;renderBoard();});
+        arrow.addEventListener('click',e=>{e.stopPropagation();this._executeIdx(idx);}); cell.appendChild(arrow);
+      }
+    }
+    if (this._previewIdx!=null&&this.directions[this._previewIdx]) {
+      const d=this.directions[this._previewIdx];
+      const landing=this._computeLanding(d.exitDir,d.obstacleRow,d.obstacleCol,d.landingRow,d.landingCol);
+      if (landing.row===r&&landing.col===c) {
+        cell.classList.add('teleport-preview');
+        if (PIECE_SVGS[landing.variant]) {cell.classList.add('cell-svg');cell.innerHTML=PIECE_SVGS[landing.variant];cell.style.opacity='0.5';}
+        cell.style.cursor='pointer'; const idx=this._previewIdx;
+        cell.addEventListener('click',e=>{e.stopPropagation();this._executeIdx(idx);});
+      }
     }
   },
-  execute() {
-    for (const {row,col,variant} of this.cells) { history.push({row,col,prev:boardState[row][col]}); boardState[row][col]={type:'preset',color:'white',variant}; }
+  _executeIdx(idx) {
+    const d=this.directions[idx]; if (!d) return;
+    const landing=this._computeLanding(d.exitDir,d.obstacleRow,d.obstacleCol,d.landingRow,d.landingCol);
+    history.push({row:landing.row,col:landing.col,prev:boardState[landing.row][landing.col]});
+    boardState[landing.row][landing.col]={type:'preset',color:'white',variant:landing.variant};
     PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
   },
-  cancel() {this.target=null;this.cells=[];},
-  canActivate(t) { const c=boardState[t.row][t.col]; if (!c||!c.variant||!CONNECTORS[c.variant]) return false;
+  cancel() {this.target=null;this.directions=[];this.previewDir=null;this._previewIdx=null;},
+  canActivate(t) { const c=boardState[t.row][t.col]; if (!c||c.type!=='piece'||!c.variant||!CONNECTORS[c.variant]) return false;
     return CONNECTORS[c.variant].some(d=>{const [dr,dc]=DIR_DELTA[d];const nr=t.row+dr,nc=t.col+dc;if(nr<0||nr>=boardSize||nc<0||nc>=boardSize)return false;const n=boardState[nr][nc];return n&&(n.type==='preset'||n.type==='obstacle');});
   }
 };

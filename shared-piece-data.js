@@ -106,25 +106,25 @@ const CONNECTORS = {
   white7: ['T','L','R'], white8: ['T','R','B'],
   white9: ['B','L','R'], white10: ['T','B','L'],
   white11: ['T','R','B','L'],
-  // Entry/Exit - Common (jigsaw connectors + opening)
-  entryC1: ['L','R','B'], exitC1: ['L','R','B'],
-  entryC2: ['T','B','L'], exitC2: ['T','B','L'],
-  entryC3: ['T','B','R'], exitC3: ['T','B','R'],
-  entryC4: ['L','R','T'], exitC4: ['L','R','T'],
-  // Entry/Exit - Rare
-  entryR1: ['T','B'], exitR1: ['T','B'],
-  entryR2: ['R','B'], exitR2: ['R','B'],
-  entryR3: ['R','L'], exitR3: ['R','L'],
-  entryR4: ['B','L'], exitR4: ['B','L'],
-  entryR5: ['L','R'], exitR5: ['L','R'],
-  entryR6: ['T','R'], exitR6: ['T','R'],
-  entryR7: ['B','T'], exitR7: ['B','T'],
-  entryR8: ['L','T'], exitR8: ['L','T'],
-  // Entry/Exit - Epic (4 connectors)
-  entryE1: ['T','R','B','L'], exitE1: ['T','R','B','L'],
-  entryE2: ['T','R','B','L'], exitE2: ['T','R','B','L'],
-  entryE3: ['T','R','B','L'], exitE3: ['T','R','B','L'],
-  entryE4: ['T','R','B','L'], exitE4: ['T','R','B','L'],
+  // Entry/Exit - Common (2 jigsaw connectors, opening excluded)
+  entryC1: ['L','R'], exitC1: ['L','R'],
+  entryC2: ['T','B'], exitC2: ['T','B'],
+  entryC3: ['T','B'], exitC3: ['T','B'],
+  entryC4: ['L','R'], exitC4: ['L','R'],
+  // Entry/Exit - Rare (2 jigsaw connectors, opening excluded)
+  entryR1: ['L','T'], exitR1: ['L','T'],
+  entryR2: ['T','R'], exitR2: ['T','R'],
+  entryR3: ['T','R'], exitR3: ['T','R'],
+  entryR4: ['B','R'], exitR4: ['B','R'],
+  entryR5: ['L','T'], exitR5: ['L','T'],
+  entryR6: ['T','B'], exitR6: ['T','B'],
+  entryR7: ['R','B'], exitR7: ['R','B'],
+  entryR8: ['B','L'], exitR8: ['B','L'],
+  // Entry/Exit - Epic (3 jigsaw connectors, opening excluded)
+  entryE1: ['T','L','R'], exitE1: ['T','L','R'],
+  entryE2: ['T','R','B'], exitE2: ['T','R','B'],
+  entryE3: ['T','B','L'], exitE3: ['T','B','L'],
+  entryE4: ['B','L','R'], exitE4: ['B','L','R'],
   // Entry/Exit - Legendary
   entryL1: ['T','R','B','L'], exitL1: ['T','R','B','L']
 };
