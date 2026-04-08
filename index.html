@@ -22,6 +22,11 @@
   /* Board */
   .board-area { display: flex; flex-direction: column; align-items: center; }
   .board-area h2 { margin-bottom: 10px; font-size: 1.1rem; color: #aaa; }
+  .board-wrapper { position: relative; display: inline-block; padding: 22px; }
+  .board-label { position: absolute; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; pointer-events: none; opacity: 0.85; }
+  .board-label.label-in { color: #2ecc71; }
+  .board-label.label-out { color: #e94560; }
+  .build-info { position: fixed; bottom: 8px; right: 12px; font-size: 0.65rem; color: #444; letter-spacing: 0.5px; }
   .board { display: grid; gap: 2px; background: #0f3460; padding: 2px; border-radius: 8px; border: 2px solid #16213e; }
   .board .cell { width: 55px; height: 55px; background: #16213e; border-radius: 4px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; position: relative; }
   .board .cell:hover { outline: 2px solid rgba(255,255,255,0.3); outline-offset: -2px; }
@@ -119,7 +124,9 @@
   </div>
 
   <div class="board-area">
-    <div class="board" id="board"></div>
+    <div class="board-wrapper" id="board-wrapper">
+      <div class="board" id="board"></div>
+    </div>
     <div style="display:flex;gap:8px;margin-top:10px;">
       <button onclick="resetBoard()" style="padding:6px 14px;border:1px solid #0f3460;background:#16213e;color:#ccc;border-radius:6px;cursor:pointer;font-size:0.85rem;">Reset</button>
     </div>
@@ -135,6 +142,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
+<div class="build-info">Build 0.1.7</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -496,6 +504,30 @@ function renderBoard() {
     });
 
     board.appendChild(cell);
+  }
+
+  // Add IN/OUT labels outside the board for entry/exit pieces
+  const wrapper = document.getElementById('board-wrapper');
+  wrapper.querySelectorAll('.board-label').forEach(l => l.remove());
+  const cellStep = 57; // 55px cell + 2px gap
+  const pad = 2; // board padding
+  for (let r=0; r<boardSize; r++) for (let c=0; c<boardSize; c++) {
+    const s = boardState[r][c];
+    if (!s || (s.type !== 'entry' && s.type !== 'exit')) continue;
+    const opening = ENTRY_EXIT_OPENING[s.variant];
+    if (!opening) continue;
+    const isEntry = s.type === 'entry';
+    const label = document.createElement('div');
+    label.className = 'board-label ' + (isEntry ? 'label-in' : 'label-out');
+    label.textContent = isEntry ? 'IN' : 'OUT';
+    const wrapPad = 22; // wrapper padding
+    const cx = wrapPad + pad + c * cellStep + 27;
+    const cy = wrapPad + pad + r * cellStep + 27;
+    if (opening === 'T') { label.style.left = cx + 'px'; label.style.top = '4px'; label.style.transform = 'translateX(-50%)'; }
+    else if (opening === 'B') { label.style.left = cx + 'px'; label.style.bottom = '4px'; label.style.transform = 'translateX(-50%)'; }
+    else if (opening === 'L') { label.style.left = '0px'; label.style.top = cy + 'px'; label.style.transform = 'translateY(-50%)'; }
+    else if (opening === 'R') { label.style.right = '0px'; label.style.top = cy + 'px'; label.style.transform = 'translateY(-50%)'; }
+    wrapper.appendChild(label);
   }
 }
 
