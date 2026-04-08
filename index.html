@@ -102,6 +102,8 @@
 
   /* Board header: title + stars inline */
   .board-header { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 4px; }
+  .reset-btn { padding: 4px 12px; border: 1px solid #0f3460; background: #16213e; color: #888; border-radius: 5px; cursor: pointer; font-size: 0.75rem; transition: all 0.2s; }
+  .reset-btn:hover { color: #eee; border-color: #e94560; }
   .board-title { font-size: 1.1rem; color: #ccc; font-weight: 600; letter-spacing: 0.5px; margin: 0; }
   .board-title span { color: #888; font-weight: 400; font-size: 0.85rem; }
 
@@ -157,6 +159,7 @@
     <span class="star" id="star2">&#9733;</span>
     <span class="star" id="star3">&#9733;</span>
   </div>
+  <button onclick="resetBoard()" class="reset-btn">Reset</button>
 </div>
 
 <div class="status" id="status">Select a board to play</div>
@@ -165,9 +168,6 @@
   <div class="board-area">
     <div class="board-wrapper" id="board-wrapper">
       <div class="board" id="board"></div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:8px;justify-content:center;">
-      <button onclick="resetBoard()" style="padding:5px 12px;border:1px solid #0f3460;background:#16213e;color:#ccc;border-radius:6px;cursor:pointer;font-size:0.8rem;">Reset</button>
     </div>
     <div id="win-banner"></div>
   </div>
@@ -189,7 +189,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.2.4</div>
+<div class="build-info">Build 0.2.5</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
