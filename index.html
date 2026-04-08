@@ -35,33 +35,33 @@
 
   /* Mobile responsive */
   @media (max-width: 600px) {
-    body { padding: 8px 6px; }
-    h1 { font-size: 1.2rem; margin-bottom: 4px; }
-    .board-selector { gap: 4px; margin-bottom: 6px; }
-    .board-card { padding: 4px 8px; }
-    .board-card-name { font-size: 0.7rem; }
-    .board-card-info { font-size: 0.55rem; }
-    .board-header { gap: 8px; margin-bottom: 2px; }
-    .board-title { font-size: 0.9rem; }
-    .board-title span { font-size: 0.7rem; }
-    .star { font-size: 1.1rem; }
-    .status { font-size: 0.75rem; margin-bottom: 4px; }
-    .game-layout { gap: 6px; }
-    .bottom-panels { gap: 8px; }
-    .board-wrapper { padding: 16px; }
-    .board-wrapper { padding: 16px; }
-    .pieces-panel { min-width: auto; width: 100%; max-width: 360px; padding: 6px; }
-    .pieces-panel h3 { font-size: 0.75rem; margin-bottom: 4px; }
-    .pieces-inventory { gap: 3px; }
-    .palette-swatch { width: 26px; height: 26px; }
+    body { padding: 4px 4px; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+    h1 { font-size: 1.1rem; margin-bottom: 2px; }
+    .board-selector { gap: 3px; margin-bottom: 4px; }
+    .board-card { padding: 3px 7px; }
+    .board-card-name { font-size: 0.65rem; }
+    .board-card-info { font-size: 0.5rem; }
+    .board-header { gap: 6px; margin-bottom: 1px; }
+    .board-title { font-size: 0.85rem; }
+    .board-title span { font-size: 0.65rem; }
+    .star { font-size: 1rem; }
+    .reset-btn { font-size: 0.65rem; padding: 2px 8px; }
+    .status { font-size: 0.7rem; margin-bottom: 2px; }
+    .game-layout { gap: 4px; flex: 1; min-height: 0; }
+    .bottom-panels { gap: 6px; flex-shrink: 0; }
+    .pieces-panel { min-width: auto; width: 100%; padding: 5px; }
+    .pieces-panel h3 { font-size: 0.7rem; margin-bottom: 3px; }
+    .pieces-inventory { gap: 2px; }
+    .palette-swatch { width: 24px; height: 24px; }
     .palette-item { padding: 2px; }
-    .powerups-panel { min-width: auto; width: 100%; max-width: 360px; padding: 6px; }
-    .powerups-panel h3 { font-size: 0.8rem; margin-bottom: 4px; }
-    .powerups-row { justify-content: center; }
-    .powerup-item { padding: 3px 6px; }
-    .powerup-item .palette-label { font-size: 0.7rem; }
-    .win-banner { font-size: 0.9rem; margin-top: 4px; }
-    .build-info { font-size: 0.55rem; }
+    .powerups-panel { min-width: auto; width: auto; padding: 5px; }
+    .powerups-panel h3 { font-size: 0.7rem; margin-bottom: 3px; }
+    .powerups-row { justify-content: center; gap: 4px; }
+    .powerup-item { padding: 2px 5px; }
+    .powerup-item .palette-label { font-size: 0.65rem; }
+    .powerup-item .palette-swatch { width: 20px; height: 20px; }
+    .win-banner { font-size: 0.85rem; margin-top: 2px; }
+    .build-info { font-size: 0.5rem; bottom: 2px; right: 4px; }
   }
   .board { display: grid; gap: 2px; background: #0f3460; padding: 2px; border-radius: 8px; border: 2px solid #16213e; }
   .board .cell { width: 55px; height: 55px; background: #16213e; border-radius: 4px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; position: relative; }
@@ -189,7 +189,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.2.5</div>
+<div class="build-info">Build 0.2.6</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -513,12 +513,23 @@ function resetBoard() {
 // === RENDER ===
 function renderBoard() {
   const board = document.getElementById('board');
-  // Dynamic cell size: fit board within viewport
-  const maxWidth = Math.min(window.innerWidth - 80, 400); // leave margin
-  const maxCellSize = Math.floor((maxWidth - (boardSize - 1) * cellGap - 4) / boardSize); // 4 for board padding
-  cellSize = Math.min(55, Math.max(35, maxCellSize));
+  // Dynamic cell size: fit board within viewport width AND height
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const isMobile = vw <= 600;
+  const wrapPadding = isMobile ? 16 : 24;
+  // Width constraint
+  const maxWidth = Math.min(vw - 40, 400);
+  const cellFromWidth = Math.floor((maxWidth - (boardSize - 1) * cellGap - 4) / boardSize);
+  // Height constraint: reserve space for UI above and below the board
+  const uiAbove = isMobile ? 110 : 130; // title, selector, header, status
+  const uiBelow = isMobile ? 120 : 130; // bottom panels, margins
+  const availHeight = vh - uiAbove - uiBelow - wrapPadding * 2;
+  const cellFromHeight = Math.floor((availHeight - (boardSize - 1) * cellGap - 4) / boardSize);
+  cellSize = Math.min(55, Math.max(28, Math.min(cellFromWidth, cellFromHeight)));
   board.style.gridTemplateColumns = `repeat(${boardSize}, ${cellSize}px)`;
   board.style.gap = cellGap + 'px';
+  document.getElementById('board-wrapper').style.padding = wrapPadding + 'px';
   board.innerHTML = '';
   const connectedCells = getConnectedCells();
 
@@ -577,7 +588,7 @@ function renderBoard() {
     const isEntry = s.type === 'entry';
     const label = document.createElement('div');
     label.className = 'board-label ' + (isEntry ? 'label-in' : 'label-out');
-    const wrapPad = window.innerWidth <= 600 ? 16 : 24;
+    const wrapPad = wrapPadding;
     const cellLeft = wrapPad + pad + c * cellStep;
     const cellTop = wrapPad + pad + r * cellStep;
     if (opening === 'T') {
