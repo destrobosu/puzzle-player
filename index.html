@@ -50,7 +50,6 @@
     .game-layout { gap: 4px; flex: 1; min-height: 0; }
     .inventory-panel { padding: 6px 8px; gap: 6px; max-width: 100%; flex-shrink: 0; }
     .inventory-label { font-size: 0.6rem; }
-    .inventory-divider { height: 24px; }
     .pieces-inventory { gap: 2px; }
     .palette-swatch { width: 24px; height: 24px; }
     .palette-item { padding: 2px; }
@@ -92,7 +91,6 @@
   .inventory-panel { background: #16213e; border: 2px solid #0f3460; border-radius: 8px; padding: 10px 12px; width: 100%; max-width: 500px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
   .inventory-section { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
   .inventory-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; white-space: nowrap; }
-  .inventory-divider { width: 1px; height: 30px; background: #0f3460; flex-shrink: 0; }
 
   /* Pieces inventory */
   .pieces-inventory { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
@@ -175,10 +173,9 @@
 
   <div class="inventory-panel">
     <div class="inventory-section">
-      <span class="inventory-label">Pieces</span>
+      <span class="inventory-label">Inventory</span>
       <div class="pieces-inventory" id="pieces-inventory"></div>
     </div>
-    <div class="inventory-divider"></div>
     <div class="inventory-section">
       <span class="inventory-label">Power Ups</span>
       <div class="powerups-row">
@@ -191,7 +188,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.2.9</div>
+<div class="build-info">Build 0.3.0</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
