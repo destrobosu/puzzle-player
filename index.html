@@ -101,6 +101,17 @@
   /* Tooltip */
   .powerup-tooltip { position: fixed; background: #0f3460; border: 1px solid #1a5276; border-radius: 6px; padding: 8px 12px; color: #ccc; font-size: 0.75rem; max-width: 200px; z-index: 1001; line-height: 1.4; box-shadow: 0 4px 15px rgba(0,0,0,0.5); pointer-events: auto; }
 
+  /* Power-up target hint: pulse glow on valid pieces during drag */
+  @keyframes pulseHint {
+    0%, 100% { box-shadow: 0 0 6px rgba(255,255,255,0.2); }
+    50% { box-shadow: 0 0 16px rgba(255,255,255,0.7), 0 0 24px rgba(255,255,255,0.3); }
+  }
+  .board .cell.powerup-hint {
+    animation: pulseHint 1.2s ease-in-out infinite;
+    outline: 1px solid rgba(255,255,255,0.3);
+    outline-offset: -1px;
+  }
+
   /* Drag ghost */
   .drag-ghost { position: fixed; pointer-events: none; z-index: 1000; width: 50px; height: 50px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.3); opacity: 0.9; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transform: translate(-50%, -50%); }
   .drag-ghost.ghost-svg { background: transparent; border: none; box-shadow: none; }
@@ -194,7 +205,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.3.5</div>
+<div class="build-info">Build 0.3.6</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -759,7 +770,7 @@ document.addEventListener('mouseup', e => {
       renderBoard(); updateStatus(); checkStars();
     }
   }
-  dragging=false; dragColor=null; dragSource=null;
+  clearPowerUpHints(); dragging=false; dragColor=null; dragSource=null;
 });
 
 // === TOUCH SUPPORT ===
@@ -774,6 +785,7 @@ function startDragFromPalette(color, x, y) {
   if (PIECE_SVGS[color]) { ghost.className='drag-ghost ghost-svg'; ghost.innerHTML=PIECE_SVGS[color]; }
   else { ghost.className='drag-ghost'; ghost.innerHTML=''; }
   ghost.style.display='block'; ghost.style.left=x+'px'; ghost.style.top=y+'px';
+  if (powerUpMap[color]) showPowerUpHints(color);
 }
 
 function startDragFromBoard(state, r, c, x, y) {
@@ -782,6 +794,22 @@ function startDragFromBoard(state, r, c, x, y) {
   if (PIECE_SVGS[dragColor]) { ghost.className='drag-ghost ghost-svg'; ghost.innerHTML=PIECE_SVGS[dragColor]; }
   else { ghost.className='drag-ghost'; ghost.innerHTML=''; }
   ghost.style.display='block'; ghost.style.left=x+'px'; ghost.style.top=y+'px';
+}
+
+function showPowerUpHints(color) {
+  const pu = powerUpMap[color];
+  if (!pu) return;
+  const cells = document.querySelectorAll('#board .cell');
+  for (let r = 0; r < boardSize; r++) for (let c = 0; c < boardSize; c++) {
+    const idx = r * boardSize + c;
+    if (cells[idx] && pu.canActivate({row:r, col:c})) {
+      cells[idx].classList.add('powerup-hint');
+    }
+  }
+}
+
+function clearPowerUpHints() {
+  document.querySelectorAll('.powerup-hint').forEach(c => c.classList.remove('powerup-hint'));
 }
 
 function handleDragMove(x, y) {
@@ -837,7 +865,7 @@ document.addEventListener('touchend', e => {
       renderBoard(); updateStatus(); checkStars();
     }
   }
-  dragging=false; dragColor=null; dragSource=null;
+  clearPowerUpHints(); dragging=false; dragColor=null; dragSource=null;
 });
 
 // === POWER-UP TOOLTIPS ===
