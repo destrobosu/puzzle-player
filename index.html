@@ -48,12 +48,11 @@
     .board-area { order: 1; }
     .board-wrapper { padding: 16px; }
     .board-label { font-size: 0.55rem; }
-    .pieces-panel { order: 2; min-width: auto; width: 100%; max-width: 360px; padding: 8px; }
-    .pieces-panel h3 { font-size: 0.8rem; margin-bottom: 4px; }
-    .palette-group { grid-template-columns: repeat(6, 1fr); gap: 3px; margin-bottom: 4px; }
-    .palette-group-label { font-size: 0.65rem; margin-bottom: 2px; }
+    .pieces-panel { order: 2; min-width: auto; width: 100%; max-width: 360px; padding: 6px; }
+    .pieces-panel h3 { font-size: 0.75rem; margin-bottom: 4px; }
+    .pieces-inventory { gap: 3px; }
     .palette-swatch { width: 26px; height: 26px; }
-    .palette-item { padding: 3px; }
+    .palette-item { padding: 2px; }
     .powerups-panel { order: 3; min-width: auto; width: 100%; max-width: 360px; padding: 8px; }
     .powerups-panel h3 { font-size: 0.8rem; margin-bottom: 4px; }
     .powerups-row { justify-content: center; }
@@ -88,6 +87,9 @@
   .swatch-svg { background: transparent; border: none; display: flex; align-items: center; justify-content: center; }
   .palette-label { font-size: 0.8rem; color: #ccc; }
   .swatch-white { background: #e8e8e8; }
+
+  /* Pieces inventory */
+  .pieces-inventory { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
 
   /* Drag ghost */
   .drag-ghost { position: fixed; pointer-events: none; z-index: 1000; width: 50px; height: 50px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.3); opacity: 0.9; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transform: translate(-50%, -50%); }
@@ -156,15 +158,8 @@
 
 <div class="game-layout">
   <div class="palette-section pieces-panel">
-    <h3>Player Pieces</h3>
-    <div class="palette-group-label">Common</div>
-    <div class="palette-group" id="common-pieces"></div>
-    <div class="palette-group-label">Rare</div>
-    <div class="palette-group" id="rare-pieces"></div>
-    <div class="palette-group-label">Epic</div>
-    <div class="palette-group" id="epic-pieces"></div>
-    <div class="palette-group-label">Legendary</div>
-    <div class="palette-group" id="legendary-pieces"></div>
+    <h3>Pieces</h3>
+    <div class="pieces-inventory" id="pieces-inventory"></div>
   </div>
 
   <div class="board-area">
@@ -188,7 +183,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.2.1</div>
+<div class="build-info">Build 0.2.2</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -825,31 +820,24 @@ document.addEventListener('click', e => {
 
 // === POPULATE PIECE PALETTES ===
 function populatePieces() {
-  const groups = {
-    'common-pieces': ['green','green2'],
-    'rare-pieces': ['blue','blue2','blue3','blue4'],
-    'epic-pieces': ['purple','purple2','purple3','purple4'],
-    'legendary-pieces': ['orange'],
-  };
-  for (const [id,variants] of Object.entries(groups)) {
-    const container = document.getElementById(id);
-    for (const v of variants) {
-      const item = document.createElement('div');
-      item.className = 'palette-item'; item.dataset.color = v;
-      const swatch = document.createElement('div');
-      swatch.className = 'palette-swatch swatch-svg';
-      if (PIECE_SVGS[v]) swatch.innerHTML = PIECE_SVGS[v].replace(/100%/g,'32');
-      item.appendChild(swatch);
-      item.addEventListener('mousedown', e => {
-        if (e.button!==0) return; e.preventDefault();
-        startDragFromPalette(v, e.clientX, e.clientY);
-      });
-      item.addEventListener('touchstart', e => {
-        e.preventDefault(); document.body.style.overflow='hidden';
-        const {x,y}=getEventXY(e); startDragFromPalette(v, x, y);
-      }, {passive:false});
-      container.appendChild(item);
-    }
+  const allVariants = ['green','green2','blue','blue2','blue3','blue4','purple','purple2','purple3','purple4','orange'];
+  const container = document.getElementById('pieces-inventory');
+  for (const v of allVariants) {
+    const item = document.createElement('div');
+    item.className = 'palette-item'; item.dataset.color = v;
+    const swatch = document.createElement('div');
+    swatch.className = 'palette-swatch swatch-svg';
+    if (PIECE_SVGS[v]) swatch.innerHTML = PIECE_SVGS[v].replace(/100%/g,'32');
+    item.appendChild(swatch);
+    item.addEventListener('mousedown', e => {
+      if (e.button!==0) return; e.preventDefault();
+      startDragFromPalette(v, e.clientX, e.clientY);
+    });
+    item.addEventListener('touchstart', e => {
+      e.preventDefault(); document.body.style.overflow='hidden';
+      const {x,y}=getEventXY(e); startDragFromPalette(v, x, y);
+    }, {passive:false});
+    container.appendChild(item);
   }
 }
 
