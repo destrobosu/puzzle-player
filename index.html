@@ -96,7 +96,7 @@
   .pieces-inventory { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
 
   /* Power-up names */
-  .powerup-name { font-size: 0.8rem; color: #eee; font-weight: 700; cursor: pointer; }
+  .powerup-name { font-size: 0.8rem; color: #eee; font-weight: 700; cursor: pointer; touch-action: auto; position: relative; z-index: 2; }
 
   /* Tooltip */
   .powerup-tooltip { position: fixed; background: #0f3460; border: 1px solid #1a5276; border-radius: 6px; padding: 8px 12px; color: #ccc; font-size: 0.75rem; max-width: 200px; z-index: 1001; line-height: 1.4; box-shadow: 0 4px 15px rgba(0,0,0,0.5); pointer-events: auto; }
@@ -194,7 +194,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.3.3</div>
+<div class="build-info">Build 0.3.4</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -843,8 +843,8 @@ document.addEventListener('touchend', e => {
 // === POWER-UP TOOLTIPS ===
 let activeTooltip = null;
 document.querySelectorAll('.powerup-name').forEach(name => {
-  name.addEventListener('click', e => {
-    e.stopPropagation();
+  function showTooltip(e) {
+    e.stopPropagation(); e.preventDefault();
     if (activeTooltip) { activeTooltip.remove(); activeTooltip = null; }
     const tip = document.createElement('div');
     tip.className = 'powerup-tooltip';
@@ -854,7 +854,9 @@ document.querySelectorAll('.powerup-name').forEach(name => {
     tip.style.left = Math.min(rect.left, window.innerWidth - 210) + 'px';
     tip.style.bottom = (window.innerHeight - rect.top + 6) + 'px';
     activeTooltip = tip;
-  });
+  }
+  name.addEventListener('click', showTooltip);
+  name.addEventListener('touchstart', e => { showTooltip(e); }, {passive: false});
 });
 document.addEventListener('click', () => {
   if (activeTooltip) { activeTooltip.remove(); activeTooltip = null; }
