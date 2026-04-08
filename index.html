@@ -22,8 +22,6 @@
   /* Board */
   .board-area { display: flex; flex-direction: column; align-items: center; }
   .board-area h2 { margin-bottom: 10px; font-size: 1.1rem; color: #aaa; }
-  .board-title { font-size: 1.1rem; color: #ccc; font-weight: 600; margin-bottom: 8px; text-align: center; letter-spacing: 0.5px; }
-  .board-title span { color: #888; font-weight: 400; font-size: 0.85rem; }
   .board-wrapper { position: relative; display: inline-block; padding: 24px; }
   .board-label { position: absolute; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; pointer-events: none; }
   .board-label.label-in { color: #2ecc71; }
@@ -35,28 +33,34 @@
 
   /* Mobile responsive */
   @media (max-width: 600px) {
-    body { padding: 10px; }
-    h1 { font-size: 1.4rem; margin-bottom: 6px; }
-    .board-selector { gap: 5px; }
-    .board-card { padding: 6px 10px; font-size: 0.8rem; }
-    .board-card-name { font-size: 0.8rem; }
-    .board-card-info { font-size: 0.65rem; }
-    .status { font-size: 0.85rem; margin-bottom: 8px; }
-    .stars { margin: 6px 0; }
-    .star { font-size: 1.5rem; }
-    .game-layout { flex-direction: column; align-items: center; gap: 12px; }
+    body { padding: 8px 6px; }
+    h1 { font-size: 1.2rem; margin-bottom: 4px; }
+    .board-selector { gap: 4px; margin-bottom: 6px; }
+    .board-card { padding: 4px 8px; }
+    .board-card-name { font-size: 0.7rem; }
+    .board-card-info { font-size: 0.55rem; }
+    .board-header { gap: 8px; margin-bottom: 2px; }
+    .board-title { font-size: 0.9rem; }
+    .board-title span { font-size: 0.7rem; }
+    .star { font-size: 1.1rem; }
+    .status { font-size: 0.75rem; margin-bottom: 4px; }
+    .game-layout { flex-direction: column; align-items: center; gap: 8px; }
     .board-area { order: 1; }
-    .board-title { font-size: 0.95rem; }
-    .board-wrapper { padding: 18px; }
-    .palette-section { min-width: auto; width: 100%; max-width: 340px; order: 2; padding: 10px; }
-    .palette-section h3 { font-size: 0.85rem; margin-bottom: 8px; }
-    .palette-group { grid-template-columns: repeat(4, 1fr); gap: 4px; }
-    .palette-group-label { font-size: 0.75rem; }
-    .palette-swatch { width: 28px; height: 28px; }
-    .palette-item { padding: 4px; }
-    .powerup-item { padding: 4px 8px; }
-    .board-label { font-size: 0.6rem; }
-    .win-banner { font-size: 1rem; }
+    .board-wrapper { padding: 16px; }
+    .board-label { font-size: 0.55rem; }
+    .pieces-panel { order: 2; min-width: auto; width: 100%; max-width: 360px; padding: 8px; }
+    .pieces-panel h3 { font-size: 0.8rem; margin-bottom: 4px; }
+    .palette-group { grid-template-columns: repeat(6, 1fr); gap: 3px; margin-bottom: 4px; }
+    .palette-group-label { font-size: 0.65rem; margin-bottom: 2px; }
+    .palette-swatch { width: 26px; height: 26px; }
+    .palette-item { padding: 3px; }
+    .powerups-panel { order: 3; min-width: auto; width: 100%; max-width: 360px; padding: 8px; }
+    .powerups-panel h3 { font-size: 0.8rem; margin-bottom: 4px; }
+    .powerups-row { justify-content: center; }
+    .powerup-item { padding: 3px 6px; }
+    .powerup-item .palette-label { font-size: 0.7rem; }
+    .win-banner { font-size: 0.9rem; margin-top: 4px; }
+    .build-info { font-size: 0.55rem; }
   }
   .board { display: grid; gap: 2px; background: #0f3460; padding: 2px; border-radius: 8px; border: 2px solid #16213e; }
   .board .cell { width: 55px; height: 55px; background: #16213e; border-radius: 4px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; position: relative; }
@@ -89,21 +93,27 @@
   .drag-ghost { position: fixed; pointer-events: none; z-index: 1000; width: 50px; height: 50px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.3); opacity: 0.9; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transform: translate(-50%, -50%); }
   .drag-ghost.ghost-svg { background: transparent; border: none; box-shadow: none; }
 
+  /* Board header: title + stars inline */
+  .board-header { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 4px; }
+  .board-title { font-size: 1.1rem; color: #ccc; font-weight: 600; letter-spacing: 0.5px; margin: 0; }
+  .board-title span { color: #888; font-weight: 400; font-size: 0.85rem; }
+
   /* Stars */
-  .stars { display: flex; gap: 5px; justify-content: center; margin: 10px 0; }
-  .star { font-size: 2rem; color: #333; transition: all 0.3s; }
+  .stars { display: flex; gap: 3px; }
+  .star { font-size: 1.4rem; color: #333; transition: all 0.3s; }
   .star.earned { color: #f1c40f; text-shadow: 0 0 10px rgba(241,196,15,0.5); }
 
   /* Board selector */
-  .board-selector { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 15px; }
-  .board-card { padding: 10px 18px; background: #16213e; border: 2px solid #0f3460; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .board-selector { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+  .board-card { padding: 5px 12px; background: #16213e; border: 1px solid #0f3460; border-radius: 6px; cursor: pointer; transition: all 0.2s; text-align: center; }
   .board-card:hover { border-color: #e94560; }
   .board-card.active { border-color: #2ecc71; background: #1a3a2e; }
-  .board-card-name { font-size: 0.9rem; color: #eee; font-weight: bold; }
-  .board-card-info { font-size: 0.75rem; color: #888; margin-top: 3px; }
+  .board-card-name { font-size: 0.8rem; color: #eee; font-weight: bold; }
+  .board-card-info { font-size: 0.65rem; color: #888; margin-top: 1px; }
 
   /* Power-ups */
-  .powerup-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; cursor: grab; border: 2px solid transparent; transition: all 0.2s; }
+  .powerups-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .powerup-item { display: flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 6px; cursor: grab; border: 2px solid transparent; transition: all 0.2s; }
   .powerup-item:hover { border-color: rgba(255,255,255,0.2); }
   .powerup-item:active { cursor: grabbing; }
 
@@ -133,16 +143,19 @@
 
 <div class="board-selector" id="board-selector"></div>
 
-<div class="status" id="status">Select a board to play</div>
-
-<div class="stars" id="stars">
-  <span class="star" id="star1">&#9733;</span>
-  <span class="star" id="star2">&#9733;</span>
-  <span class="star" id="star3">&#9733;</span>
+<div class="board-header">
+  <div class="board-title" id="board-title"></div>
+  <div class="stars" id="stars">
+    <span class="star" id="star1">&#9733;</span>
+    <span class="star" id="star2">&#9733;</span>
+    <span class="star" id="star3">&#9733;</span>
+  </div>
 </div>
 
+<div class="status" id="status">Select a board to play</div>
+
 <div class="game-layout">
-  <div class="palette-section">
+  <div class="palette-section pieces-panel">
     <h3>Player Pieces</h3>
     <div class="palette-group-label">Common</div>
     <div class="palette-group" id="common-pieces"></div>
@@ -155,26 +168,27 @@
   </div>
 
   <div class="board-area">
-    <div class="board-title" id="board-title"></div>
     <div class="board-wrapper" id="board-wrapper">
       <div class="board" id="board"></div>
     </div>
-    <div style="display:flex;gap:8px;margin-top:10px;">
-      <button onclick="resetBoard()" style="padding:6px 14px;border:1px solid #0f3460;background:#16213e;color:#ccc;border-radius:6px;cursor:pointer;font-size:0.85rem;">Reset</button>
+    <div style="display:flex;gap:8px;margin-top:8px;justify-content:center;">
+      <button onclick="resetBoard()" style="padding:5px 12px;border:1px solid #0f3460;background:#16213e;color:#ccc;border-radius:6px;cursor:pointer;font-size:0.8rem;">Reset</button>
     </div>
     <div id="win-banner"></div>
   </div>
 
-  <div class="palette-section">
+  <div class="palette-section powerups-panel">
     <h3>Power Ups</h3>
-    <div class="powerup-item" data-color="fill"><div class="palette-swatch swatch-white" style="width:28px;height:28px;"></div><span class="palette-label">Fill</span></div>
-    <div class="powerup-item" data-color="extend"><div class="palette-swatch swatch-white" style="width:28px;height:28px;"></div><span class="palette-label">Extend</span></div>
-    <div class="powerup-item" data-color="teleport"><div class="palette-swatch swatch-white" style="width:28px;height:28px;"></div><span class="palette-label">Teleport</span></div>
+    <div class="powerups-row">
+      <div class="powerup-item" data-color="fill"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Fill</span></div>
+      <div class="powerup-item" data-color="extend"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Extend</span></div>
+      <div class="powerup-item" data-color="teleport"><div class="palette-swatch swatch-white" style="width:24px;height:24px;"></div><span class="palette-label">Teleport</span></div>
+    </div>
   </div>
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.2.0</div>
+<div class="build-info">Build 0.2.1</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
