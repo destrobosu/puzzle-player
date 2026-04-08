@@ -268,7 +268,12 @@ const FillPowerUp = {
     if (!isLast) return (dir==='T'||dir==='B')?'white':'white2';
     const inc=OPPOSITE[dir], needed=[inc], forbidden=[];
     for (const s of ['T','B','L','R']) { if (s===inc) continue; const [dr,dc]=DIR_DELTA[s]; const nr=row+dr,nc=col+dc;
-      if (nr>=0&&nr<boardSize&&nc>=0&&nc<boardSize&&boardState[nr][nc]===null) needed.push(s); else forbidden.push(s);
+      if (nr<0||nr>=boardSize||nc<0||nc>=boardSize) { forbidden.push(s); continue; }
+      const adj=boardState[nr][nc];
+      if (adj===null) { needed.push(s); continue; }
+      if (adj.type==='obstacle') { forbidden.push(s); continue; }
+      if (adj.variant&&CONNECTORS[adj.variant]&&CONNECTORS[adj.variant].includes(OPPOSITE[s])) needed.push(s);
+      else forbidden.push(s);
     } return findPresetVariant(needed,forbidden);
   },
   renderCell(cell,r,c) {
@@ -317,7 +322,12 @@ const ExtendPowerUp = {
   _variant(row,col,fromDir) {
     const inc=OPPOSITE[fromDir], needed=[inc], forbidden=[];
     for (const s of ['T','B','L','R']) { if (s===inc) continue; const [dr,dc]=DIR_DELTA[s]; const nr=row+dr,nc=col+dc;
-      if (nr>=0&&nr<boardSize&&nc>=0&&nc<boardSize&&boardState[nr][nc]===null) needed.push(s); else forbidden.push(s);
+      if (nr<0||nr>=boardSize||nc<0||nc>=boardSize) { forbidden.push(s); continue; }
+      const adj=boardState[nr][nc];
+      if (adj===null) { needed.push(s); continue; }
+      if (adj.type==='obstacle') { forbidden.push(s); continue; }
+      if (adj.variant&&CONNECTORS[adj.variant]&&CONNECTORS[adj.variant].includes(OPPOSITE[s])) needed.push(s);
+      else forbidden.push(s);
     } return findPresetVariant(needed,forbidden);
   },
   renderCell(cell,r,c) {
