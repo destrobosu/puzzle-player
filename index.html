@@ -207,7 +207,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.3.8</div>
+<div class="build-info">Build 0.3.9</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -352,23 +352,30 @@ const FillPowerUp = {
     } return findPresetVariant(needed,forbidden);
   },
   renderCell(cell,r,c) {
+    const isMobile = window.innerWidth <= 600;
     if (this.target&&this.target.row===r&&this.target.col===c) {
       cell.classList.add('powerup-target');
-      this.directions.forEach(dir => {
-        const arrow=document.createElement('div'); arrow.className='fill-arrow dir-'+dir; arrow.innerHTML=DIR_ARROWS[dir];
-        arrow.addEventListener('mouseenter',()=>{this.previewDir=dir;renderBoard();});
-        arrow.addEventListener('click',e=>{e.stopPropagation();this.execute(dir);});
-        arrow.addEventListener('touchstart',e=>{e.stopPropagation();e.preventDefault();this.execute(dir);},{passive:false});
-        cell.appendChild(arrow);
-      });
+      if (!isMobile) {
+        this.directions.forEach(dir => {
+          const arrow=document.createElement('div'); arrow.className='fill-arrow dir-'+dir; arrow.innerHTML=DIR_ARROWS[dir];
+          arrow.addEventListener('mouseenter',()=>{this.previewDir=dir;renderBoard();});
+          arrow.addEventListener('click',e=>{e.stopPropagation();this.execute(dir);});
+          cell.appendChild(arrow);
+        });
+      }
     }
-    if (this.previewDir&&this.target) {
-      const path=computeFillPath(this.target.row,this.target.col,this.previewDir);
+    // Desktop: show hovered direction only. Mobile: show ALL directions
+    const dirsToShow = isMobile ? this.directions : (this.previewDir ? [this.previewDir] : []);
+    for (const dir of dirsToShow) {
+      const path=computeFillPath(this.target.row,this.target.col,dir);
       for (let i=0;i<path.length;i++) if (path[i].row===r&&path[i].col===c) {
-        const isLast=i===path.length-1, v=this._variant(this.previewDir,isLast,r,c);
+        const isLast=i===path.length-1, v=this._variant(dir,isLast,r,c);
         cell.classList.add('fill-preview'); if (isLast) cell.classList.add('fill-preview-last');
-        if (PIECE_SVGS[v]) {cell.classList.add('cell-svg');cell.innerHTML=PIECE_SVGS[v];cell.style.opacity='0.5';}
-        cell.style.cursor='pointer'; cell.addEventListener('click',e=>{e.stopPropagation();this.execute(this.previewDir);});
+        if (PIECE_SVGS[v]) {cell.classList.add('cell-svg');cell.innerHTML=PIECE_SVGS[v];cell.style.opacity='0.4';}
+        cell.style.cursor='pointer';
+        const execDir = dir;
+        cell.addEventListener('click',e=>{e.stopPropagation();this.execute(execDir);});
+        cell.addEventListener('touchstart',e=>{e.stopPropagation();e.preventDefault();this.execute(execDir);},{passive:false});
       }
     }
   },
@@ -460,25 +467,40 @@ const TeleportPowerUp = {
     } return {row:landR,col:landC,variant:findPresetVariant(needed,forbidden)};
   },
   renderCell(cell,r,c) {
+    const isMobile = window.innerWidth <= 600;
     if (this.target&&this.target.row===r&&this.target.col===c) cell.classList.add('powerup-target');
-    for (let i=0;i<this.directions.length;i++) { const d=this.directions[i];
-      if (d.obstacleRow===r&&d.obstacleCol===c) {
-        const arrow=document.createElement('div'); arrow.className='fill-arrow dir-'+d.exitDir; arrow.innerHTML=DIR_ARROWS[d.exitDir];
-        arrow.style.zIndex='10'; const idx=i;
-        arrow.addEventListener('mouseenter',()=>{this._previewIdx=idx;renderBoard();});
-        arrow.addEventListener('click',e=>{e.stopPropagation();this._executeIdx(idx);});
-        arrow.addEventListener('touchstart',e=>{e.stopPropagation();e.preventDefault();this._executeIdx(idx);},{passive:false});
-        cell.appendChild(arrow);
+    // Desktop: arrows on obstacles, hover to preview. Mobile: show all landings directly.
+    if (!isMobile) {
+      for (let i=0;i<this.directions.length;i++) { const d=this.directions[i];
+        if (d.obstacleRow===r&&d.obstacleCol===c) {
+          const arrow=document.createElement('div'); arrow.className='fill-arrow dir-'+d.exitDir; arrow.innerHTML=DIR_ARROWS[d.exitDir];
+          arrow.style.zIndex='10'; const idx=i;
+          arrow.addEventListener('mouseenter',()=>{this._previewIdx=idx;renderBoard();});
+          arrow.addEventListener('click',e=>{e.stopPropagation();this._executeIdx(idx);});
+          cell.appendChild(arrow);
+        }
       }
-    }
-    if (this._previewIdx!=null&&this.directions[this._previewIdx]) {
-      const d=this.directions[this._previewIdx];
-      const landing=this._computeLanding(d.exitDir,d.obstacleRow,d.obstacleCol,d.landingRow,d.landingCol);
-      if (landing.row===r&&landing.col===c) {
-        cell.classList.add('teleport-preview');
-        if (PIECE_SVGS[landing.variant]) {cell.classList.add('cell-svg');cell.innerHTML=PIECE_SVGS[landing.variant];cell.style.opacity='0.5';}
-        cell.style.cursor='pointer'; const idx=this._previewIdx;
-        cell.addEventListener('click',e=>{e.stopPropagation();this._executeIdx(idx);});
+      if (this._previewIdx!=null&&this.directions[this._previewIdx]) {
+        const d=this.directions[this._previewIdx];
+        const landing=this._computeLanding(d.exitDir,d.obstacleRow,d.obstacleCol,d.landingRow,d.landingCol);
+        if (landing.row===r&&landing.col===c) {
+          cell.classList.add('teleport-preview');
+          if (PIECE_SVGS[landing.variant]) {cell.classList.add('cell-svg');cell.innerHTML=PIECE_SVGS[landing.variant];cell.style.opacity='0.5';}
+          cell.style.cursor='pointer'; const idx=this._previewIdx;
+          cell.addEventListener('click',e=>{e.stopPropagation();this._executeIdx(idx);});
+        }
+      }
+    } else {
+      // Mobile: show ALL landing cells directly, tap to execute
+      for (let i=0;i<this.directions.length;i++) { const d=this.directions[i];
+        const landing=this._computeLanding(d.exitDir,d.obstacleRow,d.obstacleCol,d.landingRow,d.landingCol);
+        if (landing.row===r&&landing.col===c) {
+          cell.classList.add('teleport-preview');
+          if (PIECE_SVGS[landing.variant]) {cell.classList.add('cell-svg');cell.innerHTML=PIECE_SVGS[landing.variant];cell.style.opacity='0.4';}
+          cell.style.cursor='pointer'; const idx=i;
+          cell.addEventListener('click',e=>{e.stopPropagation();this._executeIdx(idx);});
+          cell.addEventListener('touchstart',e=>{e.stopPropagation();e.preventDefault();this._executeIdx(idx);},{passive:false});
+        }
       }
     }
   },
