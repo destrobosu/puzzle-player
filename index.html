@@ -207,7 +207,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.3.9</div>
+<div class="build-info">Build 0.4.0</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -899,20 +899,22 @@ document.addEventListener('touchend', e => {
 // === POWER-UP TOOLTIPS ===
 let activeTooltip = null;
 document.querySelectorAll('.powerup-name').forEach(name => {
-  function showTooltip(e) {
+  function toggleTooltip(e) {
     e.stopPropagation(); e.preventDefault();
+    if (activeTooltip && activeTooltip._source === name) { activeTooltip.remove(); activeTooltip = null; return; }
     if (activeTooltip) { activeTooltip.remove(); activeTooltip = null; }
     const tip = document.createElement('div');
     tip.className = 'powerup-tooltip';
     tip.textContent = name.dataset.tip;
+    tip._source = name;
     document.body.appendChild(tip);
     const rect = name.getBoundingClientRect();
     tip.style.left = Math.min(rect.left, window.innerWidth - 210) + 'px';
     tip.style.bottom = (window.innerHeight - rect.top + 6) + 'px';
     activeTooltip = tip;
   }
-  name.addEventListener('click', showTooltip);
-  name.addEventListener('touchstart', e => { showTooltip(e); }, {passive: false});
+  name.addEventListener('click', toggleTooltip);
+  name.addEventListener('touchstart', e => { toggleTooltip(e); }, {passive: false});
 });
 document.addEventListener('click', () => {
   if (activeTooltip) { activeTooltip.remove(); activeTooltip = null; }
