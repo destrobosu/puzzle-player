@@ -143,6 +143,26 @@ let boardSize = 0;
 let boardState = [];
 let originalBoard = []; // immutable copy of loaded board for reset
 let history = [];
+let powerUpLinks = {}; // { "row,col" (source) -> ["row,col", ...] (generated pieces) }
+
+// Remove a player piece and all power-up generated pieces linked to it
+function removePieceWithLinks(row, col) {
+  const key = row+','+col;
+  // Remove the piece itself
+  history.push({row, col, prev: boardState[row][col]});
+  boardState[row][col] = null;
+  // Remove all linked generated pieces
+  if (powerUpLinks[key]) {
+    for (const linkedKey of powerUpLinks[key]) {
+      const [lr, lc] = linkedKey.split(',').map(Number);
+      if (boardState[lr][lc] && boardState[lr][lc].type === 'preset') {
+        history.push({row: lr, col: lc, prev: boardState[lr][lc]});
+        boardState[lr][lc] = null;
+      }
+    }
+    delete powerUpLinks[key];
+  }
+}
 let dragging = false;
 let dragColor = null;
 let dragSource = null;
@@ -271,10 +291,16 @@ const FillPowerUp = {
     }
   },
   execute(dir) {
+    const srcKey = this.target.row+','+this.target.col;
     const path=computeFillPath(this.target.row,this.target.col,dir);
+    const generated = [];
     for (let i=0;i<path.length;i++) { const {row,col}=path[i]; const v=this._variant(dir,i===path.length-1,row,col);
       history.push({row,col,prev:boardState[row][col]}); boardState[row][col]={type:'preset',color:'white',variant:v};
-    } PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
+      generated.push(row+','+col);
+    }
+    if (!powerUpLinks[srcKey]) powerUpLinks[srcKey] = [];
+    powerUpLinks[srcKey].push(...generated);
+    PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
   },
   cancel() {this.target=null;this.directions=[];this.previewDir=null;},
   canActivate(t) { const c=boardState[t.row][t.col]; if (!c||c.type!=='piece') return false; return c.variant&&CONNECTORS[c.variant]&&CONNECTORS[c.variant].some(d=>computeFillPath(t.row,t.col,d).length>0); }
@@ -303,9 +329,15 @@ const ExtendPowerUp = {
     }
   },
   execute() {
+    const srcKey = this.target.row+','+this.target.col;
+    const generated = [];
     for (const {row,col,dir} of this.cells) { const v=this._variant(row,col,dir);
       history.push({row,col,prev:boardState[row][col]}); boardState[row][col]={type:'preset',color:'white',variant:v};
-    } PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
+      generated.push(row+','+col);
+    }
+    if (!powerUpLinks[srcKey]) powerUpLinks[srcKey] = [];
+    powerUpLinks[srcKey].push(...generated);
+    PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
   },
   cancel() {this.target=null;this.cells=[];},
   canActivate(t) { const c=boardState[t.row][t.col]; if (!c||c.type!=='piece'||!c.variant||!CONNECTORS[c.variant]) return false;
@@ -363,9 +395,12 @@ const TeleportPowerUp = {
   },
   _executeIdx(idx) {
     const d=this.directions[idx]; if (!d) return;
+    const srcKey = this.target.row+','+this.target.col;
     const landing=this._computeLanding(d.exitDir,d.obstacleRow,d.obstacleCol,d.landingRow,d.landingCol);
     history.push({row:landing.row,col:landing.col,prev:boardState[landing.row][landing.col]});
     boardState[landing.row][landing.col]={type:'preset',color:'white',variant:landing.variant};
+    if (!powerUpLinks[srcKey]) powerUpLinks[srcKey] = [];
+    powerUpLinks[srcKey].push(landing.row+','+landing.col);
     PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
   },
   cancel() {this.target=null;this.directions=[];this.previewDir=null;this._previewIdx=null;},
@@ -390,6 +425,7 @@ async function loadBoardFile(file) {
   }
   originalBoard = boardState.map(row => row.map(cell => cell ? {...cell} : null));
   history = [];
+  powerUpLinks = {};
   document.querySelectorAll('.board-card').forEach(c => c.classList.remove('active'));
   event?.target?.closest?.('.board-card')?.classList?.add('active');
   renderBoard(); updateStatus(); checkStars();
@@ -400,6 +436,7 @@ function resetBoard() {
   if (!originalBoard.length) return;
   boardState = originalBoard.map(row => row.map(cell => cell ? {...cell} : null));
   history = [];
+  powerUpLinks = {};
   if (PowerUpManager.isActive()) PowerUpManager.cancel();
   renderBoard(); updateStatus(); checkStars();
   document.getElementById('win-banner').innerHTML = '';
@@ -443,8 +480,7 @@ function renderBoard() {
     cell.addEventListener('contextmenu', e => {
       e.preventDefault();
       if (state && state.type==='piece') {
-        history.push({row:r,col:c,prev:boardState[r][c]});
-        boardState[r][c] = null;
+        removePieceWithLinks(r, c);
         renderBoard(); updateStatus(); checkStars();
       }
     });
@@ -581,8 +617,7 @@ document.addEventListener('mouseup', e => {
       boardState[target.row][target.col]={type:'piece',color:boardColor,variant};
       renderBoard(); updateStatus(); checkStars();
     } else if (!target) {
-      history.push({row:dragSource.row,col:dragSource.col,prev:boardState[dragSource.row][dragSource.col]});
-      boardState[dragSource.row][dragSource.col]=null;
+      removePieceWithLinks(dragSource.row, dragSource.col);
       renderBoard(); updateStatus(); checkStars();
     }
   } else if (powerUpMap[dragColor]) {
@@ -659,7 +694,11 @@ async function initBoardSelector() {
 
 // === INIT ===
 populatePieces();
-initBoardSelector();
+initBoardSelector().then(() => {
+  // Auto-load Level 1
+  const firstCard = document.querySelector('.board-card');
+  if (firstCard) { firstCard.classList.add('active'); loadBoardFile(BOARDS[0].file); }
+});
 </script>
 </body>
 </html>
