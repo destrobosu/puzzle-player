@@ -88,7 +88,7 @@
   .swatch-white { background: #e8e8e8; }
 
   /* Unified inventory panel */
-  .inventory-panel { background: #16213e; border: 2px solid #0f3460; border-radius: 8px; padding: 10px 12px; width: 100%; max-width: 500px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .inventory-panel { background: #16213e; border: 2px solid #0f3460; border-radius: 8px; padding: 10px 12px; width: 100%; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
   .inventory-section { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
   .inventory-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; white-space: nowrap; }
 
@@ -188,7 +188,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.3.0</div>
+<div class="build-info">Build 0.3.1</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -529,6 +529,9 @@ function renderBoard() {
   board.style.gridTemplateColumns = `repeat(${boardSize}, ${cellSize}px)`;
   board.style.gap = cellGap + 'px';
   document.getElementById('board-wrapper').style.padding = wrapPadding + 'px';
+  const boardTotalWidth = boardSize * cellSize + (boardSize - 1) * cellGap + 4;
+  const inv = document.querySelector('.inventory-panel');
+  if (inv) inv.style.maxWidth = boardTotalWidth + 'px';
   board.innerHTML = '';
   const connectedCells = getConnectedCells();
 
