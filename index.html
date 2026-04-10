@@ -389,7 +389,7 @@
     <div id="win-banner"></div>
   </div>
   <div class="reset-area">
-    <button onclick="resetBoard()" class="reset-btn"><i class="fa-light fa-arrows-rotate"></i> Reset</button>
+    <button onclick="confirmResetBoard()" class="reset-btn"><i class="fa-light fa-arrows-rotate"></i> Reset</button>
   </div>
 
   <div class="inventory-panel">
@@ -497,6 +497,87 @@ function returnPiece(variant) {
   saveInventory();
 }
 
+// === GRANTED REWARDS TRACKING ===
+let grantedRewards = {}; // { boardFile: [{variant, count}] }
+function saveGrantedRewards() { localStorage.setItem('puzzle-granted-rewards', JSON.stringify(grantedRewards)); }
+function loadGrantedRewards() { try { grantedRewards = JSON.parse(localStorage.getItem('puzzle-granted-rewards')||'{}'); } catch(e) { grantedRewards={}; } }
+
+function uncompleteLevel(file) {
+  const completed = getCompletedLevels();
+  const idx = completed.indexOf(file);
+  if (idx >= 0) { completed.splice(idx, 1); localStorage.setItem('puzzle-completed-levels', JSON.stringify(completed)); }
+}
+
+// Board data cache for cascade path checking
+const boardDataCache = {};
+
+// Reconstruct full board state from cached JSON + placements
+function reconstructBoardState(file) {
+  const data = boardDataCache[file];
+  if (!data) return null;
+  const size = data.metadata.boardSize;
+  const state = Array.from({length:size}, ()=>Array(size).fill(null));
+  for (let r=0;r<size;r++) for (let c=0;c<size;c++) {
+    const cell = data.board[r]?.[c];
+    if (!cell) continue;
+    state[r][c] = {type:cell.type, color:cell.color};
+    if (cell.variant) state[r][c].variant = cell.variant;
+  }
+  if (boardPlacements[file]) {
+    for (const [key, piece] of Object.entries(boardPlacements[file])) {
+      const [r, c] = key.split(',').map(Number);
+      if (r < size && c < size && state[r][c] === null) state[r][c] = {...piece};
+    }
+  }
+  return { state, size };
+}
+
+// Cascading reward removal: fix negative inventory by removing pieces from other boards
+function cascadeRewardRemoval(excludeFile) {
+  let changed = true;
+  while (changed) {
+    changed = false;
+    // Fix any negative inventory by clawing back pieces from other boards
+    for (const variant of ALL_VARIANTS) {
+      while (inventory[variant] < 0) {
+        let found = false;
+        for (const file of Object.keys(boardPlacements)) {
+          if (file === excludeFile) continue;
+          const placements = boardPlacements[file];
+          for (const [key, piece] of Object.entries(placements)) {
+            if (piece.variant === variant) {
+              delete placements[key];
+              inventory[variant]++;
+              found = true;
+              break;
+            }
+          }
+          if (found) break;
+        }
+        if (!found) { inventory[variant] = 0; break; } // safety: can't find piece, clamp
+      }
+    }
+    // Check if any board lost its path connection
+    for (const file of Object.keys(boardPlacements)) {
+      if (file === excludeFile) continue;
+      if (!getCompletedLevels().includes(file)) continue;
+      const reconstructed = reconstructBoardState(file);
+      if (!reconstructed) continue;
+      const pathOk = findPathOnState(reconstructed.state, reconstructed.size);
+      if (!pathOk) {
+        // Board lost completion — remove its rewards
+        uncompleteLevel(file);
+        if (grantedRewards[file]) {
+          grantedRewards[file].forEach(r => { inventory[r.variant] -= r.count; });
+          delete grantedRewards[file];
+          changed = true; // may cause more negatives → loop again
+        }
+      }
+    }
+  }
+  saveGrantedRewards(); saveInventory(); saveBoardPlacements();
+}
+
 // === BOARD PERSISTENCE (save player pieces per board) ===
 let boardPlacements = {};
 let boardRotations = {}; // { boardFile: { "row,col": originalVariant } }
@@ -536,6 +617,7 @@ function usePowerUp(type) {
 // Load saved state on startup
 loadInventory();
 loadBoardPlacements();
+loadGrantedRewards();
 
 // Remove a player piece and all power-up generated pieces linked to it
 function removePieceWithLinks(row, col) {
@@ -1006,6 +1088,7 @@ async function loadBoardFile(file) {
   currentBoardFile = file;
   const resp = await fetch(file);
   const data = await resp.json();
+  boardDataCache[file] = data; // cache for cascade checks
   boardSize = data.metadata.boardSize;
   boardState = Array.from({length:boardSize}, ()=>Array(boardSize).fill(null));
   for (let r=0;r<boardSize;r++) for (let c=0;c<boardSize;c++) {
@@ -1037,6 +1120,34 @@ async function loadBoardFile(file) {
   document.getElementById('win-banner').innerHTML = '';
 }
 
+function confirmResetBoard() {
+  if (!originalBoard.length) return;
+  const hasRewards = currentBoardFile && grantedRewards[currentBoardFile];
+  if (hasRewards) {
+    // Show warning dialog
+    document.querySelectorAll('.next-level-overlay,.next-level-notify').forEach(el => el.remove());
+    const overlay = document.createElement('div');
+    overlay.className = 'next-level-overlay';
+    const notify = document.createElement('div');
+    notify.className = 'next-level-notify';
+    notify.innerHTML = '<div class="notify-title" style="color:var(--color-danger)">Reset Level?</div>' +
+      '<div class="notify-msg">Rewards earned from this level will be removed. Pieces used on other boards may also be affected.</div>' +
+      '<div class="notify-buttons">' +
+      '<button class="notify-btn" style="background:var(--color-danger);color:#fff" data-action="confirm">Reset</button>' +
+      '<button class="notify-btn notify-btn-neutral" data-action="cancel">Cancel</button>' +
+      '</div>';
+    document.body.appendChild(overlay);
+    document.body.appendChild(notify);
+    requestAnimationFrame(() => { overlay.classList.add('show'); notify.classList.add('show'); });
+    const dismiss = () => { overlay.classList.remove('show'); notify.classList.remove('show'); setTimeout(() => { overlay.remove(); notify.remove(); }, 200); };
+    notify.querySelector('[data-action="confirm"]').addEventListener('click', () => { dismiss(); resetBoard(); });
+    notify.querySelector('[data-action="cancel"]').addEventListener('click', dismiss);
+    overlay.addEventListener('click', dismiss);
+  } else {
+    resetBoard();
+  }
+}
+
 function resetBoard() {
   if (!originalBoard.length) return;
   // Return all player pieces on this board to inventory (original variant if rotated)
@@ -1052,7 +1163,22 @@ function resetBoard() {
   powerUpLinks = {};
   rotatedPieces = {};
   resetPowerUpUses();
-  if (currentBoardFile) { delete boardPlacements[currentBoardFile]; delete boardRotations[currentBoardFile]; saveBoardPlacements(); }
+  if (currentBoardFile) {
+    delete boardPlacements[currentBoardFile]; delete boardRotations[currentBoardFile];
+    // Remove rewards and un-complete this level
+    if (grantedRewards[currentBoardFile]) {
+      grantedRewards[currentBoardFile].forEach(r => { inventory[r.variant] -= r.count; });
+      delete grantedRewards[currentBoardFile];
+      uncompleteLevel(currentBoardFile);
+      // Cascade: fix negative inventory, check other boards
+      cascadeRewardRemoval(currentBoardFile);
+    }
+    // Remove MEM score for this board
+    const memData = JSON.parse(localStorage.getItem('puzzle-board-mem') || '{}');
+    delete memData[currentBoardFile];
+    localStorage.setItem('puzzle-board-mem', JSON.stringify(memData));
+    saveBoardPlacements();
+  }
   if (PowerUpManager.isActive()) PowerUpManager.cancel();
   renderBoard(); updateStatus(); checkStars(); updateInventoryUI(); updatePowerUpUI();
   document.getElementById('win-banner').innerHTML = '';
@@ -1246,6 +1372,32 @@ function findPath() {
       const [dr,dc]=DIR_DELTA[dir]; const nr=r+dr,nc=c+dc;
       if (nr<0||nr>=boardSize||nc<0||nc>=boardSize||visited[nr][nc]) continue;
       const n=boardState[nr][nc]; if (!n||!n.variant) continue;
+      const ns=CONNECTORS[n.variant]; if (!ns||!ns.includes(OPPOSITE[dir])) continue;
+      visited[nr][nc]=true; queue.push({r:nr,c:nc});
+    }
+  }
+  return false;
+}
+
+// Standalone path check on arbitrary board state (for cascade checking)
+function findPathOnState(state, size) {
+  let entry=null, exit=null;
+  for (let r=0;r<size;r++) for (let c=0;c<size;c++) {
+    const s=state[r][c]; if (!s) continue;
+    if (s.type==='entry') entry={r,c}; if (s.type==='exit') exit={r,c};
+  }
+  if (!entry||!exit) return false;
+  const visited = Array.from({length:size},()=>Array(size).fill(false));
+  const queue = [{r:entry.r,c:entry.c}]; visited[entry.r][entry.c]=true;
+  while (queue.length) {
+    const {r,c} = queue.shift();
+    if (r===exit.r&&c===exit.c) return true;
+    const cell = state[r][c]; if (!cell||!cell.variant) continue;
+    const sides = CONNECTORS[cell.variant]; if (!sides) continue;
+    for (const dir of sides) {
+      const [dr,dc]=DIR_DELTA[dir]; const nr=r+dr,nc=c+dc;
+      if (nr<0||nr>=size||nc<0||nc>=size||visited[nr][nc]) continue;
+      const n=state[nr][nc]; if (!n||!n.variant) continue;
       const ns=CONNECTORS[n.variant]; if (!ns||!ns.includes(OPPOSITE[dir])) continue;
       visited[nr][nc]=true; queue.push({r:nr,c:nc});
     }
@@ -1630,9 +1782,10 @@ function showNextLevelNotification(levelIdx, nextLevelNum, boardMem) {
   const rewards = LEVEL_REWARDS[levelIdx] || [];
   let rewardsHtml = '';
   if (rewards.length > 0) {
-    // Grant rewards to inventory
+    // Grant rewards to inventory and track them
     rewards.forEach(r => { inventory[r.variant] = (inventory[r.variant] || 0) + r.count; });
-    saveInventory(); updateInventoryUI();
+    grantedRewards[currentBoardFile] = rewards.map(r => ({variant: r.variant, count: r.count}));
+    saveGrantedRewards(); saveInventory(); updateInventoryUI();
     rewardsHtml = '<div class="notify-divider"></div><div class="notify-reward-title">Reward</div><div class="notify-rewards">';
     rewards.forEach(r => {
       const name = PIECE_NAMES[r.variant] || r.variant;
@@ -1672,7 +1825,7 @@ function showNextLevelNotification(levelIdx, nextLevelNum, boardMem) {
     }
   });
   notify.querySelector('[data-action="continue"]').addEventListener('click', dismiss);
-  notify.querySelector('[data-action="reset"]').addEventListener('click', () => { dismiss(); resetBoard(); });
+  notify.querySelector('[data-action="reset"]').addEventListener('click', () => { dismiss(); confirmResetBoard(); });
   notify.querySelector('[data-action="levels"]').addEventListener('click', () => { dismiss(); toggleLevels(); });
 }
 
