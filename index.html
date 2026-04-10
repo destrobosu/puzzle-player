@@ -210,6 +210,9 @@
   .next-level-notify .notify-btn:hover { opacity: 0.85; }
   .notify-btn-primary { background: var(--color-positive); color: #fff; }
   .notify-btn-neutral { background: transparent; border: 1px solid var(--color-border-default) !important; color: var(--color-text-primary); }
+  .notify-mem { display: flex; justify-content: center; gap: var(--space-400); margin-bottom: var(--space-200); }
+  .notify-mem-board { font-family: var(--font-mono); font-size: 0.875rem; font-weight: 700; color: var(--color-brand-magenta); }
+  .notify-mem-total { font-family: var(--font-mono); font-size: 0.875rem; font-weight: 700; color: var(--color-brand-yellow); }
   .notify-divider { width: 100%; height: 1px; background: var(--color-border-default); margin: var(--space-300) 0; }
   .notify-reward-title { font-family: var(--font-body); font-size: 0.75rem; font-weight: 700; color: var(--color-text-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--space-200); }
   .notify-rewards { display: flex; gap: var(--space-400); justify-content: center; margin-bottom: var(--space-400); }
@@ -1278,7 +1281,8 @@ function checkStars() {
     if (!alreadyCompleted) {
       const idx = BOARDS.findIndex(b => b.file === currentBoardFile);
       if (idx >= 0 && idx < BOARDS.length - 1) {
-        showNextLevelNotification(idx, idx + 2); // current index, next level number
+        saveBoardMem(currentBoardFile, memScore);
+        showNextLevelNotification(idx, idx + 2, memScore); // current index, next level number, score
       }
     }
   }
@@ -1594,6 +1598,17 @@ function markLevelCompleted(file) {
   if (!completed.includes(file)) { completed.push(file); localStorage.setItem('puzzle-completed-levels', JSON.stringify(completed)); }
 }
 // Level rewards: each level index maps to an array of { variant, count } items
+// MEM score tracking per board
+function saveBoardMem(file, score) {
+  const data = JSON.parse(localStorage.getItem('puzzle-board-mem') || '{}');
+  data[file] = Math.max(data[file] || 0, score); // keep best score
+  localStorage.setItem('puzzle-board-mem', JSON.stringify(data));
+}
+function getTotalMem() {
+  const data = JSON.parse(localStorage.getItem('puzzle-board-mem') || '{}');
+  return Object.values(data).reduce((sum, v) => sum + v, 0);
+}
+
 const LEVEL_REWARDS = {
   0: [{ variant: 'green', count: 1 }, { variant: 'green2', count: 1 }], // Level 1: CC
   1: [{ variant: 'green', count: 1 }, { variant: 'blue', count: 1 }],   // Level 2: CR
@@ -1604,7 +1619,7 @@ const LEVEL_REWARDS = {
   6: [{ variant: 'red', count: 1 }], // Level 7: Red (Breaker)
 };
 
-function showNextLevelNotification(levelIdx, nextLevelNum) {
+function showNextLevelNotification(levelIdx, nextLevelNum, boardMem) {
   document.querySelectorAll('.next-level-overlay,.next-level-notify').forEach(el => el.remove());
   const overlay = document.createElement('div');
   overlay.className = 'next-level-overlay';
@@ -1627,8 +1642,13 @@ function showNextLevelNotification(levelIdx, nextLevelNum) {
     rewardsHtml += '</div>';
   }
 
+  // MEM score section
+  const totalMem = getTotalMem();
+  const memHtml = '<div class="notify-mem"><span class="notify-mem-board">' + (boardMem || 0) + ' MEM earned</span><span class="notify-mem-total">Total: ' + totalMem + ' MEM</span></div>';
+
   notify.innerHTML = '<div class="notify-title">Path Connected!</div>' +
     '<div class="notify-msg">Level ' + nextLevelNum + ' is now unlocked</div>' +
+    memHtml +
     rewardsHtml +
     '<div class="notify-buttons">' +
     '<button class="notify-btn notify-btn-primary" data-action="next">Next Level</button>' +
