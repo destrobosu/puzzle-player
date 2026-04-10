@@ -3,104 +3,183 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Puzzle Player</title>
+<title>Fragmented</title>
+<link rel="stylesheet" href="https://kit.fontawesome.com/f7fb6cccf3.css" crossorigin="anonymous">
 <style>
+  /* === FB Design System — Official Claude Rules === */
+  :root {
+    /* Backgrounds (dark-first) */
+    --color-bg-page: #00002F;
+    --color-bg-surface: #1A1A44;
+    --color-bg-elevated: #252550;
+    --color-bg-sunken: #000022;
+    /* Borders */
+    --color-border-default: #333359;
+    --color-border-subtle: #2A2A4E;
+    --color-border-secondary: #808097;
+    /* Text */
+    --color-text-primary: #f3f3f3;
+    --color-text-secondary: #9999ac;
+    --color-text-faint: #666682;
+    /* Brand */
+    --color-accent: #2383E2;
+    --color-positive: #14AE5C;
+    --color-positive-secondary: #02542d;
+    --color-warning: #E8B931;
+    --color-danger: #EC221F;
+    /* Brand colors */
+    --color-brand-magenta: #E51A4B;
+    --color-brand-yellow: #F0E800;
+    --color-brand-orange: #FF8400;
+    --color-brand-navy: #00002F;
+    --color-brand-indigo: #120466;
+    /* FB Mode (tooltips, badges, branded overlays) */
+    --fb-bg: #00002F;
+    --fb-surface: #1A1A44;
+    --fb-border: #333359;
+    --fb-text: #f3f3f3;
+    --fb-secondary: #9999ac;
+    --fb-faint: #666682;
+    /* Rarity primitives */
+    --rarity-common: #9E9E9E;
+    --rarity-uncommon: #4CAF50;
+    --rarity-rare: #2196F3;
+    --rarity-epic: #9C27B0;
+    --rarity-legendary: #FF9800;
+    /* Spacing (8pt grid) */
+    --space-100: 4px;
+    --space-200: 8px;
+    --space-300: 12px;
+    --space-400: 16px;
+    --space-600: 24px;
+    --space-800: 32px;
+    /* Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+    --radius-xl: 32px;
+    --radius-full: 9999px;
+    /* Typography */
+    --font-display: 'AKIRA Expanded', Impact, sans-serif;
+    --font-body: 'Cera Pro', system-ui, sans-serif;
+    --font-mono: 'Cera Mono', 'SF Mono', monospace;
+    /* Shadows */
+    --shadow-light: 0 1px 4px rgba(12,12,13,0.1), 0 1px 4px rgba(12,12,13,0.05);
+    --shadow-heavy: 0 4px 4px -4px rgba(12,12,13,0.05), 0 16px 16px -8px rgba(12,12,13,0.1);
+    /* Motion (MD3) */
+    --ease-enter: cubic-bezier(0.2, 0, 0, 1);
+    --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+    --duration-fast: 150ms;
+    --duration-normal: 200ms;
+    --duration-slow: 300ms;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; user-select: none; }
-  h1 { font-size: 2rem; margin-bottom: 10px; background: linear-gradient(135deg, #2ecc71, #0f3460); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  body { font-family: var(--font-body); background: var(--color-bg-page); color: var(--color-text-primary); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: var(--space-600); user-select: none; }
+  h1 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; margin-bottom: var(--space-300); text-transform: uppercase; letter-spacing: 1px; color: var(--color-brand-magenta); }
 
-  .controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; align-items: center; }
-  .controls button { padding: 8px 18px; border: 2px solid #0f3460; background: #16213e; color: #eee; border-radius: 8px; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; }
-  .controls button:hover { background: #0f3460; }
-  .controls button.active { background: #e94560; border-color: #e94560; }
+  .controls { display: flex; gap: var(--space-200); margin-bottom: var(--space-400); flex-wrap: wrap; justify-content: center; align-items: center; }
+  .controls button { padding: var(--space-200) var(--space-400); border: 1px solid var(--color-border-default); background: var(--color-bg-surface); color: var(--color-text-primary); border-radius: var(--radius-lg); corner-shape: squircle; cursor: pointer; font-family: var(--font-body); font-size: 13px; transition: all var(--duration-fast) var(--ease-enter); height: 40px; }
+  .controls button:hover { background: var(--color-bg-elevated); }
+  .controls button.active { background: #E51A4B; border-color: #E51A4B; color: #fff; }
 
-  .status { margin-bottom: 15px; font-size: 1rem; color: #aaa; text-align: center; }
-  .status .highlight { color: #e94560; font-weight: bold; }
 
-  .game-layout { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+  .game-layout { display: flex; flex-direction: column; align-items: center; gap: var(--space-400); }
 
   /* Board */
   .board-area { display: flex; flex-direction: column; align-items: center; }
-  .board-area h2 { margin-bottom: 10px; font-size: 1.1rem; color: #aaa; }
-  .board-wrapper { position: relative; display: inline-block; padding: 24px; }
-  .board-label { position: absolute; pointer-events: none; border-radius: 2px; }
-  .board-label.label-in { background: #2ecc71; }
-  .board-label.label-out { background: #e94560; }
-  .board-label.label-h { height: 4px; } /* horizontal bar (top/bottom) */
-  .board-label.label-v { width: 4px; } /* vertical bar (left/right) */
-  .build-info { position: fixed; bottom: 8px; right: 12px; font-size: 0.7rem; color: #eee; font-weight: 700; letter-spacing: 0.5px; }
+  .board-area h2 { margin-bottom: var(--space-200); font-size: 1rem; color: var(--color-text-secondary); }
+  .board-wrapper { position: relative; display: inline-block; padding: var(--space-800); }
+  /* Arrow labels outside the board — ES connector SVGs */
+  .board-label { position: absolute; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+  .board-label .label-arrow { flex-shrink: 0; }
+  .board-label.label-side-T .label-arrow, .board-label.label-side-B .label-arrow { width: 20px; height: 34px; }
+  .board-label.label-side-L .label-arrow, .board-label.label-side-R .label-arrow { width: 34px; height: 20px; }
+  .build-info { position: fixed; bottom: var(--space-200); right: var(--space-300); font-family: var(--font-mono); font-size: 0.625rem; color: var(--color-text-faint); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 
   /* Touch support */
   .palette-item, .powerup-item, .board .cell { touch-action: none; }
 
   /* Mobile responsive */
   @media (max-width: 600px) {
-    body { padding: 4px 4px 8px; overflow: hidden; height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
-    h1 { font-size: 1.1rem; margin-bottom: 2px; }
-    .board-selector { gap: 3px; margin-bottom: 4px; }
-    .board-card { padding: 3px 7px; }
+    body { padding: var(--space-100) var(--space-100) var(--space-200); overflow-y: auto; overflow-x: hidden; min-height: 100vh; min-height: 100dvh; height: auto; display: flex; flex-direction: column; }
+    h1 { font-size: 1rem; margin-bottom: 2px; }
+    .top-bar { max-width: 100%; gap: var(--space-100); margin-bottom: var(--space-100); }
+    .top-bar-header { padding: var(--space-100) var(--space-200); }
+    .top-bar-title { font-size: 0.7rem; }
+    .top-bar-content { padding: 0 var(--space-200) var(--space-200); }
+    .board-selector { gap: 2px; }
+    .board-card { padding: var(--space-100) var(--space-200); }
     .board-card-name { font-size: 0.65rem; }
     .board-card-info { font-size: 0.5rem; }
-    .board-header { gap: 6px; margin-bottom: 1px; }
-    .board-title { font-size: 0.85rem; }
-    .board-title span { font-size: 0.65rem; }
-    .star { font-size: 1rem; }
-    .reset-btn { font-size: 0.65rem; padding: 2px 8px; }
-    .status { font-size: 0.7rem; margin-bottom: 2px; }
-    .game-layout { gap: 4px; flex: 1; min-height: 0; }
-    .inventory-panel { padding: 6px 8px; gap: 6px; max-width: 100%; flex-shrink: 0; }
-    .inventory-label { font-size: 0.6rem; }
-    .pieces-inventory { gap: 2px; }
-    .palette-swatch { width: 24px; height: 24px; }
-    .palette-item { padding: 2px; }
-    .powerups-row { gap: 3px; }
-    .powerup-item { padding: 2px 4px; }
-    .powerup-name { font-size: 0.65rem; }
-    .powerup-swatch { width: 24px; height: 24px; }
+    .info-panel { padding: var(--space-100) var(--space-200); max-width: 100%; gap: var(--space-100); }
+    .stat-level, .stat-mem { font-size: 0.75rem; }
+    .star { width: 14px; height: 14px; }
+    .reset-btn { font-size: 0.65rem; padding: var(--space-100) var(--space-200); height: 24px; }
+    .reset-btn { font-size: 0.6rem; padding: var(--space-100) var(--space-200); height: 22px; }
+    .game-layout { gap: var(--space-100); flex: 1; min-height: 0; }
+    .inventory-panel { padding: var(--space-100) var(--space-200); gap: var(--space-100); max-width: 100%; flex-shrink: 0; }
+    .inventory-label { font-size: 0.5rem; }
+    .pieces-inventory { gap: 0; grid-template-columns: repeat(4, 1fr); }
+    .palette-swatch { width: 20px; height: 20px; }
+    .palette-item { padding: 1px 1px 0 1px; }
+    .piece-count { font-size: 0.375rem; margin-top: 0; line-height: 1; padding-bottom: 0; }
+    .powerups-row { gap: 2px; }
+    .powerup-item { padding: 1px var(--space-100); }
+    .powerup-name { font-size: 0.55rem; }
+    .powerup-swatch { width: 20px; height: 20px; }
+    .powerup-uses { font-size: 0.375rem; }
     .win-banner { font-size: 0.85rem; margin-top: 2px; }
-    .build-info { font-size: 0.6rem; bottom: 2px; right: 4px; }
+    .build-info { font-size: 0.5rem; bottom: 2px; right: var(--space-100); }
   }
-  .board { display: grid; gap: 2px; background: #0f3460; padding: 2px; border-radius: 8px; border: 2px solid #16213e; }
-  .board .cell { width: 55px; height: 55px; background: #16213e; border-radius: 4px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; position: relative; }
-  .board .cell:hover { outline: 2px solid rgba(255,255,255,0.3); outline-offset: -2px; }
-  .board .cell.filled { border: 2px solid rgba(255,255,255,0.15); cursor: grab; }
+  .board { display: grid; gap: 2px; background: var(--color-bg-sunken); padding: 2px; border-radius: var(--radius-lg); corner-shape: squircle; border: 1px solid var(--color-border-default); }
+  .board .cell { width: 55px; height: 55px; background: var(--color-bg-surface); border-radius: var(--radius-sm); cursor: pointer; transition: border-color var(--duration-fast) var(--ease-enter), box-shadow var(--duration-fast) var(--ease-enter); display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid transparent; }
+  .board .cell:hover { border-color: rgba(255,255,255,0.3); }
+  .board .cell.filled { border-color: rgba(255,255,255,0.1); cursor: grab; }
   .board .cell.filled:active { cursor: grabbing; }
-  .board .cell.cell-svg { background: transparent; border: none; padding: 2px; }
+  .board .cell.cell-svg { background: transparent; border-color: transparent; padding: 2px; }
   .board .cell.cell-svg svg { width: 100%; height: 100%; }
-  .board .cell.obstacle { background: #111; border: 2px solid #333; cursor: default; }
-  .board .cell.obstacle::after { content: 'X'; color: #444; font-size: 1.2rem; font-weight: bold; }
-  .board .cell.connected { box-shadow: 0 0 12px rgba(200, 200, 200, 0.6); outline: 2px solid rgba(200, 200, 200, 0.5); outline-offset: -2px; }
-  .board .cell.connected svg { filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.3)); }
-  .board .cell.drop-valid { outline: 3px solid rgba(100, 255, 100, 0.7); outline-offset: -3px; }
-  .board .cell.drop-invalid { outline: 3px solid rgba(255, 80, 80, 0.7); outline-offset: -3px; }
+  .board .cell.obstacle { background: var(--color-bg-sunken); border-color: var(--color-text-faint); cursor: default; }
+  .board .cell.obstacle::after { content: '\f00d'; font-family: 'Font Awesome 6 Pro'; font-weight: 300; color: var(--color-text-faint); font-size: 1rem; }
+  /* Connection dots at jigsaw tab midpoints */
+  .conn-dot { position: absolute; width: 6px; height: 6px; background: #F0E800; border-radius: 50%; pointer-events: none; z-index: 1; }
+  .conn-dot.dot-T { top: 0; left: 50%; transform: translate(-50%, -50%); }
+  .conn-dot.dot-B { bottom: 0; left: 50%; transform: translate(-50%, 50%); }
+  .conn-dot.dot-L { left: 0; top: 50%; transform: translate(-50%, -50%); }
+  .conn-dot.dot-R { right: 0; top: 50%; transform: translate(50%, -50%); }
+  .board .cell.drop-valid { border-color: var(--color-positive); box-shadow: 0 0 8px rgba(20,174,92,0.4); }
+  .board .cell.drop-invalid { border-color: var(--color-danger); box-shadow: 0 0 8px rgba(236,34,31,0.4); }
 
   /* Piece palette */
-  .palette-section { background: #16213e; padding: 15px; border-radius: 8px; border: 2px solid #0f3460; min-width: 160px; }
-  .palette-section h3 { font-size: 0.95rem; color: #aaa; margin-bottom: 12px; text-align: center; }
-  .palette-group-label { font-size: 0.85rem; color: #ccc; margin-bottom: 4px; }
-  .palette-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 8px; }
-  .palette-item { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px; border-radius: 6px; cursor: grab; border: 2px solid transparent; transition: all 0.2s; }
+  .palette-section { background: var(--color-bg-surface); padding: var(--space-400); border-radius: var(--radius-lg); border: 1px solid var(--color-border-default); min-width: 160px; }
+  .palette-section h3 { font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: var(--space-300); text-align: center; }
+  .palette-group-label { font-size: 0.875rem; color: var(--color-text-primary); margin-bottom: var(--space-100); }
+  .palette-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-200); margin-bottom: var(--space-200); }
+  .palette-item { display: flex; align-items: center; justify-content: center; gap: var(--space-200); padding: var(--space-100); border-radius: var(--radius-md); cursor: grab; border: 2px solid transparent; transition: border-color var(--duration-normal) var(--ease-enter); }
   .palette-item:active { cursor: grabbing; }
-  .palette-item:hover { border-color: rgba(255,255,255,0.2); }
-  .palette-swatch { width: 32px; height: 32px; border-radius: 4px; border: 2px solid rgba(255,255,255,0.15); flex-shrink: 0; }
+  .palette-item:hover { border-color: var(--color-border-default); }
+  .palette-swatch { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 2px solid rgba(255,255,255,0.1); flex-shrink: 0; }
   .swatch-svg { background: transparent; border: none; display: flex; align-items: center; justify-content: center; }
-  .palette-label { font-size: 0.8rem; color: #ccc; }
-  .swatch-white { background: #e8e8e8; }
+  .palette-label { font-size: 0.8rem; color: var(--color-text-secondary); }
+  .swatch-white { background: var(--rarity-common); }
 
-  /* Unified inventory panel */
-  .inventory-panel { background: #16213e; border: 2px solid #0f3460; border-radius: 8px; padding: 10px 12px; width: 100%; max-width: 500px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
-  .inventory-section { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
-  .inventory-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; white-space: nowrap; }
+  /* Inventory panel — left/right split */
+  .inventory-panel { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-300) var(--space-400); width: 100%; max-width: 500px; display: flex; gap: var(--space-400); justify-content: center; box-shadow: var(--shadow-light); }
+  .inventory-section { display: flex; flex-direction: column; gap: var(--space-200); }
+  .inventory-section-left { flex: 1; }
+  .inventory-section-right { flex-shrink: 0; }
+  .inventory-label { font-family: var(--font-mono); font-size: 0.625rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; white-space: nowrap; margin-bottom: var(--space-100); }
 
-  /* Pieces inventory */
-  .pieces-inventory { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+  /* Pieces inventory — 4 column grid */
+  .pieces-inventory { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
 
-  /* Power-up names and swatches */
-  .powerup-swatch { width: 32px; height: 32px; }
-  .powerup-name { font-size: 0.8rem; color: #eee; font-weight: 700; cursor: pointer; touch-action: auto; position: relative; z-index: 2; }
+  /* Power-ups — single column */
+  .powerups-row { display: flex; flex-direction: column; gap: 11px; }
+  .powerup-swatch { width: 28px; height: 28px; }
+  .powerup-name { font-family: var(--font-body); font-size: 0.75rem; color: var(--color-text-primary); font-weight: 700; cursor: pointer; touch-action: auto; position: relative; z-index: 2; }
 
-  /* Tooltip */
-  .powerup-tooltip { position: fixed; background: #0f3460; border: 1px solid #1a5276; border-radius: 6px; padding: 8px 12px; color: #ccc; font-size: 0.75rem; max-width: 200px; z-index: 1001; line-height: 1.4; box-shadow: 0 4px 15px rgba(0,0,0,0.5); pointer-events: auto; }
+  /* Tooltip — FB Mode (dark navy) */
+  .powerup-tooltip { position: fixed; background: var(--fb-bg); border: 1px solid var(--fb-border); border-radius: var(--radius-lg); padding: var(--space-200) var(--space-300); color: var(--fb-secondary); font-family: var(--font-body); font-size: 12px; max-width: 200px; z-index: 1001; line-height: 1.4; box-shadow: var(--shadow-heavy); pointer-events: auto; corner-shape: squircle; }
 
   /* Power-up target hint: pulse glow on valid pieces during drag */
   @keyframes pulseHint {
@@ -108,50 +187,103 @@
     50% { box-shadow: 0 0 16px rgba(255,255,255,0.7), 0 0 24px rgba(255,255,255,0.3); }
   }
   .board .cell.powerup-hint {
-    animation: pulseHint 1.2s ease-in-out infinite;
-    outline: 1px solid rgba(255,255,255,0.3);
-    outline-offset: -1px;
+    animation: pulseHint 1.2s var(--ease-enter) infinite;
+    border-color: rgba(255,255,255,0.3);
   }
 
+  /* Rotate power-up selector */
+  .rotate-selector { position: absolute; z-index: 800; background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-200); display: flex; gap: var(--space-100); box-shadow: var(--shadow-heavy); }
+  .rotate-option { width: 48px; height: 48px; cursor: pointer; border: 2px solid transparent; border-radius: var(--radius-md); corner-shape: squircle; background: transparent; padding: 2px; transition: border-color var(--duration-fast) var(--ease-enter); }
+  .rotate-option:hover { border-color: var(--color-brand-magenta); }
+  .rotate-option svg { width: 100%; height: 100%; }
+
+  /* Red glow on rotated pieces */
+  .board .cell.cell-rotated svg { filter: drop-shadow(0 0 4px #E51A4B) drop-shadow(0 0 8px rgba(229,26,75,0.5)); }
+
   /* Drag ghost */
-  .drag-ghost { position: fixed; pointer-events: none; z-index: 1000; width: 50px; height: 50px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.3); opacity: 0.9; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transform: translate(-50%, -50%); }
+  .drag-ghost { position: fixed; pointer-events: none; z-index: 1000; width: 48px; height: 48px; border-radius: var(--radius-md); border: 2px solid rgba(255,255,255,0.3); opacity: 0.9; display: none; box-shadow: var(--shadow-heavy); transform: translate(-50%, -50%); }
   .drag-ghost.ghost-svg { background: transparent; border: none; box-shadow: none; }
 
-  /* Board header: title + stars inline */
-  .board-header { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 4px; }
-  .reset-btn { padding: 4px 12px; border: 1px solid #0f3460; background: #16213e; color: #888; border-radius: 5px; cursor: pointer; font-size: 0.75rem; transition: all 0.2s; }
-  .reset-btn:hover { color: #eee; border-color: #e94560; }
-  .board-title { font-size: 1.1rem; color: #ccc; font-weight: 600; letter-spacing: 0.5px; margin: 0; }
-  .board-title span { color: #888; font-weight: 400; font-size: 0.85rem; }
+  /* Info panel — single row: Connected | Slots | MEM | Stars */
+  .info-panel { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-200) var(--space-300); width: 100%; max-width: 500px; display: flex; align-items: center; justify-content: center; gap: var(--space-300); }
 
-  /* Stars */
-  .stars { display: flex; gap: 3px; }
-  .star { font-size: 1.4rem; color: #333; transition: all 0.3s; }
-  .star.earned { color: #f1c40f; text-shadow: 0 0 10px rgba(241,196,15,0.5); }
+  /* Reset button below board */
+  .reset-area { display: flex; justify-content: center; width: 100%; }
 
-  /* Board selector */
-  .board-selector { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
-  .board-card { padding: 5px 12px; background: #16213e; border: 1px solid #0f3460; border-radius: 6px; cursor: pointer; transition: all 0.2s; text-align: center; }
-  .board-card:hover { border-color: #e94560; }
-  .board-card.active { border-color: #2ecc71; background: #1a3a2e; }
-  .board-card-name { font-size: 0.8rem; color: #eee; font-weight: bold; }
-  .board-card-info { font-size: 0.65rem; color: #888; margin-top: 1px; }
+  .reset-btn { padding: var(--space-100) var(--space-300); border: 1px solid var(--color-border-default); background: var(--color-bg-elevated); color: var(--color-text-secondary); border-radius: var(--radius-lg); corner-shape: squircle; cursor: pointer; font-family: var(--font-body); font-size: 13px; transition: all var(--duration-fast) var(--ease-enter); height: 32px; display: flex; align-items: center; gap: var(--space-100); }
+  .reset-btn:hover { color: var(--color-text-primary); border-color: var(--color-brand-magenta); }
+  .reset-btn i { font-size: 12px; }
+  .stat-level { font-family: var(--font-body); font-size: 0.875rem; font-weight: 700; color: var(--color-text-primary); white-space: nowrap; }
+  .stat-mem { font-family: var(--font-mono); font-size: 0.875rem; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap; }
+  .stat-mem { color: #E51A4B; font-weight: 700; }
+
+  /* Stars (MEM Fragment icons) */
+  .stars { display: flex; gap: var(--space-100); align-items: center; }
+  .star { width: 20px; height: 20px; transition: filter var(--duration-slow) var(--ease-enter); }
+  .star svg { width: 100%; height: 100%; }
+  .star .mem-full { display: none; }
+  .star .mem-empty { display: block; }
+  .star.earned .mem-full { display: block; }
+  .star.earned .mem-empty { display: none; }
+  .star.earned { filter: drop-shadow(0 0 4px rgba(240,232,0,0.5)); }
+
+  /* Top bar: Levels + How it works side by side */
+  .top-bar { display: flex; gap: var(--space-200); width: 100%; max-width: 500px; margin-bottom: var(--space-200); align-items: flex-start; }
+  .top-bar-item { flex: 1; background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; overflow: hidden; }
+  .top-bar-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-200) var(--space-300); cursor: pointer; transition: background var(--duration-fast) var(--ease-enter); }
+  .top-bar-header:hover { background: var(--color-bg-elevated); }
+  .top-bar-title { font-family: var(--font-body); font-size: 13px; font-weight: 700; color: var(--color-text-primary); }
+  .top-bar-chevron { font-size: 10px; color: var(--color-text-faint); transition: transform var(--duration-normal) var(--ease-enter); }
+  .top-bar-chevron.open { transform: rotate(180deg); }
+  .top-bar-content { padding: 0 var(--space-300) var(--space-300); }
+  .top-bar-content.collapsed { display: none; }
+
+  /* Levels modal overlay */
+  .levels-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 900; align-items: center; justify-content: center; }
+  .levels-modal.open { display: flex; }
+  .levels-modal-box { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-600); width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+  .levels-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-400); width: 100%; }
+  .levels-modal-title { font-family: var(--font-body); font-size: 1rem; font-weight: 700; color: var(--color-text-primary); }
+  .levels-modal-close { background: none; border: none; color: var(--color-text-faint); cursor: pointer; font-size: 16px; padding: var(--space-100); transition: color var(--duration-fast) var(--ease-enter); }
+  .levels-modal-close:hover { color: var(--color-text-primary); }
+
+  /* Growth path level selector */
+  .board-selector { position: relative; display: flex; flex-direction: column; gap: 0; width: 100%; }
+  /* SVG path line behind everything */
+  .path-line { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  .path-line line { stroke: var(--color-border-default); stroke-width: 2; }
+  .path-line line.completed { stroke: var(--color-positive); }
+  .level-row { display: flex; align-items: center; gap: var(--space-200); position: relative; z-index: 1; padding: var(--space-100) 0; }
+  .level-row.align-left { justify-content: flex-start; }
+  .level-row.align-left .board-card { order: -1; }
+  .level-row.align-right { justify-content: flex-end; }
+  .level-node { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--color-text-faint); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all var(--duration-fast) var(--ease-enter); background: var(--color-bg-surface); }
+  .level-node.unlocked { background: #fff; border-color: #fff; }
+  .level-node.locked { background: var(--color-bg-surface); border-color: var(--color-text-faint); }
+  .level-node.completed { background: var(--color-positive); border-color: var(--color-positive); }
+  .level-node i { font-size: 7px; }
+  .board-card { display: flex; flex-direction: column; gap: 2px; padding: var(--space-100) var(--space-300); background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-md); corner-shape: squircle; cursor: pointer; transition: all var(--duration-fast) var(--ease-enter); max-width: 120px; }
+  .board-card:hover { border-color: var(--color-brand-magenta); }
+  .board-card.active { border-color: var(--color-positive); background: var(--color-positive-secondary); }
+  .board-card.locked { opacity: 0.4; pointer-events: none; cursor: default; }
+  .board-card.locked:hover { border-color: var(--color-border-default); }
+  .board-card-name { font-family: var(--font-body); font-size: 0.7rem; color: var(--color-text-primary); font-weight: 700; }
+  .board-card-info { font-family: var(--font-mono); font-size: 0.4375rem; color: var(--color-text-secondary); letter-spacing: 0.04em; }
 
   /* Power-ups */
-  .powerups-row { display: flex; gap: 6px; flex-wrap: wrap; }
-  .powerup-item { display: flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 6px; cursor: grab; border: 2px solid transparent; transition: all 0.2s; }
-  .powerup-item:hover { border-color: rgba(255,255,255,0.2); }
+  .powerup-item { display: flex; align-items: center; gap: var(--space-100); padding: var(--space-100) var(--space-200); border-radius: var(--radius-md); cursor: grab; border: 2px solid transparent; transition: border-color var(--duration-normal) var(--ease-enter); }
+  .powerup-item:hover { border-color: var(--color-border-default); }
   .powerup-item:active { cursor: grabbing; }
 
   /* Power-up preview states */
-  .board .cell.powerup-target { box-shadow: 0 0 20px rgba(255,255,255,0.8), 0 0 40px rgba(255,255,255,0.4); outline: 3px solid rgba(255,255,255,0.9); outline-offset: -3px; z-index: 2; }
-  .board .cell.fill-preview { background: rgba(200,200,200,0.15) !important; outline: 2px dashed rgba(200,200,200,0.4); outline-offset: -2px; cursor: pointer; }
-  .board .cell.fill-preview-last { outline-color: rgba(156,39,176,0.6); }
-  .board .cell.extend-preview { background: rgba(200,200,200,0.15) !important; outline: 2px dashed rgba(100,200,255,0.5); outline-offset: -2px; cursor: pointer; }
-  .board .cell.teleport-preview { background: rgba(200,150,255,0.15) !important; outline: 2px dashed rgba(200,150,255,0.6); outline-offset: -2px; cursor: pointer; }
-  .fill-arrow { position: absolute; width: 24px; height: 24px; background: rgba(255,255,255,0.7); border-radius: 50%; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #1a1a2e; font-weight: bold; transition: all 0.2s; touch-action: none; }
-  .fill-arrow::before { content: ''; position: absolute; width: 44px; height: 44px; border-radius: 50%; } /* invisible touch target */
-  .fill-arrow:hover { background: #fff; transform: scale(1.3); box-shadow: 0 0 10px rgba(255,255,255,0.8); }
+  .board .cell.powerup-target { box-shadow: 0 0 20px rgba(255,255,255,0.8), 0 0 40px rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.9); z-index: 2; }
+  .board .cell.fill-preview { background: rgba(200,200,200,0.1) !important; border: 2px dashed rgba(200,200,200,0.4); cursor: pointer; }
+  .board .cell.fill-preview-last { border-color: var(--rarity-epic); }
+  .board .cell.extend-preview { background: rgba(200,200,200,0.1) !important; border: 2px dashed var(--rarity-rare); cursor: pointer; }
+  .board .cell.teleport-preview { background: rgba(200,150,255,0.1) !important; border: 2px dashed var(--rarity-epic); cursor: pointer; }
+  .fill-arrow { position: absolute; width: 24px; height: 24px; background: rgba(255,255,255,0.7); border-radius: var(--radius-full); cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--color-bg-page); font-weight: bold; transition: background var(--duration-fast) var(--ease-enter), transform var(--duration-fast) var(--ease-enter); touch-action: none; }
+  .fill-arrow::before { content: ''; position: absolute; width: 44px; height: 44px; border-radius: var(--radius-full); }
+  .fill-arrow:hover { background: #fff; transform: scale(1.3); box-shadow: 0 0 12px rgba(255,255,255,0.8); }
   .fill-arrow.dir-T { top: -14px; left: 50%; transform: translateX(-50%); }
   .fill-arrow.dir-B { bottom: -14px; left: 50%; transform: translateX(-50%); }
   .fill-arrow.dir-L { left: -14px; top: 50%; transform: translateY(-50%); }
@@ -161,53 +293,129 @@
   .fill-arrow.dir-L:hover { transform: translateY(-50%) scale(1.3); }
   .fill-arrow.dir-R:hover { transform: translateY(-50%) scale(1.3); }
 
-  .win-banner { font-size: 1.3rem; color: #2ecc71; font-weight: bold; margin-top: 10px; text-align: center; }
+  .win-banner { font-family: var(--font-display); font-size: 1.25rem; color: var(--color-positive); font-weight: 800; margin-top: var(--space-200); text-align: center; text-transform: uppercase; letter-spacing: 1px; corner-shape: squircle; }
+
+  /* Enhanced status */
+  .status .stat-mem { color: var(--color-brand-magenta); font-weight: 700; }
+
+  /* How it works content (inside top-bar) */
+  .help-content { display: flex; flex-direction: column; gap: var(--space-200); }
+  .help-content.collapsed { display: none; }
+  .help-rule { font-family: var(--font-body); font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; display: flex; align-items: baseline; gap: var(--space-200); }
+  .help-rule i { font-size: 8px; color: var(--color-text-faint); flex-shrink: 0; margin-top: 4px; }
+  .help-rule strong { font-weight: 700; }
+  .help-rule .kw-preset { color: var(--rarity-common); }
+  .help-rule .kw-obstacle { color: var(--color-text-faint); }
+  .help-rule .kw-connected { color: var(--color-positive); }
+  .help-rule .kw-disconnected { color: var(--color-danger); }
+  .help-rule .kw-star { color: var(--color-brand-yellow); }
+  .help-rule .kw-path { color: var(--color-brand-magenta); }
+
+  /* Inventory count badges */
+  .palette-item { position: relative; flex-direction: column; align-items: center; }
+  .piece-count { font-family: var(--font-mono); font-size: 0.5625rem; color: var(--color-text-primary); font-weight: 700; pointer-events: none; letter-spacing: 0.02em; line-height: 1; margin-top: 2px; }
+  .palette-item.depleted { opacity: 0.2; pointer-events: none; cursor: default; }
+  .palette-item.depleted .piece-count { color: var(--color-danger); }
+
+  /* Power-up used state */
+  .powerup-item.used { opacity: 0.25; pointer-events: none; cursor: default; }
+  .powerup-uses { font-family: var(--font-mono); font-size: 0.5625rem; color: var(--color-text-primary); font-weight: 700; margin-left: var(--space-100); }
+  .powerup-item.used .powerup-uses { color: var(--color-danger); }
+
+  @media (max-width: 600px) {
+    .help-content { gap: var(--space-100); }
+    .help-rule { font-size: 0.625rem; }
+  }
 </style>
 </head>
 <body>
 
-<h1>Puzzle Player</h1>
-
-<div class="board-selector" id="board-selector"></div>
-
-<div class="board-header">
-  <div class="board-title" id="board-title"></div>
-  <div class="stars" id="stars">
-    <span class="star" id="star1">&#9733;</span>
-    <span class="star" id="star2">&#9733;</span>
-    <span class="star" id="star3">&#9733;</span>
-  </div>
-  <button onclick="resetBoard()" class="reset-btn">Reset</button>
-</div>
-
-<div class="status" id="status">Select a board to play</div>
+<h1>FRAGMENTED</h1>
 
 <div class="game-layout">
+
+<div class="top-bar">
+  <div class="top-bar-item">
+    <div class="top-bar-header" onclick="toggleLevels()">
+      <span class="top-bar-title" id="levels-title"><i class="fa-light fa-layer-group" style="font-size:12px;margin-right:4px"></i>Level Select</span>
+      <i class="fa-solid fa-chevron-down top-bar-chevron"></i>
+    </div>
+  </div>
+  <div class="top-bar-item">
+    <div class="top-bar-header" onclick="toggleHelp()">
+      <span class="top-bar-title"><i class="fa-light fa-circle-question" style="font-size:12px;margin-right:4px"></i>How it works</span>
+      <i class="fa-solid fa-chevron-down top-bar-chevron"></i>
+    </div>
+  </div>
+</div>
+
+<div class="info-panel" id="info-panel">
+  <span class="stat-level" id="stat-level">Level 1</span>
+  <span class="stat-mem" id="stat-mem">MEM: 0</span>
+  <div class="stars" id="stars">
+    <span class="star" id="star1"><svg class="mem-empty" viewBox="0 0 236 236" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 198.691V16.7137C6 10.7967 10.7969 6 16.7143 6H39.4489C42.0594 6 44.5802 6.95305 46.5377 8.68016L124.918 77.8359C129.94 82.2662 137.749 81.0563 141.195 75.3145L179.665 11.2015C181.601 7.97452 185.089 6 188.852 6H220.286C226.203 6 231 10.7967 231 16.7137V80.9958C231 86.9129 226.203 91.7095 220.286 91.7095H198.857C192.94 91.7095 188.143 96.5062 188.143 102.423V177.419C188.143 183.336 192.94 188.133 198.857 188.133H220.286C226.203 188.133 231 192.929 231 198.846V220.286C231 226.203 226.203 231 220.286 231H113.13C107.212 231 102.415 226.203 102.415 220.286V192.323C102.415 186.313 105.246 180.654 110.055 177.049C128.648 163.108 130.354 135.704 113.921 119.272C98.8085 104.16 73.9107 104.155 58.7978 119.267C42.3609 135.703 44.0764 163.109 62.6783 177.048C67.4899 180.654 70.322 186.315 70.322 192.327V220.286C70.322 226.203 65.5251 231 59.6077 231H46.9349C44.7009 231 42.5229 230.302 40.7054 229.003L10.4848 207.408C7.67026 205.397 6 202.151 6 198.691Z" fill="#424263"/><path d="M225.273 16.09C225.273 13.1279 222.871 10.7267 219.909 10.7267H188.437C186.553 10.7268 184.807 11.7148 183.838 13.3298L145.321 77.5222C140.147 86.1443 128.419 87.9613 120.878 81.3091L42.401 12.0675C41.4212 11.2034 40.1588 10.7267 38.8523 10.7267H16.0909C13.1287 10.7267 10.7273 13.1279 10.7273 16.09V198.289C10.7275 200.02 11.5632 201.645 12.9717 202.652L43.2286 224.273C44.1384 224.923 45.2296 225.273 46.3478 225.273H59.0367C61.9985 225.273 64.4 222.872 64.4003 219.91V191.917C64.4003 187.587 62.3607 183.508 58.8952 180.911C37.6099 164.961 35.7107 133.698 54.4325 114.977C71.6591 97.7509 99.9841 97.7555 117.209 114.979C135.926 133.695 134.04 164.958 112.762 180.911C109.298 183.507 107.26 187.583 107.26 191.912V219.91C107.26 222.872 109.661 225.273 112.623 225.273H219.909C222.871 225.273 225.272 222.872 225.273 219.91V198.444C225.273 195.481 222.871 193.08 219.909 193.08H198.455C189.568 193.08 182.364 185.876 182.364 176.99V101.903C182.364 93.0172 189.568 85.8134 198.455 85.8134H219.909C222.871 85.8134 225.273 83.4122 225.273 80.4501V16.09ZM236 80.4501C236 89.3364 228.796 96.5401 219.909 96.5401H198.455C195.492 96.5401 193.091 98.9414 193.091 101.903V176.99C193.091 179.952 195.492 182.354 198.455 182.354H219.909C228.796 182.354 236 189.557 236 198.444V219.91C236 228.796 228.796 236 219.909 236H112.623C103.737 236 96.5327 228.796 96.5324 219.91V191.912C96.5325 184.207 100.162 176.951 106.327 172.329C122.282 160.367 123.811 136.754 109.622 122.566C96.5845 109.53 75.0526 109.526 62.017 122.561C47.8266 136.751 49.3646 160.365 65.3274 172.326C71.4964 176.949 75.1276 184.209 75.1276 191.917V219.91C75.1272 228.796 67.9231 236 59.0367 236H46.3478C42.9933 236 39.7222 234.952 36.9929 233.001L6.73597 211.378C2.50938 208.358 0.000256832 203.484 0 198.289V16.09C0 7.20375 7.20415 0 16.0909 0H38.8523C42.7727 0 46.5587 1.43156 49.4984 4.02512L127.976 73.264C130.489 75.4818 134.399 74.8762 136.123 72.0018L174.64 7.81193C177.548 2.96577 182.785 0.000107342 188.437 0H219.909C228.796 0 236 7.20374 236 16.09V80.4501Z" fill="#242445"/><path d="M107 146.5C107 158.374 97.3741 168 85.5 168C73.6259 168 64 158.374 64 146.5C64 134.626 73.6259 125 85.5 125C97.3741 125 107 134.626 107 146.5Z" fill="#242445"/></svg><svg class="mem-full" viewBox="0 0 236 236" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 198.691V16.7137C6 10.7967 10.7969 6 16.7143 6H39.4489C42.0594 6 44.5802 6.95305 46.5377 8.68016L124.918 77.8359C129.94 82.2662 137.749 81.0563 141.195 75.3145L179.665 11.2015C181.601 7.97452 185.089 6 188.852 6H220.286C226.203 6 231 10.7967 231 16.7137V80.9958C231 86.9129 226.203 91.7095 220.286 91.7095H198.857C192.94 91.7095 188.143 96.5062 188.143 102.423V177.419C188.143 183.336 192.94 188.133 198.857 188.133H220.286C226.203 188.133 231 192.929 231 198.846V220.286C231 226.203 226.203 231 220.286 231H113.13C107.212 231 102.415 226.203 102.415 220.286V192.323C102.415 186.313 105.246 180.654 110.055 177.049C128.648 163.108 130.354 135.704 113.921 119.272C98.8085 104.16 73.9107 104.155 58.7978 119.267C42.3609 135.703 44.0764 163.109 62.6783 177.048C67.4899 180.654 70.322 186.315 70.322 192.327V220.286C70.322 226.203 65.5251 231 59.6077 231H46.9349C44.7009 231 42.5229 230.302 40.7054 229.003L10.4848 207.408C7.67026 205.397 6 202.151 6 198.691Z" fill="#FAE932"/><path d="M225.273 16.09C225.273 13.1279 222.871 10.7267 219.909 10.7267H188.437C186.553 10.7268 184.807 11.7148 183.838 13.3298L145.321 77.5222C140.147 86.1443 128.419 87.9613 120.878 81.3091L42.401 12.0675C41.4212 11.2034 40.1588 10.7267 38.8523 10.7267H16.0909C13.1287 10.7267 10.7273 13.1279 10.7273 16.09V198.289C10.7275 200.02 11.5632 201.645 12.9717 202.652L43.2286 224.273C44.1384 224.923 45.2296 225.273 46.3478 225.273H59.0367C61.9986 225.273 64.4 222.872 64.4003 219.91V191.917C64.4003 187.587 62.3607 183.508 58.8952 180.911C37.6099 164.961 35.7107 133.698 54.4325 114.977C71.6591 97.7509 99.9841 97.7555 117.209 114.979C135.926 133.695 134.04 164.958 112.762 180.911C109.298 183.507 107.26 187.583 107.26 191.912V219.91C107.26 222.872 109.661 225.273 112.623 225.273H219.909C222.871 225.273 225.272 222.872 225.273 219.91V198.444C225.273 195.481 222.871 193.08 219.909 193.08H198.455C189.568 193.08 182.364 185.876 182.364 176.99V101.903C182.364 93.0172 189.568 85.8134 198.455 85.8134H219.909C222.871 85.8134 225.273 83.4122 225.273 80.4501V16.09ZM236 80.4501C236 89.3364 228.796 96.5401 219.909 96.5401H198.455C195.492 96.5401 193.091 98.9414 193.091 101.903V176.99C193.091 179.952 195.492 182.354 198.455 182.354H219.909C228.796 182.354 236 189.557 236 198.444V219.91C236 228.796 228.796 236 219.909 236H112.623C103.737 236 96.5327 228.796 96.5324 219.91V191.912C96.5325 184.206 100.162 176.951 106.327 172.329C122.282 160.367 123.811 136.754 109.622 122.566C96.5845 109.53 75.0526 109.526 62.017 122.561C47.8266 136.751 49.3646 160.365 65.3274 172.326C71.4964 176.949 75.1276 184.209 75.1276 191.917V219.91C75.1272 228.796 67.9231 236 59.0367 236H46.3478C42.9933 236 39.7222 234.952 36.9929 233.001L6.73597 211.378C2.50938 208.358 0.000256832 203.484 0 198.289V16.09C0 7.20375 7.20415 0 16.0909 0H38.8523C42.7727 0 46.5587 1.43156 49.4984 4.02512L127.976 73.264C130.489 75.4818 134.398 74.8762 136.123 72.0018L174.64 7.81193C177.548 2.96577 182.785 0.000107342 188.437 0H219.909C228.796 0 236 7.20374 236 16.09V80.4501Z" fill="#E51A4B"/><path d="M107 146.5C107 158.374 97.3741 168 85.5 168C73.6259 168 64 158.374 64 146.5C64 134.626 73.6259 125 85.5 125C97.3741 125 107 134.626 107 146.5Z" fill="#E51A4B"/></svg></span>
+    <span class="star" id="star2"><svg class="mem-empty" viewBox="0 0 236 236" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 198.691V16.7137C6 10.7967 10.7969 6 16.7143 6H39.4489C42.0594 6 44.5802 6.95305 46.5377 8.68016L124.918 77.8359C129.94 82.2662 137.749 81.0563 141.195 75.3145L179.665 11.2015C181.601 7.97452 185.089 6 188.852 6H220.286C226.203 6 231 10.7967 231 16.7137V80.9958C231 86.9129 226.203 91.7095 220.286 91.7095H198.857C192.94 91.7095 188.143 96.5062 188.143 102.423V177.419C188.143 183.336 192.94 188.133 198.857 188.133H220.286C226.203 188.133 231 192.929 231 198.846V220.286C231 226.203 226.203 231 220.286 231H113.13C107.212 231 102.415 226.203 102.415 220.286V192.323C102.415 186.313 105.246 180.654 110.055 177.049C128.648 163.108 130.354 135.704 113.921 119.272C98.8085 104.16 73.9107 104.155 58.7978 119.267C42.3609 135.703 44.0764 163.109 62.6783 177.048C67.4899 180.654 70.322 186.315 70.322 192.327V220.286C70.322 226.203 65.5251 231 59.6077 231H46.9349C44.7009 231 42.5229 230.302 40.7054 229.003L10.4848 207.408C7.67026 205.397 6 202.151 6 198.691Z" fill="#424263"/><path d="M225.273 16.09C225.273 13.1279 222.871 10.7267 219.909 10.7267H188.437C186.553 10.7268 184.807 11.7148 183.838 13.3298L145.321 77.5222C140.147 86.1443 128.419 87.9613 120.878 81.3091L42.401 12.0675C41.4212 11.2034 40.1588 10.7267 38.8523 10.7267H16.0909C13.1287 10.7267 10.7273 13.1279 10.7273 16.09V198.289C10.7275 200.02 11.5632 201.645 12.9717 202.652L43.2286 224.273C44.1384 224.923 45.2296 225.273 46.3478 225.273H59.0367C61.9985 225.273 64.4 222.872 64.4003 219.91V191.917C64.4003 187.587 62.3607 183.508 58.8952 180.911C37.6099 164.961 35.7107 133.698 54.4325 114.977C71.6591 97.7509 99.9841 97.7555 117.209 114.979C135.926 133.695 134.04 164.958 112.762 180.911C109.298 183.507 107.26 187.583 107.26 191.912V219.91C107.26 222.872 109.661 225.273 112.623 225.273H219.909C222.871 225.273 225.272 222.872 225.273 219.91V198.444C225.273 195.481 222.871 193.08 219.909 193.08H198.455C189.568 193.08 182.364 185.876 182.364 176.99V101.903C182.364 93.0172 189.568 85.8134 198.455 85.8134H219.909C222.871 85.8134 225.273 83.4122 225.273 80.4501V16.09ZM236 80.4501C236 89.3364 228.796 96.5401 219.909 96.5401H198.455C195.492 96.5401 193.091 98.9414 193.091 101.903V176.99C193.091 179.952 195.492 182.354 198.455 182.354H219.909C228.796 182.354 236 189.557 236 198.444V219.91C236 228.796 228.796 236 219.909 236H112.623C103.737 236 96.5327 228.796 96.5324 219.91V191.912C96.5325 184.207 100.162 176.951 106.327 172.329C122.282 160.367 123.811 136.754 109.622 122.566C96.5845 109.53 75.0526 109.526 62.017 122.561C47.8266 136.751 49.3646 160.365 65.3274 172.326C71.4964 176.949 75.1276 184.209 75.1276 191.917V219.91C75.1272 228.796 67.9231 236 59.0367 236H46.3478C42.9933 236 39.7222 234.952 36.9929 233.001L6.73597 211.378C2.50938 208.358 0.000256832 203.484 0 198.289V16.09C0 7.20375 7.20415 0 16.0909 0H38.8523C42.7727 0 46.5587 1.43156 49.4984 4.02512L127.976 73.264C130.489 75.4818 134.399 74.8762 136.123 72.0018L174.64 7.81193C177.548 2.96577 182.785 0.000107342 188.437 0H219.909C228.796 0 236 7.20374 236 16.09V80.4501Z" fill="#242445"/><path d="M107 146.5C107 158.374 97.3741 168 85.5 168C73.6259 168 64 158.374 64 146.5C64 134.626 73.6259 125 85.5 125C97.3741 125 107 134.626 107 146.5Z" fill="#242445"/></svg><svg class="mem-full" viewBox="0 0 236 236" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 198.691V16.7137C6 10.7967 10.7969 6 16.7143 6H39.4489C42.0594 6 44.5802 6.95305 46.5377 8.68016L124.918 77.8359C129.94 82.2662 137.749 81.0563 141.195 75.3145L179.665 11.2015C181.601 7.97452 185.089 6 188.852 6H220.286C226.203 6 231 10.7967 231 16.7137V80.9958C231 86.9129 226.203 91.7095 220.286 91.7095H198.857C192.94 91.7095 188.143 96.5062 188.143 102.423V177.419C188.143 183.336 192.94 188.133 198.857 188.133H220.286C226.203 188.133 231 192.929 231 198.846V220.286C231 226.203 226.203 231 220.286 231H113.13C107.212 231 102.415 226.203 102.415 220.286V192.323C102.415 186.313 105.246 180.654 110.055 177.049C128.648 163.108 130.354 135.704 113.921 119.272C98.8085 104.16 73.9107 104.155 58.7978 119.267C42.3609 135.703 44.0764 163.109 62.6783 177.048C67.4899 180.654 70.322 186.315 70.322 192.327V220.286C70.322 226.203 65.5251 231 59.6077 231H46.9349C44.7009 231 42.5229 230.302 40.7054 229.003L10.4848 207.408C7.67026 205.397 6 202.151 6 198.691Z" fill="#FAE932"/><path d="M225.273 16.09C225.273 13.1279 222.871 10.7267 219.909 10.7267H188.437C186.553 10.7268 184.807 11.7148 183.838 13.3298L145.321 77.5222C140.147 86.1443 128.419 87.9613 120.878 81.3091L42.401 12.0675C41.4212 11.2034 40.1588 10.7267 38.8523 10.7267H16.0909C13.1287 10.7267 10.7273 13.1279 10.7273 16.09V198.289C10.7275 200.02 11.5632 201.645 12.9717 202.652L43.2286 224.273C44.1384 224.923 45.2296 225.273 46.3478 225.273H59.0367C61.9986 225.273 64.4 222.872 64.4003 219.91V191.917C64.4003 187.587 62.3607 183.508 58.8952 180.911C37.6099 164.961 35.7107 133.698 54.4325 114.977C71.6591 97.7509 99.9841 97.7555 117.209 114.979C135.926 133.695 134.04 164.958 112.762 180.911C109.298 183.507 107.26 187.583 107.26 191.912V219.91C107.26 222.872 109.661 225.273 112.623 225.273H219.909C222.871 225.273 225.272 222.872 225.273 219.91V198.444C225.273 195.481 222.871 193.08 219.909 193.08H198.455C189.568 193.08 182.364 185.876 182.364 176.99V101.903C182.364 93.0172 189.568 85.8134 198.455 85.8134H219.909C222.871 85.8134 225.273 83.4122 225.273 80.4501V16.09ZM236 80.4501C236 89.3364 228.796 96.5401 219.909 96.5401H198.455C195.492 96.5401 193.091 98.9414 193.091 101.903V176.99C193.091 179.952 195.492 182.354 198.455 182.354H219.909C228.796 182.354 236 189.557 236 198.444V219.91C236 228.796 228.796 236 219.909 236H112.623C103.737 236 96.5327 228.796 96.5324 219.91V191.912C96.5325 184.206 100.162 176.951 106.327 172.329C122.282 160.367 123.811 136.754 109.622 122.566C96.5845 109.53 75.0526 109.526 62.017 122.561C47.8266 136.751 49.3646 160.365 65.3274 172.326C71.4964 176.949 75.1276 184.209 75.1276 191.917V219.91C75.1272 228.796 67.9231 236 59.0367 236H46.3478C42.9933 236 39.7222 234.952 36.9929 233.001L6.73597 211.378C2.50938 208.358 0.000256832 203.484 0 198.289V16.09C0 7.20375 7.20415 0 16.0909 0H38.8523C42.7727 0 46.5587 1.43156 49.4984 4.02512L127.976 73.264C130.489 75.4818 134.398 74.8762 136.123 72.0018L174.64 7.81193C177.548 2.96577 182.785 0.000107342 188.437 0H219.909C228.796 0 236 7.20374 236 16.09V80.4501Z" fill="#E51A4B"/><path d="M107 146.5C107 158.374 97.3741 168 85.5 168C73.6259 168 64 158.374 64 146.5C64 134.626 73.6259 125 85.5 125C97.3741 125 107 134.626 107 146.5Z" fill="#E51A4B"/></svg></span>
+    <span class="star" id="star3"><svg class="mem-empty" viewBox="0 0 236 236" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 198.691V16.7137C6 10.7967 10.7969 6 16.7143 6H39.4489C42.0594 6 44.5802 6.95305 46.5377 8.68016L124.918 77.8359C129.94 82.2662 137.749 81.0563 141.195 75.3145L179.665 11.2015C181.601 7.97452 185.089 6 188.852 6H220.286C226.203 6 231 10.7967 231 16.7137V80.9958C231 86.9129 226.203 91.7095 220.286 91.7095H198.857C192.94 91.7095 188.143 96.5062 188.143 102.423V177.419C188.143 183.336 192.94 188.133 198.857 188.133H220.286C226.203 188.133 231 192.929 231 198.846V220.286C231 226.203 226.203 231 220.286 231H113.13C107.212 231 102.415 226.203 102.415 220.286V192.323C102.415 186.313 105.246 180.654 110.055 177.049C128.648 163.108 130.354 135.704 113.921 119.272C98.8085 104.16 73.9107 104.155 58.7978 119.267C42.3609 135.703 44.0764 163.109 62.6783 177.048C67.4899 180.654 70.322 186.315 70.322 192.327V220.286C70.322 226.203 65.5251 231 59.6077 231H46.9349C44.7009 231 42.5229 230.302 40.7054 229.003L10.4848 207.408C7.67026 205.397 6 202.151 6 198.691Z" fill="#424263"/><path d="M225.273 16.09C225.273 13.1279 222.871 10.7267 219.909 10.7267H188.437C186.553 10.7268 184.807 11.7148 183.838 13.3298L145.321 77.5222C140.147 86.1443 128.419 87.9613 120.878 81.3091L42.401 12.0675C41.4212 11.2034 40.1588 10.7267 38.8523 10.7267H16.0909C13.1287 10.7267 10.7273 13.1279 10.7273 16.09V198.289C10.7275 200.02 11.5632 201.645 12.9717 202.652L43.2286 224.273C44.1384 224.923 45.2296 225.273 46.3478 225.273H59.0367C61.9985 225.273 64.4 222.872 64.4003 219.91V191.917C64.4003 187.587 62.3607 183.508 58.8952 180.911C37.6099 164.961 35.7107 133.698 54.4325 114.977C71.6591 97.7509 99.9841 97.7555 117.209 114.979C135.926 133.695 134.04 164.958 112.762 180.911C109.298 183.507 107.26 187.583 107.26 191.912V219.91C107.26 222.872 109.661 225.273 112.623 225.273H219.909C222.871 225.273 225.272 222.872 225.273 219.91V198.444C225.273 195.481 222.871 193.08 219.909 193.08H198.455C189.568 193.08 182.364 185.876 182.364 176.99V101.903C182.364 93.0172 189.568 85.8134 198.455 85.8134H219.909C222.871 85.8134 225.273 83.4122 225.273 80.4501V16.09ZM236 80.4501C236 89.3364 228.796 96.5401 219.909 96.5401H198.455C195.492 96.5401 193.091 98.9414 193.091 101.903V176.99C193.091 179.952 195.492 182.354 198.455 182.354H219.909C228.796 182.354 236 189.557 236 198.444V219.91C236 228.796 228.796 236 219.909 236H112.623C103.737 236 96.5327 228.796 96.5324 219.91V191.912C96.5325 184.207 100.162 176.951 106.327 172.329C122.282 160.367 123.811 136.754 109.622 122.566C96.5845 109.53 75.0526 109.526 62.017 122.561C47.8266 136.751 49.3646 160.365 65.3274 172.326C71.4964 176.949 75.1276 184.209 75.1276 191.917V219.91C75.1272 228.796 67.9231 236 59.0367 236H46.3478C42.9933 236 39.7222 234.952 36.9929 233.001L6.73597 211.378C2.50938 208.358 0.000256832 203.484 0 198.289V16.09C0 7.20375 7.20415 0 16.0909 0H38.8523C42.7727 0 46.5587 1.43156 49.4984 4.02512L127.976 73.264C130.489 75.4818 134.399 74.8762 136.123 72.0018L174.64 7.81193C177.548 2.96577 182.785 0.000107342 188.437 0H219.909C228.796 0 236 7.20374 236 16.09V80.4501Z" fill="#242445"/><path d="M107 146.5C107 158.374 97.3741 168 85.5 168C73.6259 168 64 158.374 64 146.5C64 134.626 73.6259 125 85.5 125C97.3741 125 107 134.626 107 146.5Z" fill="#242445"/></svg><svg class="mem-full" viewBox="0 0 236 236" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 198.691V16.7137C6 10.7967 10.7969 6 16.7143 6H39.4489C42.0594 6 44.5802 6.95305 46.5377 8.68016L124.918 77.8359C129.94 82.2662 137.749 81.0563 141.195 75.3145L179.665 11.2015C181.601 7.97452 185.089 6 188.852 6H220.286C226.203 6 231 10.7967 231 16.7137V80.9958C231 86.9129 226.203 91.7095 220.286 91.7095H198.857C192.94 91.7095 188.143 96.5062 188.143 102.423V177.419C188.143 183.336 192.94 188.133 198.857 188.133H220.286C226.203 188.133 231 192.929 231 198.846V220.286C231 226.203 226.203 231 220.286 231H113.13C107.212 231 102.415 226.203 102.415 220.286V192.323C102.415 186.313 105.246 180.654 110.055 177.049C128.648 163.108 130.354 135.704 113.921 119.272C98.8085 104.16 73.9107 104.155 58.7978 119.267C42.3609 135.703 44.0764 163.109 62.6783 177.048C67.4899 180.654 70.322 186.315 70.322 192.327V220.286C70.322 226.203 65.5251 231 59.6077 231H46.9349C44.7009 231 42.5229 230.302 40.7054 229.003L10.4848 207.408C7.67026 205.397 6 202.151 6 198.691Z" fill="#FAE932"/><path d="M225.273 16.09C225.273 13.1279 222.871 10.7267 219.909 10.7267H188.437C186.553 10.7268 184.807 11.7148 183.838 13.3298L145.321 77.5222C140.147 86.1443 128.419 87.9613 120.878 81.3091L42.401 12.0675C41.4212 11.2034 40.1588 10.7267 38.8523 10.7267H16.0909C13.1287 10.7267 10.7273 13.1279 10.7273 16.09V198.289C10.7275 200.02 11.5632 201.645 12.9717 202.652L43.2286 224.273C44.1384 224.923 45.2296 225.273 46.3478 225.273H59.0367C61.9986 225.273 64.4 222.872 64.4003 219.91V191.917C64.4003 187.587 62.3607 183.508 58.8952 180.911C37.6099 164.961 35.7107 133.698 54.4325 114.977C71.6591 97.7509 99.9841 97.7555 117.209 114.979C135.926 133.695 134.04 164.958 112.762 180.911C109.298 183.507 107.26 187.583 107.26 191.912V219.91C107.26 222.872 109.661 225.273 112.623 225.273H219.909C222.871 225.273 225.272 222.872 225.273 219.91V198.444C225.273 195.481 222.871 193.08 219.909 193.08H198.455C189.568 193.08 182.364 185.876 182.364 176.99V101.903C182.364 93.0172 189.568 85.8134 198.455 85.8134H219.909C222.871 85.8134 225.273 83.4122 225.273 80.4501V16.09ZM236 80.4501C236 89.3364 228.796 96.5401 219.909 96.5401H198.455C195.492 96.5401 193.091 98.9414 193.091 101.903V176.99C193.091 179.952 195.492 182.354 198.455 182.354H219.909C228.796 182.354 236 189.557 236 198.444V219.91C236 228.796 228.796 236 219.909 236H112.623C103.737 236 96.5327 228.796 96.5324 219.91V191.912C96.5325 184.206 100.162 176.951 106.327 172.329C122.282 160.367 123.811 136.754 109.622 122.566C96.5845 109.53 75.0526 109.526 62.017 122.561C47.8266 136.751 49.3646 160.365 65.3274 172.326C71.4964 176.949 75.1276 184.209 75.1276 191.917V219.91C75.1272 228.796 67.9231 236 59.0367 236H46.3478C42.9933 236 39.7222 234.952 36.9929 233.001L6.73597 211.378C2.50938 208.358 0.000256832 203.484 0 198.289V16.09C0 7.20375 7.20415 0 16.0909 0H38.8523C42.7727 0 46.5587 1.43156 49.4984 4.02512L127.976 73.264C130.489 75.4818 134.398 74.8762 136.123 72.0018L174.64 7.81193C177.548 2.96577 182.785 0.000107342 188.437 0H219.909C228.796 0 236 7.20374 236 16.09V80.4501Z" fill="#E51A4B"/><path d="M107 146.5C107 158.374 97.3741 168 85.5 168C73.6259 168 64 158.374 64 146.5C64 134.626 73.6259 125 85.5 125C97.3741 125 107 134.626 107 146.5Z" fill="#E51A4B"/></svg></span>
+  </div>
+</div>
   <div class="board-area">
     <div class="board-wrapper" id="board-wrapper">
       <div class="board" id="board"></div>
     </div>
     <div id="win-banner"></div>
   </div>
+  <div class="reset-area">
+    <button onclick="resetBoard()" class="reset-btn"><i class="fa-light fa-arrows-rotate"></i> Reset</button>
+  </div>
 
   <div class="inventory-panel">
-    <div class="inventory-section">
+    <div class="inventory-section inventory-section-right">
+      <span class="inventory-label">Power Ups</span>
+      <div class="powerups-row">
+        <div class="powerup-item" data-color="fill"><div class="palette-swatch swatch-white powerup-swatch"></div><span class="powerup-name" data-tip="Fills an entire row or column with preset pieces from your piece to the edge">Path</span><span class="powerup-uses">x1</span></div>
+        <div class="powerup-item" data-color="extend"><div class="palette-swatch swatch-white powerup-swatch"></div><span class="powerup-name" data-tip="Places one preset piece on each open connector side of your piece">Spread</span><span class="powerup-uses">x1</span></div>
+        <div class="powerup-item" data-color="teleport"><div class="palette-swatch swatch-white powerup-swatch"></div><span class="powerup-name" data-tip="Jumps through an obstacle to place a piece on the other side">Warp</span><span class="powerup-uses">x1</span></div>
+        <div class="powerup-item" data-color="rotate"><div class="palette-swatch swatch-white powerup-swatch"></div><span class="powerup-name" data-tip="Rotates a placed piece to change its connector directions">Rotate</span><span class="powerup-uses">x1</span></div>
+      </div>
+    </div>
+    <div class="inventory-section inventory-section-left">
       <span class="inventory-label">Inventory</span>
       <div class="pieces-inventory" id="pieces-inventory"></div>
     </div>
-    <div class="inventory-section">
-      <span class="inventory-label">Power Ups</span>
-      <div class="powerups-row">
-        <div class="powerup-item" data-color="fill"><div class="palette-swatch swatch-white powerup-swatch"></div><span class="powerup-name" data-tip="Fills an entire row or column with preset pieces from your piece to the edge">Path</span></div>
-        <div class="powerup-item" data-color="extend"><div class="palette-swatch swatch-white powerup-swatch"></div><span class="powerup-name" data-tip="Places one preset piece on each open connector side of your piece">Spread</span></div>
-        <div class="powerup-item" data-color="teleport"><div class="palette-swatch swatch-white powerup-swatch"></div><span class="powerup-name" data-tip="Jumps through an obstacle to place a piece on the other side">Warp</span></div>
-      </div>
+  </div>
+
+</div>
+
+<div class="levels-modal" id="help-modal" onclick="if(event.target===this)closeHelp()">
+  <div class="levels-modal-box">
+    <div class="levels-modal-header">
+      <span class="levels-modal-title"><i class="fa-light fa-circle-question" style="margin-right:4px"></i>How it works</span>
+      <button class="levels-modal-close" onclick="closeHelp()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="help-content">
+      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-preset">White pieces</strong> are pre-set and locked in place.</span></div>
+      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-obstacle">Black cells</strong> are obstacles — blocked slots.</span></div>
+      <div class="help-rule"><i class="fa-solid fa-circle"></i><span>Drag player pieces into <strong>empty slots</strong> to build a path.</span></div>
+      <div class="help-rule"><i class="fa-solid fa-circle"></i><span>Only <strong class="kw-connected">connected pieces</strong> count toward stars.</span></div>
+      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-disconnected">Disconnected</strong> pieces score nothing.</span></div>
+      <div class="help-rule"><i class="fa-solid fa-circle"></i><span>Connected pieces earn <strong class="kw-path">MEM points</strong> by rarity: Common <strong>10</strong>, Rare <strong>20</strong>, Epic <strong>30</strong>, Legendary <strong>40</strong>.</span></div>
+      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-path">IN → OUT</strong> path = <strong class="kw-star">1 star</strong>. All filled = <strong class="kw-star">2 stars</strong>. All connected = <strong class="kw-star">3 stars</strong>.</span></div>
     </div>
   </div>
 </div>
 
+<div class="levels-modal" id="levels-modal" onclick="if(event.target===this)closeLevels()">
+  <div class="levels-modal-box">
+    <div class="levels-modal-header">
+      <span class="levels-modal-title"><i class="fa-light fa-layer-group" style="margin-right:4px"></i>Select Level</span>
+      <button class="levels-modal-close" onclick="closeLevels()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="board-selector" id="board-selector"></div>
+  </div>
+</div>
+
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.4.0</div>
+<div class="build-info">Build 0.7.1</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -217,13 +425,116 @@ let boardState = [];
 let originalBoard = []; // immutable copy of loaded board for reset
 let history = [];
 let powerUpLinks = {}; // { "row,col" (source) -> ["row,col", ...] (generated pieces) }
+let rotatedPieces = {}; // { "row,col": originalVariant }
+
+function getVariantFamily(variant) {
+  if (variant === 'green' || variant === 'green2') return ['green','green2'];
+  if (variant.startsWith('blue')) return ['blue','blue2','blue3','blue4'];
+  if (variant.startsWith('purple')) return ['purple','purple2','purple3','purple4'];
+  return [variant]; // orange, red — single variant
+}
+let currentBoardFile = null;
+
+// === INVENTORY SYSTEM (global, persists across boards) ===
+const INITIAL_SUPPLY = 20;
+const ALL_VARIANTS = ['green','green2','blue','blue2','blue3','blue4','purple','purple2','purple3','purple4','orange','red'];
+let inventory = {};
+ALL_VARIANTS.forEach(v => inventory[v] = INITIAL_SUPPLY);
+
+function saveInventory() {
+  localStorage.setItem('puzzle-inventory', JSON.stringify(inventory));
+}
+const INVENTORY_VERSION = 2; // bump when piece list changes
+function loadInventory() {
+  const ver = localStorage.getItem('puzzle-inventory-version');
+  if (ver !== String(INVENTORY_VERSION)) {
+    // Version mismatch — reset to defaults
+    ALL_VARIANTS.forEach(v => inventory[v] = INITIAL_SUPPLY);
+    localStorage.setItem('puzzle-inventory-version', INVENTORY_VERSION);
+    saveInventory();
+    localStorage.removeItem('puzzle-board-placements');
+    boardPlacements = {};
+    return;
+  }
+  const saved = localStorage.getItem('puzzle-inventory');
+  if (saved) { try { inventory = JSON.parse(saved); } catch(e) {} }
+  // Ensure any new variants get default supply
+  ALL_VARIANTS.forEach(v => { if (inventory[v] === undefined) inventory[v] = INITIAL_SUPPLY; });
+}
+function consumePiece(variant) {
+  if (!inventory.hasOwnProperty(variant) || inventory[variant] <= 0) return false;
+  inventory[variant]--;
+  saveInventory();
+  return true;
+}
+function returnPiece(variant) {
+  if (!inventory.hasOwnProperty(variant)) return;
+  inventory[variant]++;
+  saveInventory();
+}
+
+// === BOARD PERSISTENCE (save player pieces per board) ===
+let boardPlacements = {};
+let boardRotations = {}; // { boardFile: { "row,col": originalVariant } }
+function saveBoardPlacements() {
+  localStorage.setItem('puzzle-board-placements', JSON.stringify(boardPlacements));
+  localStorage.setItem('puzzle-board-rotations', JSON.stringify(boardRotations));
+}
+function loadBoardPlacements() {
+  const saved = localStorage.getItem('puzzle-board-placements');
+  if (saved) { try { boardPlacements = JSON.parse(saved); } catch(e) {} }
+  const savedRot = localStorage.getItem('puzzle-board-rotations');
+  if (savedRot) { try { boardRotations = JSON.parse(savedRot); } catch(e) {} }
+}
+function saveCurrentBoard() {
+  if (!currentBoardFile) return;
+  const placements = {};
+  for (let r=0; r<boardSize; r++) for (let c=0; c<boardSize; c++) {
+    const cell = boardState[r][c];
+    if (cell && cell.type === 'piece') placements[r+','+c] = {type:cell.type, color:cell.color, variant:cell.variant};
+  }
+  boardPlacements[currentBoardFile] = placements;
+  boardRotations[currentBoardFile] = Object.keys(rotatedPieces).length > 0 ? {...rotatedPieces} : undefined;
+  saveBoardPlacements();
+}
+
+// === POWER-UP LIMITS (1 per board, resets on board switch/reset) ===
+const POWERUP_MAX = 1;
+let powerUpUses = { fill:0, extend:0, teleport:0, rotate:0 };
+function resetPowerUpUses() { powerUpUses = { fill:0, extend:0, teleport:0, rotate:0 }; }
+function usePowerUp(type) {
+  if (powerUpUses[type] >= POWERUP_MAX) return false;
+  powerUpUses[type]++;
+  updatePowerUpUI();
+  return true;
+}
+
+// Load saved state on startup
+loadInventory();
+loadBoardPlacements();
 
 // Remove a player piece and all power-up generated pieces linked to it
 function removePieceWithLinks(row, col) {
   const key = row+','+col;
-  // Remove the piece itself
-  history.push({row, col, prev: boardState[row][col]});
-  boardState[row][col] = null;
+  // Return piece to inventory (original variant if rotated)
+  const cell = boardState[row][col];
+  if (cell && cell.type === 'piece' && cell.variant) {
+    if (rotatedPieces[key]) {
+      returnPiece(rotatedPieces[key]); // return original variant
+      powerUpUses.rotate = Math.max(0, powerUpUses.rotate - 1); // refund power-up
+      delete rotatedPieces[key];
+      updatePowerUpUI();
+    } else {
+      returnPiece(cell.variant);
+    }
+  }
+  // Remove the piece — if it was a red Breaker, restore the obstacle
+  history.push({row, col, prev: cell});
+  if (cell && cell.variant === 'red') {
+    boardState[row][col] = {type:'obstacle', color:'black'};
+  } else {
+    boardState[row][col] = null;
+  }
   // Remove all linked generated pieces
   if (powerUpLinks[key]) {
     for (const linkedKey of powerUpLinks[key]) {
@@ -235,6 +546,8 @@ function removePieceWithLinks(row, col) {
     }
     delete powerUpLinks[key];
   }
+  saveCurrentBoard();
+  updateInventoryUI();
 }
 let dragging = false;
 let dragColor = null;
@@ -245,12 +558,23 @@ let cellSize = 55; // dynamic, recalculated on render
 const cellGap = 2;
 const DIR_ARROWS = { T: '\u25B2', B: '\u25BC', L: '\u25C0', R: '\u25B6' };
 
+// ES connector SVGs for IN/OUT board labels
+const ES_SVGS = {
+  T: '<svg viewBox="0 0 28 47" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.9961 26.7559L12 26.8467L12 47L10 47L10 27.5801C4.19514 25.8285 4.07673e-06 20.3189 5.18156e-06 14C6.53346e-06 6.26801 6.26802 1.09593e-06 14 2.44784e-06C21.732 3.79974e-06 28 6.26802 28 14C28 20.3189 23.8049 25.8285 18 27.5801L18 47L16 47L16 26.8467L16.0039 26.7559C16.0445 26.3075 16.3842 25.9379 16.8291 25.8291C22.0912 24.5426 26 19.6529 26 14C26 7.37259 20.6274 2 14 2C7.37259 2 2.00001 7.37258 2.00001 14C2 19.6529 5.90875 24.5426 11.1709 25.8291C11.6158 25.9379 11.9555 26.3075 11.9961 26.7559Z" fill="#D9D9D9"/><path d="M20 14C20 17.3137 17.3137 20 14 20C10.6863 20 8.00001 17.3137 8.00001 14C8.00001 10.6863 10.6863 8 14 8C17.3137 8 20 10.6863 20 14ZM22 14C22 9.58172 18.4183 6 14 6C9.58173 6 6.00001 9.58172 6.00001 14C6.00001 18.4183 9.58173 22 14 22C18.4183 22 22 18.4183 22 14Z" fill="#D9D9D9"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14 20C17.3137 20 20 17.3137 20 14C20 10.6863 17.3137 8 14 8C10.6863 8 8.00001 10.6863 8.00001 14C8.00001 17.3137 10.6863 20 14 20Z" fill="#FFC400"/></svg>',
+  B: '<svg viewBox="0 0 28 47" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.0039 20.2441L16 20.1533L16 0L18 0L18 19.4199C23.8049 21.1715 28 26.6811 28 33C28 40.732 21.732 47 14 47C6.26801 47 0 40.732 0 33C0 26.6811 4.19515 21.1715 10 19.4199L10 0L12 0L12 20.1533L11.9961 20.2441C11.9555 20.6925 11.6158 21.0621 11.1709 21.1709C5.90876 22.4575 2 27.3471 2 33C2 39.6274 7.37258 45 14 45C20.6274 45 26 39.6274 26 33C26 27.3471 22.0913 22.4574 16.8291 21.1709C16.3842 21.0621 16.0445 20.6925 16.0039 20.2441Z" fill="#D9D9D9"/><path d="M8 33C8 29.6863 10.6863 27 14 27C17.3137 27 20 29.6863 20 33C20 36.3137 17.3137 39 14 39C10.6863 39 8 36.3137 8 33ZM6 33C6 37.4183 9.58172 41 14 41C18.4183 41 22 37.4183 22 33C22 28.5817 18.4183 25 14 25C9.58172 25 6 28.5817 6 33Z" fill="#D9D9D9"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14 27C10.6863 27 8 29.6863 8 33C8 36.3137 10.6863 39 14 39C17.3137 39 20 36.3137 20 33C20 29.6863 17.3137 27 14 27Z" fill="#FFC400"/></svg>',
+  R: '<svg viewBox="0 0 47 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.2441 11.9961L20.1533 12L0 12L0 10L19.4199 10C21.1715 4.19514 26.6811 0 33 0C40.732 0 47 6.26802 47 14C47 21.732 40.732 28 33 28C26.6811 28 21.1715 23.8049 19.4199 18L0 18L0 16L20.1533 16L20.2441 16.0039C20.6925 16.0445 21.0621 16.3842 21.1709 16.8291C22.4575 22.0912 27.3471 26 33 26C39.6274 26 45 20.6274 45 14C45 7.37259 39.6274 2 33 2C27.3471 2 22.4574 5.90875 21.1709 11.1709C21.0621 11.6158 20.6925 11.9555 20.2441 11.9961Z" fill="#D9D9D9"/><path d="M33 20C29.6863 20 27 17.3137 27 14C27 10.6863 29.6863 8 33 8C36.3137 8 39 10.6863 39 14C39 17.3137 36.3137 20 33 20ZM33 22C37.4183 22 41 18.4183 41 14C41 9.58173 37.4183 6 33 6C28.5817 6 25 9.58173 25 14C25 18.4183 28.5817 22 33 22Z" fill="#D9D9D9"/><path fill-rule="evenodd" clip-rule="evenodd" d="M27 14C27 17.3137 29.6863 20 33 20C36.3137 20 39 17.3137 39 14C39 10.6863 36.3137 8 33 8C29.6863 8 27 10.6863 27 14Z" fill="#FFC400"/></svg>',
+  L: '<svg viewBox="0 0 47 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26.7559 16.0039L26.8467 16L47 16L47 18L27.5801 18C25.8285 23.8049 20.3189 28 14 28C6.26801 28 0 21.732 0 14C0 6.26801 6.26802 0 14 0C20.3189 0 25.8285 4.19515 27.5801 10L47 10L47 12L26.8467 12L26.7559 11.9961C26.3075 11.9555 25.9379 11.6158 25.8291 11.1709C24.5426 5.90876 19.6529 2 14 2C7.37259 2 2 7.37258 2 14C2 20.6274 7.37258 26 14 26C19.6529 26 24.5426 22.0913 25.8291 16.8291C25.9379 16.3842 26.3075 16.0445 26.7559 16.0039Z" fill="#D9D9D9"/><path d="M14 8C17.3137 8 20 10.6863 20 14C20 17.3137 17.3137 20 14 20C10.6863 20 8 17.3137 8 14C8 10.6863 10.6863 8 14 8ZM14 6C9.58172 6 6 9.58172 6 14C6 18.4183 9.58172 22 14 22C18.4183 22 22 18.4183 22 14C22 9.58172 18.4183 6 14 6Z" fill="#D9D9D9"/><path fill-rule="evenodd" clip-rule="evenodd" d="M20 14C20 10.6863 17.3137 8 14 8C10.6863 8 8 10.6863 8 14C8 17.3137 10.6863 20 14 20C17.3137 20 20 17.3137 20 14Z" fill="#FFC400"/></svg>'
+};
+
 // Available boards
 const BOARDS = [
   { file: 'boards/level-1-3x3.json' },
   { file: 'boards/level-2-4x4.json' },
   { file: 'boards/level-3-5x5.json' },
   { file: 'boards/level-4-6x6.json' },
+  { file: 'boards/level-5-4x4.json' },
+  { file: 'boards/level-6-5x5.json' },
+  { file: 'boards/level-7-6x6.json' },
 ];
 
 // === SHARED UTILITIES (same as admin) ===
@@ -323,6 +647,52 @@ function getConnectedCells() {
   return connected;
 }
 
+function getConnectedSides() {
+  const sides = {}; // { "r,c": Set(['T','B',...]) }
+  for (let r=0; r<boardSize; r++) for (let c=0; c<boardSize; c++) {
+    const cell = boardState[r][c];
+    if (!cell || !cell.variant) continue;
+    const cellSides = CONNECTORS[cell.variant]; if (!cellSides) continue;
+    for (const dir of ['T','B','L','R']) {
+      if (!cellSides.includes(dir)) continue;
+      const [dr,dc] = DIR_DELTA[dir]; const nr=r+dr, nc=c+dc;
+      if (nr<0||nr>=boardSize||nc<0||nc>=boardSize) continue;
+      const n = boardState[nr][nc];
+      if (n && n.variant) {
+        const ns = CONNECTORS[n.variant];
+        if (ns && ns.includes(OPPOSITE[dir])) {
+          const key = r+','+c;
+          if (!sides[key]) sides[key] = new Set();
+          sides[key].add(dir);
+          const nkey = nr+','+nc;
+          if (!sides[nkey]) sides[nkey] = new Set();
+          sides[nkey].add(OPPOSITE[dir]);
+        }
+      }
+      // Through-obstacle connections
+      if (n && n.type==='obstacle') {
+        for (const exitDir of ['T','B','L','R']) {
+          const [edr,edc]=DIR_DELTA[exitDir]; const er=nr+edr, ec=nc+edc;
+          if (er===r&&ec===c) continue;
+          if (er<0||er>=boardSize||ec<0||ec>=boardSize) continue;
+          const exitCell=boardState[er][ec];
+          if (!exitCell||!exitCell.variant) continue;
+          const exitSides=CONNECTORS[exitCell.variant];
+          if (exitSides&&exitSides.includes(OPPOSITE[exitDir])) {
+            const key = r+','+c;
+            if (!sides[key]) sides[key] = new Set();
+            sides[key].add(dir);
+            const ekey = er+','+ec;
+            if (!sides[ekey]) sides[ekey] = new Set();
+            sides[ekey].add(OPPOSITE[exitDir]);
+          }
+        }
+      }
+    }
+  }
+  return sides;
+}
+
 // === POWER-UP SYSTEM (same modular pattern as admin) ===
 const PowerUpManager = {
   active: null,
@@ -389,6 +759,7 @@ const FillPowerUp = {
     }
     if (!powerUpLinks[srcKey]) powerUpLinks[srcKey] = [];
     powerUpLinks[srcKey].push(...generated);
+    usePowerUp('fill'); saveCurrentBoard();
     PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
   },
   cancel() {this.target=null;this.directions=[];this.previewDir=null;},
@@ -431,6 +802,7 @@ const ExtendPowerUp = {
     }
     if (!powerUpLinks[srcKey]) powerUpLinks[srcKey] = [];
     powerUpLinks[srcKey].push(...generated);
+    usePowerUp('extend'); saveCurrentBoard();
     PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
   },
   cancel() {this.target=null;this.cells=[];},
@@ -512,6 +884,7 @@ const TeleportPowerUp = {
     boardState[landing.row][landing.col]={type:'preset',color:'white',variant:landing.variant};
     if (!powerUpLinks[srcKey]) powerUpLinks[srcKey] = [];
     powerUpLinks[srcKey].push(landing.row+','+landing.col);
+    usePowerUp('teleport'); saveCurrentBoard();
     PowerUpManager.active=null; this.cancel(); renderBoard(); updateStatus(); checkStars();
   },
   cancel() {this.target=null;this.directions=[];this.previewDir=null;this._previewIdx=null;},
@@ -520,10 +893,93 @@ const TeleportPowerUp = {
   }
 };
 
-const powerUpMap = { fill: FillPowerUp, extend: ExtendPowerUp, teleport: TeleportPowerUp };
+const RotatePowerUp = {
+  target: null,
+  selectorEl: null,
+  activate(t) {
+    this.target = { row: t.row, col: t.col };
+    const state = boardState[t.row][t.col];
+    const family = getVariantFamily(state.variant);
+    const others = family.filter(v => v !== state.variant);
+    if (others.length === 0) { this.cancel(); return; }
+    // Defer selector until after PowerUpManager's renderBoard() rebuilds the DOM
+    this._pendingVariants = others;
+  },
+  _showSelector(row, col, variants) {
+    this._removeSelector();
+    const sel = document.createElement('div');
+    sel.className = 'rotate-selector';
+    variants.forEach(v => {
+      const btn = document.createElement('div');
+      btn.className = 'rotate-option';
+      btn.innerHTML = PIECE_SVGS[v] || '';
+      btn.addEventListener('click', e => { e.stopPropagation(); this.execute(v); });
+      btn.addEventListener('touchend', e => { e.preventDefault(); e.stopPropagation(); this.execute(v); });
+      sel.appendChild(btn);
+    });
+    // Position near the target cell
+    const cellEl = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+    if (cellEl) {
+      const board = document.getElementById('board');
+      const boardRect = board.getBoundingClientRect();
+      const cellRect = cellEl.getBoundingClientRect();
+      sel.style.left = (cellRect.left - boardRect.left) + 'px';
+      sel.style.top = (cellRect.bottom - boardRect.top + 4) + 'px';
+      board.style.position = 'relative';
+      board.appendChild(sel);
+      // Adjust if overflows right
+      requestAnimationFrame(() => {
+        const selRect = sel.getBoundingClientRect();
+        if (selRect.right > boardRect.right) {
+          sel.style.left = (boardRect.width - sel.offsetWidth) + 'px';
+        }
+      });
+    }
+    this.selectorEl = sel;
+  },
+  _removeSelector() {
+    if (this.selectorEl) { this.selectorEl.remove(); this.selectorEl = null; }
+  },
+  execute(newVariant) {
+    const { row, col } = this.target;
+    const state = boardState[row][col];
+    const key = row + ',' + col;
+    // Track original variant (only if not already rotated)
+    if (!rotatedPieces[key]) rotatedPieces[key] = state.variant;
+    // Transform piece
+    const colorMap = { green2:'green', blue2:'blue', blue3:'blue', blue4:'blue', purple2:'purple', purple3:'purple', purple4:'purple' };
+    boardState[row][col] = { type: 'piece', color: colorMap[newVariant] || newVariant, variant: newVariant };
+    usePowerUp('rotate');
+    saveCurrentBoard();
+    this._removeSelector();
+    PowerUpManager.active = null;
+    this.target = null;
+    renderBoard(); updateStatus(); checkStars();
+  },
+  renderCell(cell, r, c) {
+    if (this.target && this.target.row === r && this.target.col === c) {
+      cell.classList.add('powerup-target');
+      // Show selector after DOM is ready (deferred from activate)
+      if (this._pendingVariants) {
+        const variants = this._pendingVariants;
+        this._pendingVariants = null;
+        requestAnimationFrame(() => this._showSelector(r, c, variants));
+      }
+    }
+  },
+  cancel() { this._removeSelector(); this.target = null; this._pendingVariants = null; },
+  canActivate(t) {
+    const c = boardState[t.row][t.col];
+    if (!c || c.type !== 'piece' || !c.variant) return false;
+    return getVariantFamily(c.variant).length > 1;
+  }
+};
+
+const powerUpMap = { fill: FillPowerUp, extend: ExtendPowerUp, teleport: TeleportPowerUp, rotate: RotatePowerUp };
 
 // === BOARD LOADING ===
 async function loadBoardFile(file) {
+  currentBoardFile = file;
   const resp = await fetch(file);
   const data = await resp.json();
   boardSize = data.metadata.boardSize;
@@ -535,22 +991,46 @@ async function loadBoardFile(file) {
     if (cell.variant) boardState[r][c].variant = cell.variant;
   }
   originalBoard = boardState.map(row => row.map(cell => cell ? {...cell} : null));
+  // Restore saved player placements for this board
+  if (boardPlacements[file]) {
+    for (const [key, piece] of Object.entries(boardPlacements[file])) {
+      const [r, c] = key.split(',').map(Number);
+      if (r < boardSize && c < boardSize && boardState[r][c] === null) {
+        boardState[r][c] = {...piece};
+      }
+    }
+  }
   history = [];
   powerUpLinks = {};
+  rotatedPieces = boardRotations[file] ? {...boardRotations[file]} : {};
+  resetPowerUpUses();
+  // Re-consume rotate power-up if rotations were restored
+  if (Object.keys(rotatedPieces).length > 0) powerUpUses.rotate = 1;
   document.querySelectorAll('.board-card').forEach(c => c.classList.remove('active'));
   event?.target?.closest?.('.board-card')?.classList?.add('active');
-  document.getElementById('board-title').innerHTML = data.metadata.name + ' <span>' + data.metadata.boardSize + 'x' + data.metadata.boardSize + ' ' + data.metadata.difficulty + '</span>';
-  renderBoard(); updateStatus(); checkStars();
+  document.getElementById('stat-level').textContent = data.metadata.name;
+  renderBoard(); updateStatus(); checkStars(); updateInventoryUI(); updatePowerUpUI();
   document.getElementById('win-banner').innerHTML = '';
 }
 
 function resetBoard() {
   if (!originalBoard.length) return;
+  // Return all player pieces on this board to inventory (original variant if rotated)
+  for (let r=0; r<boardSize; r++) for (let c=0; c<boardSize; c++) {
+    const cell = boardState[r][c];
+    const key = r+','+c;
+    if (cell && cell.type === 'piece' && cell.variant) {
+      returnPiece(rotatedPieces[key] || cell.variant);
+    }
+  }
   boardState = originalBoard.map(row => row.map(cell => cell ? {...cell} : null));
   history = [];
   powerUpLinks = {};
+  rotatedPieces = {};
+  resetPowerUpUses();
+  if (currentBoardFile) { delete boardPlacements[currentBoardFile]; delete boardRotations[currentBoardFile]; saveBoardPlacements(); }
   if (PowerUpManager.isActive()) PowerUpManager.cancel();
-  renderBoard(); updateStatus(); checkStars();
+  renderBoard(); updateStatus(); checkStars(); updateInventoryUI(); updatePowerUpUI();
   document.getElementById('win-banner').innerHTML = '';
 }
 
@@ -561,13 +1041,13 @@ function renderBoard() {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const isMobile = vw <= 600;
-  const wrapPadding = isMobile ? 16 : 24;
+  const wrapPadding = isMobile ? 20 : 32;
   // Width constraint
   const maxWidth = Math.min(vw - 40, 400);
   const cellFromWidth = Math.floor((maxWidth - (boardSize - 1) * cellGap - 4) / boardSize);
   // Height constraint: reserve space for UI above and below the board
-  const uiAbove = isMobile ? 105 : 130; // title, selector, header, status
-  const uiBelow = isMobile ? 130 : 120; // inventory panel, browser chrome, margins
+  const uiAbove = isMobile ? 130 : 130; // top bar, info panel, gaps
+  const uiBelow = isMobile ? 200 : 120; // inventory panel, browser chrome, margins
   const availHeight = vh - uiAbove - uiBelow - wrapPadding * 2;
   const cellFromHeight = Math.floor((availHeight - (boardSize - 1) * cellGap - 4) / boardSize);
   cellSize = Math.min(55, Math.max(28, Math.min(cellFromWidth, cellFromHeight)));
@@ -576,6 +1056,7 @@ function renderBoard() {
   document.getElementById('board-wrapper').style.padding = wrapPadding + 'px';
   board.innerHTML = '';
   const connectedCells = getConnectedCells();
+  const connectedSides = getConnectedSides();
 
   for (let r=0; r<boardSize; r++) for (let c=0; c<boardSize; c++) {
     const cell = document.createElement('div');
@@ -589,7 +1070,25 @@ function renderBoard() {
       else cell.classList.add('filled','color-'+(state.color||'white'));
     }
 
-    if (connectedCells.has(`${r},${c}`)) cell.classList.add('connected');
+    // Connected piece: yellow inner circle + connection dots
+    const cellKey = `${r},${c}`;
+    if (connectedSides[cellKey]) {
+      const svg = cell.querySelector('svg');
+      if (svg) {
+        const paths = svg.querySelectorAll('path');
+        // PATH[1] is the inner circle — fill it yellow
+        if (paths[1]) paths[1].setAttribute('fill', '#F0E800');
+      }
+      // Add yellow dots on each connected side
+      for (const dir of connectedSides[cellKey]) {
+        const dot = document.createElement('div');
+        dot.className = 'conn-dot dot-' + dir;
+        cell.appendChild(dot);
+      }
+    }
+    // Red glow on rotated pieces
+    if (rotatedPieces[cellKey]) cell.classList.add('cell-rotated');
+
     PowerUpManager.renderCell(cell, r, c);
 
     // Drag from board
@@ -619,7 +1118,7 @@ function renderBoard() {
     board.appendChild(cell);
   }
 
-  // Add IN/OUT labels outside the board for entry/exit pieces
+  // Add IN/OUT arrow labels outside the board for entry/exit pieces
   const wrapper = document.getElementById('board-wrapper');
   wrapper.querySelectorAll('.board-label').forEach(l => l.remove());
   const cellStep = cellSize + cellGap;
@@ -630,23 +1129,21 @@ function renderBoard() {
     const opening = ENTRY_EXIT_OPENING[s.variant];
     if (!opening) continue;
     const isEntry = s.type === 'entry';
-    const label = document.createElement('div');
-    label.className = 'board-label ' + (isEntry ? 'label-in' : 'label-out');
     const wrapPad = wrapPadding;
     const cellLeft = wrapPad + pad + c * cellStep;
     const cellTop = wrapPad + pad + r * cellStep;
+
+    const label = document.createElement('div');
+    label.className = 'board-label ' + (isEntry ? 'label-in' : 'label-out') + ' label-side-' + opening;
+    label.innerHTML = '<span class="label-arrow">' + (ES_SVGS[opening] || '') + '</span>';
     if (opening === 'T') {
-      label.classList.add('label-h');
-      label.style.left = cellLeft + 'px'; label.style.width = cellSize + 'px'; label.style.top = (wrapPad - 6) + 'px';
+      label.style.left = cellLeft + 'px'; label.style.width = cellSize + 'px'; label.style.bottom = 'calc(100% - ' + (wrapPad - 4) + 'px)';
     } else if (opening === 'B') {
-      label.classList.add('label-h');
-      label.style.left = cellLeft + 'px'; label.style.width = cellSize + 'px'; label.style.bottom = (wrapPad - 6) + 'px';
+      label.style.left = cellLeft + 'px'; label.style.width = cellSize + 'px'; label.style.top = 'calc(100% - ' + (wrapPad - 4) + 'px)';
     } else if (opening === 'L') {
-      label.classList.add('label-v');
-      label.style.top = cellTop + 'px'; label.style.height = cellSize + 'px'; label.style.left = (wrapPad - 6) + 'px';
+      label.style.top = cellTop + 'px'; label.style.height = cellSize + 'px'; label.style.right = 'calc(100% - ' + (wrapPad - 4) + 'px)';
     } else if (opening === 'R') {
-      label.classList.add('label-v');
-      label.style.top = cellTop + 'px'; label.style.height = cellSize + 'px'; label.style.right = (wrapPad - 6) + 'px';
+      label.style.top = cellTop + 'px'; label.style.height = cellSize + 'px'; label.style.left = 'calc(100% - ' + (wrapPad - 4) + 'px)';
     }
     wrapper.appendChild(label);
   }
@@ -663,6 +1160,9 @@ function getCellAt(x, y) {
 
 function canDrop(row, col, color) {
   const cur = boardState[row][col];
+  // Red (Breaker) can ONLY be placed on obstacles
+  if (color === 'red') return !!(cur && cur.type === 'obstacle');
+  // Normal pieces cannot go on obstacles or locked pieces
   if (cur && cur.type==='obstacle') return false;
   if (cur && (cur.type==='preset'||cur.type==='entry'||cur.type==='exit')) return false;
   return true;
@@ -675,15 +1175,31 @@ function undoLast() {
   renderBoard(); updateStatus(); checkStars();
 }
 
+function calculateScore() {
+  const connected = getConnectedCells();
+  let score = 0;
+  for (let r=0; r<boardSize; r++) for (let c=0; c<boardSize; c++) {
+    const cell = boardState[r][c];
+    if (!cell || cell.type !== 'piece') continue;
+    if (connected.has(`${r},${c}`) && cell.variant && PIECE_POINTS[cell.variant]) {
+      score += PIECE_POINTS[cell.variant];
+    }
+  }
+  return score;
+}
+
 function updateStatus() {
   const total = boardSize*boardSize;
-  const obstacles = boardState.flat().filter(c=>c&&c.type==='obstacle').length;
-  const filled = boardState.flat().filter(c=>c!==null).length;
-  const empty = total - filled;
-  document.getElementById('status').innerHTML =
-    `Board: <span class="highlight">${boardSize}x${boardSize}</span> | ` +
-    `Empty: <span class="highlight">${empty}</span> | ` +
-    `Filled: <span class="highlight">${filled}/${total}</span>`;
+  const playerPieces = boardState.flat().filter(c=>c&&c.type==='piece').length;
+  const playerSlots = total - boardState.flat().filter(c=>c&&(c.type==='preset'||c.type==='obstacle'||c.type==='entry'||c.type==='exit')).length;
+  const connected = getConnectedCells();
+  const connectedPlayer = boardState.flat().filter((c,i)=>{
+    if (!c||c.type!=='piece') return false;
+    const r=Math.floor(i/boardSize), col=i%boardSize;
+    return connected.has(`${r},${col}`);
+  }).length;
+  const memScore = calculateScore();
+  document.getElementById('stat-mem').textContent = 'MEM: ' + memScore;
 }
 
 // === 3-STAR WIN SYSTEM ===
@@ -733,8 +1249,11 @@ function checkStars() {
   document.getElementById('star3').className = 'star' + (s3 ? ' earned' : '');
 
   const stars = (s1?1:0)+(s2?1:0)+(s3?1:0);
-  if (stars === 3) document.getElementById('win-banner').innerHTML = '<div class="win-banner">Perfect! 3 Stars!</div>';
-  else if (stars > 0) document.getElementById('win-banner').innerHTML = '<div class="win-banner">' + stars + ' Star' + (stars>1?'s':'') + '!</div>';
+  const memScore = calculateScore();
+  // Unlock next level when IN→OUT path is connected (star 1)
+  if (s1 && currentBoardFile) markLevelCompleted(currentBoardFile);
+  if (stars === 3) document.getElementById('win-banner').innerHTML = '<div class="win-banner">Perfect! ' + memScore + ' MEM</div>';
+  else if (stars > 0) document.getElementById('win-banner').innerHTML = '<div class="win-banner">' + stars + ' Star' + (stars>1?'s':'') + ' — ' + memScore + ' MEM</div>';
   else document.getElementById('win-banner').innerHTML = '';
 }
 
@@ -772,6 +1291,7 @@ document.addEventListener('mouseup', e => {
     // Board-to-board drag
     const sameCell = target&&target.row===dragSource.row&&target.col===dragSource.col;
     if (target&&!sameCell&&canDrop(target.row,target.col,dragColor)) {
+      const srcKey=dragSource.row+','+dragSource.col;
       const srcPrev=boardState[dragSource.row][dragSource.col];
       history.push({row:dragSource.row,col:dragSource.col,prev:srcPrev});
       boardState[dragSource.row][dragSource.col]=null;
@@ -780,6 +1300,9 @@ document.addEventListener('mouseup', e => {
       const variant = PIECE_SVGS[dragColor] ? dragColor : null;
       const boardColor = colorMap[dragColor]||dragColor;
       boardState[target.row][target.col]={type:'piece',color:boardColor,variant};
+      // Transfer rotation tracking to new cell
+      const tgtKey=target.row+','+target.col;
+      if (rotatedPieces[srcKey]) { rotatedPieces[tgtKey]=rotatedPieces[srcKey]; delete rotatedPieces[srcKey]; }
       renderBoard(); updateStatus(); checkStars();
     } else if (!target) {
       removePieceWithLinks(dragSource.row, dragSource.col);
@@ -788,13 +1311,14 @@ document.addEventListener('mouseup', e => {
   } else if (powerUpMap[dragColor]) {
     if (target) { const pu=powerUpMap[dragColor]; if (pu.canActivate(target)) PowerUpManager.activate(pu,target); }
   } else {
-    // Palette to board
-    if (target&&canDrop(target.row,target.col,dragColor)) {
+    // Palette to board — consume from inventory
+    if (target&&canDrop(target.row,target.col,dragColor)&&consumePiece(dragColor)) {
       const colorMap={green2:'green',blue2:'blue',blue3:'blue',blue4:'blue',purple2:'purple',purple3:'purple',purple4:'purple'};
       const variant = PIECE_SVGS[dragColor] ? dragColor : null;
       const boardColor = colorMap[dragColor]||dragColor;
       history.push({row:target.row,col:target.col,prev:boardState[target.row][target.col]});
       boardState[target.row][target.col]={type:'piece',color:boardColor,variant};
+      saveCurrentBoard(); updateInventoryUI();
       renderBoard(); updateStatus(); checkStars();
     }
   }
@@ -809,6 +1333,10 @@ function getEventXY(e) {
 }
 
 function startDragFromPalette(color, x, y) {
+  // Block if piece is depleted (not power-ups)
+  if (!powerUpMap[color] && inventory.hasOwnProperty(color) && inventory[color] <= 0) return;
+  // Block if power-up is used up
+  if (powerUpMap[color] && powerUpUses[color] >= POWERUP_MAX) return;
   dragColor = color; dragSource = null; dragging = true;
   if (PIECE_SVGS[color]) { ghost.className='drag-ghost ghost-svg'; ghost.innerHTML=PIECE_SVGS[color]; }
   else { ghost.className='drag-ghost'; ghost.innerHTML=''; }
@@ -873,7 +1401,12 @@ document.addEventListener('touchend', e => {
       const colorMap={green2:'green',blue2:'blue',blue3:'blue',blue4:'blue',purple2:'purple',purple3:'purple',purple4:'purple'};
       const variant = PIECE_SVGS[dragColor] ? dragColor : null;
       const boardColor = colorMap[dragColor]||dragColor;
+      // Preserve rotation tracking before removePieceWithLinks clears it
+      const srcKey=dragSource.row+','+dragSource.col;
+      const savedRotation=rotatedPieces[srcKey];
       removePieceWithLinks(dragSource.row, dragSource.col);
+      // Restore rotation to new cell (removePieceWithLinks refunded the power-up, re-consume it)
+      if (savedRotation) { rotatedPieces[target.row+','+target.col]=savedRotation; powerUpUses.rotate++; updatePowerUpUI(); }
       history.push({row:target.row,col:target.col,prev:boardState[target.row][target.col]});
       boardState[target.row][target.col]={type:'piece',color:boardColor,variant};
       renderBoard(); updateStatus(); checkStars();
@@ -884,12 +1417,14 @@ document.addEventListener('touchend', e => {
   } else if (powerUpMap[dragColor]) {
     if (target) { const pu=powerUpMap[dragColor]; if (pu.canActivate(target)) PowerUpManager.activate(pu,target); }
   } else {
-    if (target&&canDrop(target.row,target.col,dragColor)) {
+    // Touch: palette to board — consume from inventory
+    if (target&&canDrop(target.row,target.col,dragColor)&&consumePiece(dragColor)) {
       const colorMap={green2:'green',blue2:'blue',blue3:'blue',blue4:'blue',purple2:'purple',purple3:'purple',purple4:'purple'};
       const variant = PIECE_SVGS[dragColor] ? dragColor : null;
       const boardColor = colorMap[dragColor]||dragColor;
       history.push({row:target.row,col:target.col,prev:boardState[target.row][target.col]});
       boardState[target.row][target.col]={type:'piece',color:boardColor,variant};
+      saveCurrentBoard(); updateInventoryUI();
       renderBoard(); updateStatus(); checkStars();
     }
   }
@@ -928,17 +1463,57 @@ document.addEventListener('click', e => {
   if (!e.target.closest('.'+pu.previewClass)&&!e.target.closest('.fill-arrow')) PowerUpManager.cancel();
 });
 
+// === TOP BAR TOGGLES ===
+function toggleLevels() {
+  const modal = document.getElementById('levels-modal');
+  modal.classList.toggle('open');
+  if (modal.classList.contains('open')) {
+    requestAnimationFrame(() => drawPathLines(getCompletedLevels()));
+  }
+}
+function closeLevels() {
+  document.getElementById('levels-modal').classList.remove('open');
+}
+function toggleHelp() {
+  document.getElementById('help-modal').classList.toggle('open');
+}
+function closeHelp() {
+  document.getElementById('help-modal').classList.remove('open');
+}
+
 // === POPULATE PIECE PALETTES ===
+const PIECE_NAMES = {
+  green:'Straight', green2:'Straight',
+  blue:'Corner', blue2:'Corner', blue3:'Corner', blue4:'Corner',
+  purple:'T-Piece', purple2:'T-Piece', purple3:'T-Piece', purple4:'T-Piece',
+  orange:'Cross', red:'Breaker'
+};
+const PIECE_RARITY = {
+  green:'Common', green2:'Common',
+  blue:'Rare', blue2:'Rare', blue3:'Rare', blue4:'Rare',
+  purple:'Epic', purple2:'Epic', purple3:'Epic', purple4:'Epic',
+  orange:'Legendary', red:'Mythic'
+};
+const PIECE_POINTS = {
+  green:10, green2:10,
+  blue:20, blue2:20, blue3:20, blue4:20,
+  purple:30, purple2:30, purple3:30, purple4:30,
+  orange:40, red:50
+};
 function populatePieces() {
-  const allVariants = ['green','green2','blue','blue2','blue3','blue4','purple','purple2','purple3','purple4','orange'];
   const container = document.getElementById('pieces-inventory');
-  for (const v of allVariants) {
+  for (const v of ALL_VARIANTS) {
     const item = document.createElement('div');
     item.className = 'palette-item'; item.dataset.color = v;
+    item.title = PIECE_NAMES[v] + ' (' + PIECE_RARITY[v] + ') ' + PIECE_POINTS[v] + ' MEM — ' + (CONNECTORS[v]||[]).join(',');
     const swatch = document.createElement('div');
     swatch.className = 'palette-swatch swatch-svg';
     if (PIECE_SVGS[v]) swatch.innerHTML = PIECE_SVGS[v].replace(/100%/g,'32');
     item.appendChild(swatch);
+    const count = document.createElement('span');
+    count.className = 'piece-count'; count.id = 'count-' + v;
+    count.textContent = 'x' + inventory[v];
+    item.appendChild(count);
     item.addEventListener('mousedown', e => {
       if (e.button!==0) return; e.preventDefault();
       startDragFromPalette(v, e.clientX, e.clientY);
@@ -949,26 +1524,114 @@ function populatePieces() {
     }, {passive:false});
     container.appendChild(item);
   }
+  updateInventoryUI();
+}
+
+function updateInventoryUI() {
+  for (const v of ALL_VARIANTS) {
+    const countEl = document.getElementById('count-' + v);
+    if (countEl) countEl.textContent = 'x' + inventory[v];
+    const item = countEl?.parentElement;
+    if (item) {
+      if (inventory[v] <= 0) item.classList.add('depleted');
+      else item.classList.remove('depleted');
+    }
+  }
+}
+
+function updatePowerUpUI() {
+  document.querySelectorAll('.powerup-item').forEach(item => {
+    const color = item.dataset.color;
+    if (!color || !powerUpUses.hasOwnProperty(color)) return;
+    const usesEl = item.querySelector('.powerup-uses');
+    if (powerUpUses[color] >= POWERUP_MAX) {
+      item.classList.add('used');
+      if (usesEl) usesEl.textContent = 'USED';
+    } else {
+      item.classList.remove('used');
+      if (usesEl) usesEl.textContent = 'x' + (POWERUP_MAX - powerUpUses[color]);
+    }
+  });
 }
 
 // === BOARD SELECTOR ===
+// Level completion tracking
+function getCompletedLevels() {
+  try { return JSON.parse(localStorage.getItem('puzzle-completed-levels') || '[]'); } catch(e) { return []; }
+}
+function markLevelCompleted(file) {
+  const completed = getCompletedLevels();
+  if (!completed.includes(file)) { completed.push(file); localStorage.setItem('puzzle-completed-levels', JSON.stringify(completed)); }
+}
+function isLevelUnlocked(idx) {
+  if (idx === 0) return true; // Level 1 always unlocked
+  const completed = getCompletedLevels();
+  return completed.includes(BOARDS[idx - 1].file); // Previous level must be completed
+}
+
 async function initBoardSelector() {
   const container = document.getElementById('board-selector');
-  for (const b of BOARDS) {
+  const completed = getCompletedLevels();
+  for (let i = 0; i < BOARDS.length; i++) {
+    const b = BOARDS[i];
     try {
       const resp = await fetch(b.file);
       const data = await resp.json();
+      const unlocked = isLevelUnlocked(i);
+      const done = completed.includes(b.file);
+
+      // Row with node + card (no connector divs — SVG lines drawn after)
+      const row = document.createElement('div');
+      row.className = 'level-row ' + (i % 2 === 0 ? 'align-left' : 'align-right');
+
+      const node = document.createElement('div');
+      node.className = 'level-node ' + (done ? 'completed' : (unlocked ? 'unlocked' : 'locked'));
+      if (done) node.innerHTML = '<i class="fa-solid fa-check" style="color:#fff"></i>';
+      else if (!unlocked) node.innerHTML = '<i class="fa-solid fa-lock" style="color:var(--color-text-faint);font-size:8px"></i>';
+
       const card = document.createElement('div');
-      card.className = 'board-card';
+      card.className = 'board-card' + (!unlocked ? ' locked' : '');
       card.innerHTML = `<div class="board-card-name">${data.metadata.name}</div><div class="board-card-info">${data.metadata.boardSize}x${data.metadata.boardSize} | ${data.metadata.difficulty}</div>`;
-      card.addEventListener('click', () => {
-        document.querySelectorAll('.board-card').forEach(c=>c.classList.remove('active'));
-        card.classList.add('active');
-        loadBoardFile(b.file);
-      });
-      container.appendChild(card);
+      if (unlocked) {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.board-card').forEach(c=>c.classList.remove('active'));
+          card.classList.add('active');
+          loadBoardFile(b.file);
+          closeLevels();
+        });
+      }
+
+      row.appendChild(node);
+      row.appendChild(card);
+      container.appendChild(row);
     } catch(e) { console.error('Failed to load board:', b.file, e); }
   }
+  // Lines drawn when modal opens (needs layout to be visible)
+}
+
+function drawPathLines(completed) {
+  const container = document.getElementById('board-selector');
+  const nodes = container.querySelectorAll('.level-node');
+  if (nodes.length < 2) return;
+  // Remove old SVG
+  container.querySelector('.path-line')?.remove();
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.classList.add('path-line');
+  const rect = container.getBoundingClientRect();
+  svg.setAttribute('width', rect.width);
+  svg.setAttribute('height', rect.height);
+  for (let i = 0; i < nodes.length - 1; i++) {
+    const a = nodes[i].getBoundingClientRect();
+    const b = nodes[i+1].getBoundingClientRect();
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', a.left - rect.left + a.width/2);
+    line.setAttribute('y1', a.top - rect.top + a.height/2);
+    line.setAttribute('x2', b.left - rect.left + b.width/2);
+    line.setAttribute('y2', b.top - rect.top + b.height/2);
+    if (completed && completed.includes(BOARDS[i].file)) line.classList.add('completed');
+    svg.appendChild(line);
+  }
+  container.insertBefore(svg, container.firstChild);
 }
 
 // Re-render on resize for responsive cell sizing

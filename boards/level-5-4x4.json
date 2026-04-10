@@ -1,0 +1,24 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Level 5",
+    "boardSize": 4,
+    "difficulty": "medium",
+    "notes": "",
+    "createdAt": "2026-04-09T12:00:00.000Z",
+    "updatedAt": "2026-04-09T12:00:00.000Z",
+    "shortestPath": 6,
+    "pieceCounts": {
+      "common": 0, "rare": 0, "epic": 0, "legendary": 0,
+      "preset": 2, "obstacle": 1, "entry": 1, "exit": 1
+    }
+  },
+  "board": [
+    [null,{"type":"entry","color":"yellow","variant":"entryC2","code":"ENCUDL"},null,null],
+    [null,{"type":"obstacle","color":"black"},{"type":"preset","color":"white","variant":"white4","code":"PSRUDR"},null],
+    [null,null,null,null],
+    [null,null,{"type":"preset","color":"white","variant":"white3","code":"PSRDUL"},{"type":"exit","color":"yellow","variant":"exitR7","code":"EXRDR"}]
+  ],
+  "connectors": {"entryC2":["T","B"],"white4":["T","R"],"white3":["L","T"],"exitR7":["R","B"]},
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}
