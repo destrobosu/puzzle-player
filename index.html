@@ -1634,6 +1634,7 @@ function showNextLevelNotification(levelIdx, nextLevelNum) {
     '<button class="notify-btn notify-btn-primary" data-action="next">Next Level</button>' +
     '<button class="notify-btn notify-btn-neutral" data-action="continue">Continue Level</button>' +
     '<button class="notify-btn notify-btn-neutral" data-action="reset">Reset Level</button>' +
+    '<button class="notify-btn notify-btn-neutral" data-action="levels">Level Select</button>' +
     '</div>';
 
   document.body.appendChild(overlay);
@@ -1652,6 +1653,7 @@ function showNextLevelNotification(levelIdx, nextLevelNum) {
   });
   notify.querySelector('[data-action="continue"]').addEventListener('click', dismiss);
   notify.querySelector('[data-action="reset"]').addEventListener('click', () => { dismiss(); resetBoard(); });
+  notify.querySelector('[data-action="levels"]').addEventListener('click', () => { dismiss(); toggleLevels(); });
 }
 
 function isLevelUnlocked(idx) {
