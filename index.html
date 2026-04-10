@@ -205,8 +205,19 @@
   .next-level-notify.show { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
   .next-level-notify .notify-title { font-family: var(--font-display); font-size: 1rem; color: var(--color-positive); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: var(--space-200); }
   .next-level-notify .notify-msg { font-family: var(--font-body); font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: var(--space-400); }
-  .next-level-notify .notify-btn { font-family: var(--font-body); font-size: 0.8125rem; font-weight: 700; background: var(--color-positive); color: #fff; border: none; border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-200) var(--space-400); cursor: pointer; transition: opacity var(--duration-fast) var(--ease-enter); }
+  .notify-buttons { display: flex; gap: var(--space-200); flex-wrap: wrap; justify-content: center; }
+  .next-level-notify .notify-btn { font-family: var(--font-body); font-size: 0.8125rem; font-weight: 700; border: none; border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-200) var(--space-400); cursor: pointer; transition: opacity var(--duration-fast) var(--ease-enter); }
   .next-level-notify .notify-btn:hover { opacity: 0.85; }
+  .notify-btn-primary { background: var(--color-positive); color: #fff; }
+  .notify-btn-neutral { background: transparent; border: 1px solid var(--color-border-default) !important; color: var(--color-text-primary); }
+  .notify-divider { width: 100%; height: 1px; background: var(--color-border-default); margin: var(--space-300) 0; }
+  .notify-reward-title { font-family: var(--font-body); font-size: 0.75rem; font-weight: 700; color: var(--color-text-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--space-200); }
+  .notify-rewards { display: flex; gap: var(--space-400); justify-content: center; margin-bottom: var(--space-400); }
+  .notify-reward-item { display: flex; flex-direction: column; align-items: center; gap: var(--space-100); }
+  .notify-reward-svg { width: 48px; height: 48px; }
+  .notify-reward-svg svg { width: 100%; height: 100%; }
+  .notify-reward-label { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--color-text-secondary); white-space: nowrap; }
+  .notify-reward-rarity { color: var(--color-text-faint); }
   .next-level-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; transition: opacity var(--duration-normal) var(--ease-enter); pointer-events: none; }
   .next-level-overlay.show { opacity: 1; pointer-events: auto; }
 
@@ -1267,7 +1278,7 @@ function checkStars() {
     if (!alreadyCompleted) {
       const idx = BOARDS.findIndex(b => b.file === currentBoardFile);
       if (idx >= 0 && idx < BOARDS.length - 1) {
-        showNextLevelNotification(idx + 2); // next level number (1-indexed)
+        showNextLevelNotification(idx, idx + 2); // current index, next level number
       }
     }
   }
@@ -1582,22 +1593,59 @@ function markLevelCompleted(file) {
   const completed = getCompletedLevels();
   if (!completed.includes(file)) { completed.push(file); localStorage.setItem('puzzle-completed-levels', JSON.stringify(completed)); }
 }
-function showNextLevelNotification(nextLevelNum) {
-  // Remove any existing notification
+// Level rewards: each level index maps to an array of { variant, count } items
+const LEVEL_REWARDS = {
+  0: [{ variant: 'green', count: 1 }, { variant: 'green2', count: 1 }], // Level 1
+};
+
+function showNextLevelNotification(levelIdx, nextLevelNum) {
   document.querySelectorAll('.next-level-overlay,.next-level-notify').forEach(el => el.remove());
   const overlay = document.createElement('div');
   overlay.className = 'next-level-overlay';
   const notify = document.createElement('div');
   notify.className = 'next-level-notify';
+
+  // Rewards section
+  const rewards = LEVEL_REWARDS[levelIdx] || [];
+  let rewardsHtml = '';
+  if (rewards.length > 0) {
+    // Grant rewards to inventory
+    rewards.forEach(r => { inventory[r.variant] = (inventory[r.variant] || 0) + r.count; });
+    saveInventory(); updateInventoryUI();
+    rewardsHtml = '<div class="notify-divider"></div><div class="notify-reward-title">Reward</div><div class="notify-rewards">';
+    rewards.forEach(r => {
+      const name = PIECE_NAMES[r.variant] || r.variant;
+      const rarity = PIECE_RARITY[r.variant] || '';
+      rewardsHtml += '<div class="notify-reward-item"><div class="notify-reward-svg">' + (PIECE_SVGS[r.variant] || '') + '</div><div class="notify-reward-label">' + r.count + 'x ' + name + ' <span class="notify-reward-rarity">' + rarity + '</span></div></div>';
+    });
+    rewardsHtml += '</div>';
+  }
+
   notify.innerHTML = '<div class="notify-title">Path Connected!</div>' +
     '<div class="notify-msg">Level ' + nextLevelNum + ' is now unlocked</div>' +
-    '<button class="notify-btn">Continue</button>';
+    rewardsHtml +
+    '<div class="notify-buttons">' +
+    '<button class="notify-btn notify-btn-primary" data-action="next">Next Level</button>' +
+    '<button class="notify-btn notify-btn-neutral" data-action="continue">Continue Level</button>' +
+    '<button class="notify-btn notify-btn-neutral" data-action="reset">Reset Level</button>' +
+    '</div>';
+
   document.body.appendChild(overlay);
   document.body.appendChild(notify);
   requestAnimationFrame(() => { overlay.classList.add('show'); notify.classList.add('show'); });
+
   const dismiss = () => { overlay.classList.remove('show'); notify.classList.remove('show'); setTimeout(() => { overlay.remove(); notify.remove(); }, 200); };
-  notify.querySelector('.notify-btn').addEventListener('click', dismiss);
-  overlay.addEventListener('click', dismiss);
+
+  notify.querySelector('[data-action="next"]').addEventListener('click', () => {
+    dismiss();
+    // Load the next level
+    const nextIdx = levelIdx + 1;
+    if (nextIdx < BOARDS.length) {
+      loadBoardFile(BOARDS[nextIdx].file);
+    }
+  });
+  notify.querySelector('[data-action="continue"]').addEventListener('click', dismiss);
+  notify.querySelector('[data-action="reset"]').addEventListener('click', () => { dismiss(); resetBoard(); });
 }
 
 function isLevelUnlocked(idx) {
