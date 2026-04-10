@@ -200,6 +200,16 @@
   /* Red glow on rotated pieces */
   .board .cell.cell-rotated svg { filter: drop-shadow(0 0 4px #E51A4B) drop-shadow(0 0 8px rgba(229,26,75,0.5)); }
 
+  /* Next level notification */
+  .next-level-notify { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); z-index: 1000; background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-600) var(--space-800); text-align: center; box-shadow: var(--shadow-heavy); opacity: 0; transition: opacity var(--duration-normal) var(--ease-enter), transform var(--duration-normal) var(--ease-enter); pointer-events: none; }
+  .next-level-notify.show { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+  .next-level-notify .notify-title { font-family: var(--font-display); font-size: 1rem; color: var(--color-positive); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: var(--space-200); }
+  .next-level-notify .notify-msg { font-family: var(--font-body); font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: var(--space-400); }
+  .next-level-notify .notify-btn { font-family: var(--font-body); font-size: 0.8125rem; font-weight: 700; background: var(--color-positive); color: #fff; border: none; border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-200) var(--space-400); cursor: pointer; transition: opacity var(--duration-fast) var(--ease-enter); }
+  .next-level-notify .notify-btn:hover { opacity: 0.85; }
+  .next-level-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; transition: opacity var(--duration-normal) var(--ease-enter); pointer-events: none; }
+  .next-level-overlay.show { opacity: 1; pointer-events: auto; }
+
   /* Drag ghost */
   .drag-ghost { position: fixed; pointer-events: none; z-index: 1000; width: 48px; height: 48px; border-radius: var(--radius-md); border: 2px solid rgba(255,255,255,0.3); opacity: 0.9; display: none; box-shadow: var(--shadow-heavy); transform: translate(-50%, -50%); }
   .drag-ghost.ghost-svg { background: transparent; border: none; box-shadow: none; }
@@ -1251,7 +1261,16 @@ function checkStars() {
   const stars = (s1?1:0)+(s2?1:0)+(s3?1:0);
   const memScore = calculateScore();
   // Unlock next level when IN→OUT path is connected (star 1)
-  if (s1 && currentBoardFile) markLevelCompleted(currentBoardFile);
+  if (s1 && currentBoardFile) {
+    const alreadyCompleted = getCompletedLevels().includes(currentBoardFile);
+    markLevelCompleted(currentBoardFile);
+    if (!alreadyCompleted) {
+      const idx = BOARDS.findIndex(b => b.file === currentBoardFile);
+      if (idx >= 0 && idx < BOARDS.length - 1) {
+        showNextLevelNotification(idx + 2); // next level number (1-indexed)
+      }
+    }
+  }
   if (stars === 3) document.getElementById('win-banner').innerHTML = '<div class="win-banner">Perfect! ' + memScore + ' MEM</div>';
   else if (stars > 0) document.getElementById('win-banner').innerHTML = '<div class="win-banner">' + stars + ' Star' + (stars>1?'s':'') + ' — ' + memScore + ' MEM</div>';
   else document.getElementById('win-banner').innerHTML = '';
@@ -1563,6 +1582,24 @@ function markLevelCompleted(file) {
   const completed = getCompletedLevels();
   if (!completed.includes(file)) { completed.push(file); localStorage.setItem('puzzle-completed-levels', JSON.stringify(completed)); }
 }
+function showNextLevelNotification(nextLevelNum) {
+  // Remove any existing notification
+  document.querySelectorAll('.next-level-overlay,.next-level-notify').forEach(el => el.remove());
+  const overlay = document.createElement('div');
+  overlay.className = 'next-level-overlay';
+  const notify = document.createElement('div');
+  notify.className = 'next-level-notify';
+  notify.innerHTML = '<div class="notify-title">Path Connected!</div>' +
+    '<div class="notify-msg">Level ' + nextLevelNum + ' is now unlocked</div>' +
+    '<button class="notify-btn">Continue</button>';
+  document.body.appendChild(overlay);
+  document.body.appendChild(notify);
+  requestAnimationFrame(() => { overlay.classList.add('show'); notify.classList.add('show'); });
+  const dismiss = () => { overlay.classList.remove('show'); notify.classList.remove('show'); setTimeout(() => { overlay.remove(); notify.remove(); }, 200); };
+  notify.querySelector('.notify-btn').addEventListener('click', dismiss);
+  overlay.addEventListener('click', dismiss);
+}
+
 function isLevelUnlocked(idx) {
   if (idx === 0) return true; // Level 1 always unlocked
   const completed = getCompletedLevels();
