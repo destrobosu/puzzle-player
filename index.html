@@ -1595,7 +1595,13 @@ function markLevelCompleted(file) {
 }
 // Level rewards: each level index maps to an array of { variant, count } items
 const LEVEL_REWARDS = {
-  0: [{ variant: 'green', count: 1 }, { variant: 'green2', count: 1 }], // Level 1
+  0: [{ variant: 'green', count: 1 }, { variant: 'green2', count: 1 }], // Level 1: CC
+  1: [{ variant: 'green', count: 1 }, { variant: 'blue', count: 1 }],   // Level 2: CR
+  2: [{ variant: 'blue', count: 1 }, { variant: 'blue2', count: 1 }],   // Level 3: RR
+  3: [{ variant: 'blue', count: 1 }, { variant: 'purple', count: 1 }],  // Level 4: RE
+  4: [{ variant: 'purple', count: 1 }, { variant: 'purple2', count: 1 }], // Level 5: EE
+  5: [{ variant: 'purple', count: 1 }, { variant: 'orange', count: 1 }], // Level 6: EL
+  6: [{ variant: 'red', count: 1 }], // Level 7: Red (Breaker)
 };
 
 function showNextLevelNotification(levelIdx, nextLevelNum) {
