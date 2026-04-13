@@ -2175,12 +2175,16 @@ function renderExchangeRecipes() {
     const row = document.createElement('div');
     const affordable = canAffordRecipe(recipe);
     row.className = 'exchange-recipe' + (!affordable ? ' unaffordable' : '') + (exchangeSelectedRecipe === idx ? ' selected' : '');
-    const costHtml = Object.entries(recipe.cost).map(([r, c]) =>
-      '<span class="recipe-cost-item"><strong>' + c + '</strong> ' + r.charAt(0) + '</span>'
-    ).join(' + ');
+    const costHtml = Object.entries(recipe.cost).map(([r, c]) => {
+      const v = RARITY_VARIANTS[r][0];
+      const svg = PIECE_SVGS[v] ? PIECE_SVGS[v].replace(/width="[^"]*"/,'width="20"').replace(/height="[^"]*"/,'height="20"') : '';
+      return '<span class="recipe-cost-item"><strong>' + c + 'x</strong><span style="width:20px;height:20px;display:inline-block;vertical-align:middle">' + svg + '</span></span>';
+    }).join('<span style="color:var(--color-text-faint);margin:0 2px">+</span>');
+    const tv = RARITY_VARIANTS[exchangeTarget][0];
+    const tsvg = PIECE_SVGS[tv] ? PIECE_SVGS[tv].replace(/width="[^"]*"/,'width="20"').replace(/height="[^"]*"/,'height="20"') : '';
     row.innerHTML = '<div class="recipe-cost">' + costHtml + '</div>' +
       '<span class="recipe-arrow"><i class="fa-solid fa-arrow-right"></i></span>' +
-      '<span class="recipe-result" style="color:' + RARITY_COLORS[exchangeTarget] + '">1 ' + exchangeTarget.charAt(0) + '</span>';
+      '<span class="recipe-cost-item"><strong>1x</strong><span style="width:20px;height:20px;display:inline-block;vertical-align:middle">' + tsvg + '</span></span>';
     row.onclick = () => { exchangeSelectedRecipe = idx; renderExchangeRecipes(); };
     el.appendChild(row);
   });
