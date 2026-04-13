@@ -133,11 +133,11 @@
     .build-info { font-size: 0.5rem; bottom: 2px; right: var(--space-100); }
   }
   .board { display: grid; gap: 2px; background: var(--color-bg-sunken); padding: 2px; border-radius: var(--radius-lg); corner-shape: squircle; border: 1px solid var(--color-border-default); }
-  .board .cell { width: 55px; height: 55px; background: var(--color-bg-surface); border-radius: var(--radius-sm); cursor: pointer; transition: border-color var(--duration-fast) var(--ease-enter), box-shadow var(--duration-fast) var(--ease-enter); display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid transparent; }
+  .board .cell { width: 56px; height: 56px; background: var(--color-bg-surface); border-radius: var(--radius-sm); cursor: pointer; transition: border-color var(--duration-fast) var(--ease-enter), box-shadow var(--duration-fast) var(--ease-enter); display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid transparent; }
   .board .cell:hover { border-color: rgba(255,255,255,0.3); }
   .board .cell.filled { border-color: rgba(255,255,255,0.1); cursor: grab; }
   .board .cell.filled:active { cursor: grabbing; }
-  .board .cell.cell-svg { background: transparent; border-color: transparent; padding: 2px; }
+  .board .cell.cell-svg { background: transparent; border-color: transparent; padding: 0; }
   .board .cell.cell-svg svg { width: 100%; height: 100%; }
   .board .cell.obstacle { background: var(--color-bg-sunken); border-color: var(--color-text-faint); cursor: default; }
   .board .cell.obstacle::after { content: '\f00d'; font-family: 'Font Awesome 6 Pro'; font-weight: 300; color: var(--color-text-faint); font-size: 1rem; }
@@ -194,6 +194,10 @@
 
   /* Red glow on rotated pieces */
   .board .cell.cell-rotated svg { filter: drop-shadow(0 0 4px #E51A4B) drop-shadow(0 0 8px rgba(229,26,75,0.5)); }
+
+  /* Connection light overlay */
+  .conn-light { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 2; overflow: visible; }
+  .conn-light svg { width: 100%; height: 100%; overflow: visible; }
 
   /* Next level notification */
   .next-level-notify { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); z-index: 1000; background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-600) var(--space-800); text-align: center; box-shadow: var(--shadow-heavy); opacity: 0; transition: opacity var(--duration-normal) var(--ease-enter), transform var(--duration-normal) var(--ease-enter); pointer-events: none; }
@@ -435,7 +439,7 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.7.1</div>
+<div class="build-info">Build 0.8.0</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
@@ -656,7 +660,7 @@ let dragColor = null;
 let dragSource = null;
 const ghost = document.getElementById('drag-ghost');
 const DIR_DELTA = { T: [-1,0], B: [1,0], L: [0,-1], R: [0,1] };
-let cellSize = 55; // dynamic, recalculated on render
+let cellSize = 56; // dynamic, recalculated on render
 const cellGap = 2;
 const DIR_ARROWS = { T: '\u25B2', B: '\u25BC', L: '\u25C0', R: '\u25B6' };
 
@@ -667,6 +671,36 @@ const ES_SVGS = {
   R: '<svg viewBox="0 0 47 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.2441 11.9961L20.1533 12L0 12L0 10L19.4199 10C21.1715 4.19514 26.6811 0 33 0C40.732 0 47 6.26802 47 14C47 21.732 40.732 28 33 28C26.6811 28 21.1715 23.8049 19.4199 18L0 18L0 16L20.1533 16L20.2441 16.0039C20.6925 16.0445 21.0621 16.3842 21.1709 16.8291C22.4575 22.0912 27.3471 26 33 26C39.6274 26 45 20.6274 45 14C45 7.37259 39.6274 2 33 2C27.3471 2 22.4574 5.90875 21.1709 11.1709C21.0621 11.6158 20.6925 11.9555 20.2441 11.9961Z" fill="#D9D9D9"/><path d="M33 20C29.6863 20 27 17.3137 27 14C27 10.6863 29.6863 8 33 8C36.3137 8 39 10.6863 39 14C39 17.3137 36.3137 20 33 20ZM33 22C37.4183 22 41 18.4183 41 14C41 9.58173 37.4183 6 33 6C28.5817 6 25 9.58173 25 14C25 18.4183 28.5817 22 33 22Z" fill="#D9D9D9"/><path fill-rule="evenodd" clip-rule="evenodd" d="M27 14C27 17.3137 29.6863 20 33 20C36.3137 20 39 17.3137 39 14C39 10.6863 36.3137 8 33 8C29.6863 8 27 10.6863 27 14Z" fill="#FFC400"/></svg>',
   L: '<svg viewBox="0 0 47 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26.7559 16.0039L26.8467 16L47 16L47 18L27.5801 18C25.8285 23.8049 20.3189 28 14 28C6.26801 28 0 21.732 0 14C0 6.26801 6.26802 0 14 0C20.3189 0 25.8285 4.19515 27.5801 10L47 10L47 12L26.8467 12L26.7559 11.9961C26.3075 11.9555 25.9379 11.6158 25.8291 11.1709C24.5426 5.90876 19.6529 2 14 2C7.37259 2 2 7.37258 2 14C2 20.6274 7.37258 26 14 26C19.6529 26 24.5426 22.0913 25.8291 16.8291C25.9379 16.3842 26.3075 16.0445 26.7559 16.0039Z" fill="#D9D9D9"/><path d="M14 8C17.3137 8 20 10.6863 20 14C20 17.3137 17.3137 20 14 20C10.6863 20 8 17.3137 8 14C8 10.6863 10.6863 8 14 8ZM14 6C9.58172 6 6 9.58172 6 14C6 18.4183 9.58172 22 14 22C18.4183 22 22 18.4183 22 14C22 9.58172 18.4183 6 14 6Z" fill="#D9D9D9"/><path fill-rule="evenodd" clip-rule="evenodd" d="M20 14C20 10.6863 17.3137 8 14 8C10.6863 8 8 10.6863 8 14C8 17.3137 10.6863 20 14 20C17.3137 20 20 17.3137 20 14Z" fill="#FFC400"/></svg>'
 };
+
+// Connection light SVGs — keyed by active connected sides (NESW compass)
+// Connection light path segments (N/E/S/W)
+const CL_PATHS = {
+  N: '<path d="M11.2539 4C11.2539 4.41421 11.5897 4.75 12.0039 4.75C12.4181 4.75 12.7539 4.41421 12.7539 4L12.0039 4L11.2539 4ZM12.0039 4L12.7539 4L12.7539 1L12.0039 1L11.2539 1L11.2539 4L12.0039 4Z" fill="#FFC400"/>',
+  E: '<path d="M20.0039 11.24C19.5897 11.24 19.2539 11.5758 19.2539 11.99C19.2539 12.4042 19.5897 12.74 20.0039 12.74V11.99V11.24ZM20.0039 11.99V12.74H23.0039V11.99V11.24H20.0039V11.99Z" fill="#FFC400"/>',
+  S: '<path d="M12.7539 20C12.7539 19.5858 12.4181 19.25 12.0039 19.25C11.5897 19.25 11.2539 19.5858 11.2539 20L12.0039 20L12.7539 20ZM12.0039 20L11.2539 20L11.2539 23L12.0039 23L12.7539 23L12.7539 20L12.0039 20Z" fill="#FFC400"/>',
+  W: '<path d="M4.00391 12.75C4.41812 12.75 4.75391 12.4142 4.75391 12C4.75391 11.5858 4.41812 11.25 4.00391 11.25L4.00391 12L4.00391 12.75ZM4.00391 12L4.00391 11.25L1.00391 11.25L1.00391 12L1.00391 12.75L4.00391 12.75L4.00391 12Z" fill="#FFC400"/>'
+};
+
+// Rarity stroke color for connection light center circle
+const VARIANT_STROKE = {
+  green:'#4CAF50', green2:'#4CAF50',
+  blue:'#2196F3', blue2:'#2196F3', blue3:'#2196F3', blue4:'#2196F3',
+  purple:'#9C27B0', purple2:'#9C27B0', purple3:'#9C27B0', purple4:'#9C27B0',
+  orange:'#FF9800', red:'#E51A4B',
+  white:'#CDCDCD', white2:'#CDCDCD', white3:'#CDCDCD', white4:'#CDCDCD', white5:'#CDCDCD',
+  white6:'#CDCDCD', white7:'#CDCDCD', white8:'#CDCDCD', white9:'#CDCDCD', white10:'#CDCDCD', white11:'#CDCDCD'
+};
+// Entry/exit + presets share grey stroke
+['entryC1','entryC2','entryC3','entryC4','entryR1','entryR2','entryR3','entryR4','entryR5','entryR6','entryR7','entryR8','entryE1','entryE2','entryE3','entryE4','entryL1','exitC1','exitC2','exitC3','exitC4','exitR1','exitR2','exitR3','exitR4','exitR5','exitR6','exitR7','exitR8','exitE1','exitE2','exitE3','exitE4','exitL1'].forEach(v => VARIANT_STROKE[v] = '#CDCDCD');
+
+// Build connection light SVG dynamically from active sides + variant stroke
+function buildConnectionLight(sides, variant) {
+  const map = { T:'N', R:'E', B:'S', L:'W' };
+  const dirs = [...sides].map(d => map[d]);
+  const paths = dirs.map(d => CL_PATHS[d]).filter(Boolean).join('');
+  const stroke = VARIANT_STROKE[variant] || '#FFC400';
+  return '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' + paths + '<circle cx="12.0312" cy="12.0347" r="2" fill="#FFC400"/><circle cx="12.0312" cy="12.0347" r="2" stroke="' + stroke + '"/></svg>';
+}
 
 // Available boards
 const BOARDS = [
@@ -1197,7 +1231,7 @@ function renderBoard() {
   const uiBelow = isMobile ? 200 : 120; // inventory panel, browser chrome, margins
   const availHeight = vh - uiAbove - uiBelow - wrapPadding * 2;
   const cellFromHeight = Math.floor((availHeight - (boardSize - 1) * cellGap - 4) / boardSize);
-  cellSize = Math.min(55, Math.max(28, Math.min(cellFromWidth, cellFromHeight)));
+  cellSize = Math.min(56, Math.max(28, Math.min(cellFromWidth, cellFromHeight)));
   board.style.gridTemplateColumns = `repeat(${boardSize}, ${cellSize}px)`;
   board.style.gap = cellGap + 'px';
   document.getElementById('board-wrapper').style.padding = wrapPadding + 'px';
@@ -1218,6 +1252,15 @@ function renderBoard() {
     }
 
     const cellKey = `${r},${c}`;
+    // Connection light overlay
+    if (connectedSides[cellKey] && connectedSides[cellKey].size > 0) {
+      const variant = state?.variant || '';
+      const lightSvg = buildConnectionLight(connectedSides[cellKey], variant);
+      const overlay = document.createElement('div');
+      overlay.className = 'conn-light';
+      overlay.innerHTML = lightSvg;
+      cell.appendChild(overlay);
+    }
     // Red glow on rotated pieces
     if (rotatedPieces[cellKey]) cell.classList.add('cell-rotated');
 
@@ -1294,6 +1337,8 @@ function canDrop(row, col, color) {
   const cur = boardState[row][col];
   // Red (Breaker) can ONLY be placed on obstacles
   if (color === 'red') return !!(cur && cur.type === 'obstacle');
+  // Nothing can replace a Mythic piece — must remove it first
+  if (cur && cur.variant === 'red') return false;
   // Normal pieces cannot go on obstacles or locked pieces
   if (cur && cur.type==='obstacle') return false;
   if (cur && (cur.type==='preset'||cur.type==='entry'||cur.type==='exit')) return false;
