@@ -142,11 +142,6 @@
   .board .cell.obstacle { background: var(--color-bg-sunken); border-color: var(--color-text-faint); cursor: default; }
   .board .cell.obstacle::after { content: '\f00d'; font-family: 'Font Awesome 6 Pro'; font-weight: 300; color: var(--color-text-faint); font-size: 1rem; }
   /* Connection dots at jigsaw tab midpoints */
-  .conn-dot { position: absolute; width: 6px; height: 6px; background: #F0E800; border-radius: 50%; pointer-events: none; z-index: 1; }
-  .conn-dot.dot-T { top: 0; left: 50%; transform: translate(-50%, -50%); }
-  .conn-dot.dot-B { bottom: 0; left: 50%; transform: translate(-50%, 50%); }
-  .conn-dot.dot-L { left: 0; top: 50%; transform: translate(-50%, -50%); }
-  .conn-dot.dot-R { right: 0; top: 50%; transform: translate(50%, -50%); }
   .board .cell.drop-valid { border-color: var(--color-positive); box-shadow: 0 0 8px rgba(20,174,92,0.4); }
   .board .cell.drop-invalid { border-color: var(--color-danger); box-shadow: 0 0 8px rgba(236,34,31,0.4); }
 
@@ -1222,22 +1217,7 @@ function renderBoard() {
       else cell.classList.add('filled','color-'+(state.color||'white'));
     }
 
-    // Connected piece: yellow inner circle + connection dots
     const cellKey = `${r},${c}`;
-    if (connectedSides[cellKey]) {
-      const svg = cell.querySelector('svg');
-      if (svg) {
-        const paths = svg.querySelectorAll('path');
-        // PATH[1] is the inner circle — fill it yellow
-        if (paths[1]) paths[1].setAttribute('fill', '#F0E800');
-      }
-      // Add yellow dots on each connected side
-      for (const dir of connectedSides[cellKey]) {
-        const dot = document.createElement('div');
-        dot.className = 'conn-dot dot-' + dir;
-        cell.appendChild(dot);
-      }
-    }
     // Red glow on rotated pieces
     if (rotatedPieces[cellKey]) cell.classList.add('cell-rotated');
 
