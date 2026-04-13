@@ -436,7 +436,8 @@
     <div id="win-banner"></div>
   </div>
   <div class="reset-area">
-    <button onclick="confirmResetBoard()" class="reset-btn"><i class="fa-light fa-arrows-rotate"></i> Reset</button>
+    <button onclick="confirmResetBoard()" class="reset-btn"><i class="fa-light fa-arrows-rotate"></i> Reset Board</button>
+    <button onclick="confirmResetAll()" class="reset-btn" style="border-color:var(--color-danger);color:var(--color-danger)"><i class="fa-light fa-trash-can"></i> Reset All</button>
   </div>
 
   <div class="inventory-panel">
@@ -1293,6 +1294,40 @@ async function loadBoardFile(file) {
   document.getElementById('stat-level').textContent = data.metadata.name;
   renderBoard(); updateStatus(); checkStars(); updateInventoryUI(); updatePowerUpUI();
   document.getElementById('win-banner').innerHTML = '';
+}
+
+function confirmResetAll() {
+  document.querySelectorAll('.next-level-overlay,.next-level-notify').forEach(el => el.remove());
+  const overlay = document.createElement('div');
+  overlay.className = 'next-level-overlay';
+  const notify = document.createElement('div');
+  notify.className = 'next-level-notify';
+  notify.innerHTML = '<div class="notify-title" style="color:var(--color-danger)">Reset Everything?</div>' +
+    '<div class="notify-msg">This will clear all boards, inventory, stars, rewards, and power-ups. This cannot be undone.</div>' +
+    '<div class="notify-buttons">' +
+    '<button class="notify-btn" style="background:var(--color-danger);color:var(--color-text-primary)" data-action="confirm">Reset All</button>' +
+    '<button class="notify-btn notify-btn-neutral" data-action="cancel">Cancel</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  document.body.appendChild(notify);
+  requestAnimationFrame(() => { overlay.classList.add('show'); notify.classList.add('show'); });
+  const dismiss = () => { overlay.classList.remove('show'); notify.classList.remove('show'); setTimeout(() => { overlay.remove(); notify.remove(); }, 200); };
+  notify.querySelector('[data-action="confirm"]').addEventListener('click', () => {
+    dismiss();
+    localStorage.removeItem('puzzle-inventory');
+    localStorage.removeItem('puzzle-inventory-version');
+    localStorage.removeItem('puzzle-board-placements');
+    localStorage.removeItem('puzzle-board-rotations');
+    localStorage.removeItem('puzzle-board-mem');
+    localStorage.removeItem('puzzle-board-stars');
+    localStorage.removeItem('puzzle-completed-levels');
+    localStorage.removeItem('puzzle-granted-rewards');
+    localStorage.removeItem('puzzle-powerup-uses');
+    localStorage.removeItem('puzzle-board-powerups');
+    window.location.reload();
+  });
+  notify.querySelector('[data-action="cancel"]').addEventListener('click', dismiss);
+  overlay.addEventListener('click', dismiss);
 }
 
 function confirmResetBoard() {
