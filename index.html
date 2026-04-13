@@ -268,6 +268,17 @@
   .levels-modal-close { background: none; border: none; color: var(--color-text-faint); cursor: pointer; font-size: 16px; padding: var(--space-100); transition: color var(--duration-fast) var(--ease-enter); }
   .levels-modal-close:hover { color: var(--color-text-primary); }
 
+  /* Help submenu */
+  .help-menu { display: flex; flex-direction: column; gap: var(--space-200); width: 100%; }
+  .help-menu-item { display: flex; align-items: center; gap: var(--space-300); padding: var(--space-300) var(--space-400); background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; cursor: pointer; transition: border-color var(--duration-fast) var(--ease-enter); }
+  .help-menu-item:hover { border-color: var(--color-brand-magenta); }
+  .help-menu-icon { font-size: 16px; color: var(--color-text-faint); width: 20px; text-align: center; flex-shrink: 0; }
+  .help-menu-label { font-family: var(--font-body); font-size: 13px; font-weight: 700; color: var(--color-text-primary); flex: 1; }
+  .help-menu-chevron { font-size: 10px; color: var(--color-text-faint); }
+  .help-back { background: none; border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; color: var(--color-text-secondary); cursor: pointer; font-size: 12px; padding: var(--space-100) var(--space-200); transition: all var(--duration-fast) var(--ease-enter); font-family: var(--font-body); display: flex; align-items: center; gap: var(--space-100); }
+  .help-back:hover { border-color: var(--color-brand-magenta); color: var(--color-text-primary); }
+  .help-cat-title { font-family: var(--font-body); font-size: 13px; font-weight: 700; color: var(--color-text-primary); flex: 1; text-align: center; }
+
   /* Growth path level selector */
   .board-selector { position: relative; display: flex; flex-direction: column; gap: 0; width: 100%; }
   /* SVG path line behind everything */
@@ -470,34 +481,27 @@
   <div class="levels-modal-box" style="max-width:440px;">
     <div class="levels-modal-header">
       <span class="levels-modal-title"><i class="fa-light fa-circle-question" style="margin-right:4px"></i>How it works</span>
-      <span class="help-counter" id="help-counter">1 / 18</span>
       <button class="levels-modal-close" onclick="closeHelp()"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="help-carousel">
-      <div class="help-slides" id="help-slides">
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-hand-pointer"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Moving Pieces</div><div class="slide-desc">Drag pieces from your <strong>inventory</strong> onto empty cells to build a path. Placing pieces grants <strong class="kw-mem">MEM</strong> points.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-block-brick"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Obstacles & Presets</div><div class="slide-desc">Levels may have <strong>black obstacles</strong> that block cells and <strong>white preset pieces</strong> that are locked in place to help guide your path.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-lock"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Pieces Persist</div><div class="slide-desc">Once placed, pieces <strong>stay on the board across all levels</strong>. Your progress is saved automatically.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-trash-can"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Removing Pieces</div><div class="slide-desc"><strong>Right-click</strong> or <strong>long-press</strong> a piece to remove it. The <strong>Reset</strong> button clears all placed pieces on the current board.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-triangle-exclamation"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Cascading Resets</div><div class="slide-desc">Removing pieces from <strong>earlier levels</strong> may reset completed <strong>higher levels</strong> — be careful when backtracking!</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-link"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Connections</div><div class="slide-desc">Adjacent pieces with <strong class="kw-pos">matching connectors</strong> glow. Connected pieces earn <strong>full MEM</strong>. Disconnected pieces earn <strong>50%</strong>.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-solid fa-star" style="color:var(--color-brand-yellow)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Earn 1 Star</div><div class="slide-desc">Connect the <strong class="kw-pos">IN</strong> point to the <strong class="kw-mem">OUT</strong> point to earn <strong class="kw-star">1 MEM star</strong>. Collect stars to unlock new levels!</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-solid fa-star" style="color:var(--color-brand-yellow)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Earn 2 Stars</div><div class="slide-desc">Score above the <strong>minimum MEM threshold</strong> to earn <strong class="kw-star">2 MEM stars</strong>. Place more pieces and connect them for higher scores.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-grid"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Full Board Bonus</div><div class="slide-desc">Fill every cell for <strong>+50/75/100</strong> bonus. Fill AND connect all pieces for a <strong class="kw-mem">Perfect Clear</strong>: <strong>+100/150/200</strong> bonus MEM.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-gem"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Rarity Tiers</div><div class="slide-desc">Pieces come in rarities: <strong>Common</strong> (10), <strong class="kw-rare">Rare</strong> (20), <strong class="kw-epic">Epic</strong> (30), <strong class="kw-leg">Legendary</strong> (40). Higher rarity = more MEM.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-fire" style="color:var(--color-danger)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Mythic Pieces</div><div class="slide-desc"><strong class="kw-myth">Mythic</strong> pieces are unique and can <strong>only be placed on obstacle cells</strong>. They turn obstacles into connected paths.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-bolt"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Power-Ups</div><div class="slide-desc"><strong>4 power-ups</strong> help clear levels. Each has <strong>1 use total</strong> — once used, gone unless you remove the source piece.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-rotate-left"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Recovering Power-Ups</div><div class="slide-desc">Remove the piece a power-up was used on to <strong>get the power-up back</strong>. This also removes any pieces the power-up generated.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-arrows-left-right"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Extend</div><div class="slide-desc">Fills an entire <strong>row or column</strong> with preset pieces from your piece to the edge or nearest obstacle.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-expand"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Spread</div><div class="slide-desc">Places one <strong>preset piece on each open connector side</strong> of your piece. Great for expanding coverage quickly.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-wand-magic-sparkles"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Warp</div><div class="slide-desc">Jumps <strong>through an obstacle</strong> to place a piece on the other side. Choose which side of the obstacle to land on.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-rotate"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Rotate</div><div class="slide-desc">Transforms a placed piece into a <strong>same-rarity variant</strong> with different connector directions.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-right-left"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Piece Exchange</div><div class="slide-desc">Trade <strong>lower-rarity pieces</strong> for higher ones. Combine Common, Rare, and Epic pieces to craft the piece you need.</div><button class="slide-btn" onclick="closeHelp();openExchange()">Open Exchange</button></div>
+    <div class="help-menu" id="help-menu">
+      <div class="help-menu-item" onclick="openHelpCategory(0)"><span class="help-menu-icon"><i class="fa-light fa-puzzle-piece"></i></span><span class="help-menu-label">Player Pieces</span><span class="help-menu-chevron"><i class="fa-solid fa-chevron-right"></i></span></div>
+      <div class="help-menu-item" onclick="openHelpCategory(1)"><span class="help-menu-icon"><i class="fa-light fa-bolt"></i></span><span class="help-menu-label">Power Ups</span><span class="help-menu-chevron"><i class="fa-solid fa-chevron-right"></i></span></div>
+      <div class="help-menu-item" onclick="openHelpCategory(2)"><span class="help-menu-icon"><i class="fa-light fa-star"></i></span><span class="help-menu-label">Points, Stars & Level Rewards</span><span class="help-menu-chevron"><i class="fa-solid fa-chevron-right"></i></span></div>
+      <div class="help-menu-item" onclick="openHelpCategory(3)"><span class="help-menu-icon"><i class="fa-light fa-right-left"></i></span><span class="help-menu-label">Piece Exchange</span><span class="help-menu-chevron"><i class="fa-solid fa-chevron-right"></i></span></div>
+    </div>
+    <div id="help-carousel-view" style="display:none;">
+      <div style="display:flex;align-items:center;gap:var(--space-200);margin-bottom:var(--space-300);width:100%;">
+        <button class="help-back" onclick="backToHelpMenu()"><i class="fa-solid fa-chevron-left"></i> Back</button>
+        <span class="help-cat-title" id="help-cat-title"></span>
+        <span class="help-counter" id="help-counter"></span>
       </div>
-      <div class="help-nav">
-        <button class="help-arrow" id="help-prev" onclick="helpPrev()"><i class="fa-solid fa-chevron-left"></i></button>
-        <div class="help-dots" id="help-dots"></div>
-        <button class="help-arrow" id="help-next" onclick="helpNext()"><i class="fa-solid fa-chevron-right"></i></button>
+      <div class="help-carousel">
+        <div class="help-slides" id="help-slides"></div>
+        <div class="help-nav">
+          <button class="help-arrow" id="help-prev" onclick="helpPrev()"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="help-dots" id="help-dots"></div>
+          <button class="help-arrow" id="help-next" onclick="helpNext()"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
       </div>
     </div>
   </div>
@@ -1980,42 +1984,86 @@ function closeLevels() {
 function toggleHelp() {
   const modal = document.getElementById('help-modal');
   modal.classList.toggle('open');
-  if (modal.classList.contains('open')) initHelpCarousel();
+  if (modal.classList.contains('open')) backToHelpMenu();
 }
 function closeHelp() {
   document.getElementById('help-modal').classList.remove('open');
 }
 
-// === HELP CAROUSEL ===
-let helpSlideIdx = 0;
-const HELP_SLIDE_COUNT = 18;
+// === HELP CAROUSEL WITH SUBMENU ===
+const HELP_CATEGORIES = [
+  { title: 'Player Pieces', icon: 'fa-light fa-puzzle-piece', slides: [
+    '<div class="slide-visual"><i class="fa-light fa-hand-pointer"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Moving Pieces</div><div class="slide-desc">Drag pieces from your <strong>inventory</strong> onto empty cells to build a path. Placing pieces grants <strong class="kw-mem">MEM</strong> points.</div>',
+    '<div class="slide-visual"><i class="fa-light fa-block-brick"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Obstacles & Presets</div><div class="slide-desc">Levels may have <strong>black obstacles</strong> that block cells and <strong>white preset pieces</strong> that are locked in place to help guide your path.</div>',
+    '<div class="slide-visual"><i class="fa-light fa-lock"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Pieces Persist</div><div class="slide-desc">Once placed, pieces <strong>stay on the board across all levels</strong>. Your progress is saved automatically.</div>',
+    '<div class="slide-visual"><i class="fa-light fa-trash-can"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Removing Pieces</div><div class="slide-desc"><strong>Right-click</strong> or <strong>long-press</strong> a piece to remove it. The <strong>Reset</strong> button clears all placed pieces on the current board.</div>',
+    '<div class="slide-visual"><i class="fa-light fa-triangle-exclamation"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Cascading Resets</div><div class="slide-desc">Removing pieces from <strong>earlier levels</strong> may reset completed <strong>higher levels</strong> — be careful when backtracking!</div>',
+    '<div class="slide-visual"><i class="fa-light fa-gem"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Rarity Tiers</div><div class="slide-desc">Pieces come in rarities: <strong>Common</strong> (10), <strong class="kw-rare">Rare</strong> (20), <strong class="kw-epic">Epic</strong> (30), <strong class="kw-leg">Legendary</strong> (40). Higher rarity = more MEM.</div>',
+    '<div class="slide-visual"><i class="fa-light fa-fire" style="color:var(--color-danger)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Mythic Pieces</div><div class="slide-desc"><strong class="kw-myth">Mythic</strong> pieces are unique and can <strong>only be placed on obstacle cells</strong>. They turn obstacles into connected paths.</div>'
+  ]},
+  { title: 'Power Ups', icon: 'fa-light fa-bolt', slides: [
+    '<div class="slide-visual"><i class="fa-light fa-bolt"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Power-Ups</div><div class="slide-desc"><strong>4 power-ups</strong> help clear levels. Each has <strong>1 use total</strong> — once used, gone unless you remove the source piece.</div>',
+    '<div class="slide-visual"><i class="fa-light fa-rotate-left"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Recovering Power-Ups</div><div class="slide-desc">Remove the piece a power-up was used on to <strong>get the power-up back</strong>. This also removes any pieces the power-up generated.</div>',
+    '<div class="slide-visual"><i class="fa-light fa-arrows-left-right"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Extend</div><div class="slide-desc">Fills an entire <strong>row or column</strong> with preset pieces from your piece to the edge or nearest obstacle.</div>',
+    '<div class="slide-visual"><i class="fa-light fa-expand"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Spread</div><div class="slide-desc">Places one <strong>preset piece on each open connector side</strong> of your piece. Great for expanding coverage quickly.</div>',
+    '<div class="slide-visual"><i class="fa-light fa-wand-magic-sparkles"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Warp</div><div class="slide-desc">Jumps <strong>through an obstacle</strong> to place a piece on the other side. Choose which side of the obstacle to land on.</div>',
+    '<div class="slide-visual"><i class="fa-light fa-rotate"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Rotate</div><div class="slide-desc">Transforms a placed piece into a <strong>same-rarity variant</strong> with different connector directions.</div>'
+  ]},
+  { title: 'Points, Stars & Level Rewards', icon: 'fa-light fa-star', slides: [
+    '<div class="slide-visual"><i class="fa-light fa-link"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Connections</div><div class="slide-desc">Adjacent pieces with <strong class="kw-pos">matching connectors</strong> glow. Connected pieces earn <strong>full MEM</strong>. Disconnected pieces earn <strong>50%</strong>.</div>',
+    '<div class="slide-visual"><i class="fa-solid fa-star" style="color:var(--color-brand-yellow)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Earn 1 Star</div><div class="slide-desc">Connect the <strong class="kw-pos">IN</strong> point to the <strong class="kw-mem">OUT</strong> point to earn <strong class="kw-star">1 MEM star</strong>. Collect stars to unlock new levels!</div>',
+    '<div class="slide-visual"><i class="fa-solid fa-star" style="color:var(--color-brand-yellow)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Earn 2 Stars</div><div class="slide-desc">Score above the <strong>minimum MEM threshold</strong> to earn <strong class="kw-star">2 MEM stars</strong>. Place more pieces and connect them for higher scores.</div>',
+    '<div class="slide-visual"><i class="fa-light fa-grid"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Full Board Bonus</div><div class="slide-desc">Fill every cell for <strong>+50/75/100</strong> bonus. Fill AND connect all pieces for a <strong class="kw-mem">Perfect Clear</strong>: <strong>+100/150/200</strong> bonus MEM.</div>'
+  ]},
+  { title: 'Piece Exchange', icon: 'fa-light fa-right-left', slides: [
+    '<div class="slide-visual"><i class="fa-light fa-right-left"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Piece Exchange</div><div class="slide-desc">Trade <strong>lower-rarity pieces</strong> for higher ones. Combine Common, Rare, and Epic pieces to craft the piece you need.</div><button class="slide-btn" onclick="closeHelp();openExchange()">Open Exchange</button>'
+  ]}
+];
 
-function initHelpCarousel() {
+let helpSlideIdx = 0;
+let helpSlideCount = 0;
+
+function backToHelpMenu() {
+  document.getElementById('help-menu').style.display = '';
+  document.getElementById('help-carousel-view').style.display = 'none';
+}
+
+function openHelpCategory(catIdx) {
+  const cat = HELP_CATEGORIES[catIdx];
+  if (!cat) return;
+  document.getElementById('help-menu').style.display = 'none';
+  document.getElementById('help-carousel-view').style.display = '';
+  document.getElementById('help-cat-title').textContent = cat.title;
+
+  // Inject slides
+  const slidesEl = document.getElementById('help-slides');
+  slidesEl.innerHTML = cat.slides.map(s => '<div class="help-slide">' + s + '</div>').join('');
+  helpSlideCount = cat.slides.length;
   helpSlideIdx = 0;
-  updateHelpCarousel();
-  // Build dots once
+
+  // Build dots
   const dotsEl = document.getElementById('help-dots');
-  if (dotsEl.children.length === 0) {
-    for (let i = 0; i < HELP_SLIDE_COUNT; i++) {
-      const dot = document.createElement('div');
-      dot.className = 'help-dot' + (i === 0 ? ' active' : '');
-      dot.onclick = () => goToHelpSlide(i);
-      dotsEl.appendChild(dot);
-    }
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < helpSlideCount; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'help-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goToHelpSlide(i);
+    dotsEl.appendChild(dot);
   }
+  updateHelpCarousel();
+
   // Swipe support
-  const slides = document.getElementById('help-slides');
-  if (!slides._swipeInit) {
+  if (!slidesEl._swipeInit) {
     let sx = 0, dx = 0;
-    slides.addEventListener('touchstart', e => { sx = e.touches[0].clientX; dx = 0; }, {passive: true});
-    slides.addEventListener('touchmove', e => { dx = e.touches[0].clientX - sx; }, {passive: true});
-    slides.addEventListener('touchend', () => { if (Math.abs(dx) > 40) { dx < 0 ? helpNext() : helpPrev(); } });
-    slides._swipeInit = true;
+    slidesEl.addEventListener('touchstart', e => { sx = e.touches[0].clientX; dx = 0; }, {passive: true});
+    slidesEl.addEventListener('touchmove', e => { dx = e.touches[0].clientX - sx; }, {passive: true});
+    slidesEl.addEventListener('touchend', () => { if (Math.abs(dx) > 40) { dx < 0 ? helpNext() : helpPrev(); } });
+    slidesEl._swipeInit = true;
   }
 }
 
 function goToHelpSlide(n) {
-  helpSlideIdx = Math.max(0, Math.min(HELP_SLIDE_COUNT - 1, n));
+  helpSlideIdx = Math.max(0, Math.min(helpSlideCount - 1, n));
   updateHelpCarousel();
 }
 function helpNext() { goToHelpSlide(helpSlideIdx + 1); }
@@ -2024,16 +2072,19 @@ function helpPrev() { goToHelpSlide(helpSlideIdx - 1); }
 function updateHelpCarousel() {
   const slides = document.querySelectorAll('.help-slide');
   slides.forEach(s => { s.style.transform = 'translateX(-' + (helpSlideIdx * 100) + '%)'; });
-  document.getElementById('help-counter').textContent = (helpSlideIdx + 1) + ' / ' + HELP_SLIDE_COUNT;
+  document.getElementById('help-counter').textContent = (helpSlideIdx + 1) + ' / ' + helpSlideCount;
   document.getElementById('help-prev').disabled = helpSlideIdx === 0;
-  document.getElementById('help-next').disabled = helpSlideIdx === HELP_SLIDE_COUNT - 1;
+  document.getElementById('help-next').disabled = helpSlideIdx === helpSlideCount - 1;
   const dots = document.querySelectorAll('.help-dot');
   dots.forEach((d, i) => d.classList.toggle('active', i === helpSlideIdx));
+  // Hide nav for single-slide categories
+  document.querySelector('.help-nav').style.display = helpSlideCount <= 1 ? 'none' : '';
 }
 
 // Keyboard navigation for help carousel
 document.addEventListener('keydown', e => {
   if (!document.getElementById('help-modal').classList.contains('open')) return;
+  if (document.getElementById('help-carousel-view').style.display === 'none') return;
   if (e.key === 'ArrowLeft') helpPrev();
   else if (e.key === 'ArrowRight') helpNext();
 });
