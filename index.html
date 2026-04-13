@@ -81,7 +81,7 @@
   .controls { display: flex; gap: var(--space-200); margin-bottom: var(--space-400); flex-wrap: wrap; justify-content: center; align-items: center; }
   .controls button { padding: var(--space-200) var(--space-400); border: 1px solid var(--color-border-default); background: var(--color-bg-surface); color: var(--color-text-primary); border-radius: var(--radius-lg); corner-shape: squircle; cursor: pointer; font-family: var(--font-body); font-size: 13px; transition: all var(--duration-fast) var(--ease-enter); height: 40px; }
   .controls button:hover { background: var(--color-bg-elevated); }
-  .controls button.active { background: #E51A4B; border-color: #E51A4B; color: #fff; }
+  .controls button.active { background: #E51A4B; border-color: #E51A4B; color: var(--color-text-primary); }
 
 
   .game-layout { display: flex; flex-direction: column; align-items: center; gap: var(--space-400); }
@@ -236,8 +236,7 @@
   .reset-btn:hover { color: var(--color-text-primary); border-color: var(--color-brand-magenta); }
   .reset-btn i { font-size: 12px; }
   .stat-level { font-family: var(--font-body); font-size: 0.875rem; font-weight: 700; color: var(--color-text-primary); white-space: nowrap; }
-  .stat-mem { font-family: var(--font-mono); font-size: 0.875rem; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap; }
-  .stat-mem { color: #E51A4B; font-weight: 700; }
+  .stat-mem { font-family: var(--font-mono); font-size: 0.875rem; font-weight: 700; color: var(--color-brand-magenta); letter-spacing: 0.04em; white-space: nowrap; }
 
   /* Stars (MEM Fragment icons) */
   .stars { display: flex; gap: var(--space-100); align-items: center; }
@@ -317,8 +316,6 @@
 
   .win-banner { font-family: var(--font-display); font-size: 1.25rem; color: var(--color-positive); font-weight: 800; margin-top: var(--space-200); text-align: center; text-transform: uppercase; letter-spacing: 1px; }
 
-  /* Enhanced status */
-  .status .stat-mem { color: var(--color-brand-magenta); font-weight: 700; }
 
   /* How it works content (inside top-bar) */
   .help-content { display: flex; flex-direction: column; gap: var(--space-200); }
