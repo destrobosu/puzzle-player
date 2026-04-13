@@ -472,12 +472,12 @@
         <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-trash-can"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Removing Pieces</div><div class="slide-desc"><strong>Right-click</strong> or <strong>long-press</strong> a piece to remove it. The <strong>Reset</strong> button clears all placed pieces on the current board.</div></div>
         <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-triangle-exclamation"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Cascading Resets</div><div class="slide-desc">Removing pieces from <strong>earlier levels</strong> may reset completed <strong>higher levels</strong> — be careful when backtracking!</div></div>
         <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-link"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Connections</div><div class="slide-desc">Adjacent pieces with <strong class="kw-pos">matching connectors</strong> glow. Connected pieces earn <strong>full MEM</strong>. Disconnected pieces earn <strong>50%</strong>.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-solid fa-star" style="color:var(--color-brand-yellow)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Earn 1 Star</div><div class="slide-desc">Connect the <strong class="kw-pos">IN</strong> point to the <strong class="kw-mem">OUT</strong> point to <strong>unlock the next level</strong> and earn <strong class="kw-star">1 MEM star</strong>.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-solid fa-star" style="color:var(--color-brand-yellow)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Earn 1 Star</div><div class="slide-desc">Connect the <strong class="kw-pos">IN</strong> point to the <strong class="kw-mem">OUT</strong> point to earn <strong class="kw-star">1 MEM star</strong>. Collect stars to unlock new levels!</div></div>
         <div class="help-slide"><div class="slide-visual"><i class="fa-solid fa-star" style="color:var(--color-brand-yellow)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Earn 2 Stars</div><div class="slide-desc">Score above the <strong>minimum MEM threshold</strong> to earn <strong class="kw-star">2 MEM stars</strong>. Place more pieces and connect them for higher scores.</div></div>
         <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-grid"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Full Board Bonus</div><div class="slide-desc">Fill every cell for <strong>+50/75/100</strong> bonus. Fill AND connect all pieces for a <strong class="kw-mem">Perfect Clear</strong>: <strong>+100/150/200</strong> bonus MEM.</div></div>
         <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-gem"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Rarity Tiers</div><div class="slide-desc">Pieces come in rarities: <strong>Common</strong> (10), <strong class="kw-rare">Rare</strong> (20), <strong class="kw-epic">Epic</strong> (30), <strong class="kw-leg">Legendary</strong> (40). Higher rarity = more MEM.</div></div>
         <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-fire" style="color:var(--color-danger)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Mythic Pieces</div><div class="slide-desc"><strong class="kw-myth">Mythic</strong> pieces are unique and can <strong>only be placed on obstacle cells</strong>. They turn obstacles into connected paths.</div></div>
-        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-bolt"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Power-Ups</div><div class="slide-desc"><strong>4 power-ups</strong> help clear levels. Each is limited to <strong>1 use per board</strong>. Use them wisely!</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-bolt"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Power-Ups</div><div class="slide-desc"><strong>4 power-ups</strong> help clear levels. Each has <strong>1 use total</strong> — once used, gone unless you remove the source piece.</div></div>
         <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-rotate-left"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Recovering Power-Ups</div><div class="slide-desc">Remove the piece a power-up was used on to <strong>get the power-up back</strong>. This also removes any pieces the power-up generated.</div></div>
         <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-arrows-left-right"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Path</div><div class="slide-desc">Fills an entire <strong>row or column</strong> with preset pieces from your piece to the edge or nearest obstacle.</div></div>
         <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-expand"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Spread</div><div class="slide-desc">Places one <strong>preset piece on each open connector side</strong> of your piece. Great for expanding coverage quickly.</div></div>
@@ -682,21 +682,68 @@ function saveCurrentBoard() {
   saveBoardPlacements();
 }
 
-// === POWER-UP LIMITS (1 per board, resets on board switch/reset) ===
+// === POWER-UP LIMITS (1 use total, persists globally) ===
 const POWERUP_MAX = 1;
 let powerUpUses = { fill:0, extend:0, teleport:0, rotate:0 };
-function resetPowerUpUses() { powerUpUses = { fill:0, extend:0, teleport:0, rotate:0 }; }
+let boardPowerUpsUsed = {}; // { "boards/level-1.json": ["fill"], ... }
+
+function savePowerUpUses() {
+  localStorage.setItem('puzzle-powerup-uses', JSON.stringify(powerUpUses));
+  localStorage.setItem('puzzle-board-powerups', JSON.stringify(boardPowerUpsUsed));
+}
+function loadPowerUpUses() {
+  try { const s = localStorage.getItem('puzzle-powerup-uses'); if (s) powerUpUses = JSON.parse(s); } catch(e) {}
+  try { const s = localStorage.getItem('puzzle-board-powerups'); if (s) boardPowerUpsUsed = JSON.parse(s); } catch(e) {}
+  // Ensure all keys exist
+  for (const t of ['fill','extend','teleport','rotate']) { if (powerUpUses[t] === undefined) powerUpUses[t] = 0; }
+}
 function usePowerUp(type) {
   if (powerUpUses[type] >= POWERUP_MAX) return false;
   powerUpUses[type]++;
+  // Track which power-ups used on current board
+  if (currentBoardFile) {
+    if (!boardPowerUpsUsed[currentBoardFile]) boardPowerUpsUsed[currentBoardFile] = [];
+    if (!boardPowerUpsUsed[currentBoardFile].includes(type)) boardPowerUpsUsed[currentBoardFile].push(type);
+  }
+  savePowerUpUses();
   updatePowerUpUI();
   return true;
+}
+function refundBoardPowerUps(file) {
+  const used = boardPowerUpsUsed[file];
+  if (!used) return;
+  used.forEach(type => { powerUpUses[type] = Math.max(0, powerUpUses[type] - 1); });
+  delete boardPowerUpsUsed[file];
+  savePowerUpUses();
+}
+
+// === STAR-BASED LEVEL UNLOCK ===
+const LEVEL_STAR_THRESHOLDS = [0, 1, 3, 5, 7, 9, 11];
+
+function saveBoardStars(file, count) {
+  const data = JSON.parse(localStorage.getItem('puzzle-board-stars') || '{}');
+  data[file] = Math.max(data[file] || 0, count);
+  localStorage.setItem('puzzle-board-stars', JSON.stringify(data));
+}
+function clearBoardStars(file) {
+  const data = JSON.parse(localStorage.getItem('puzzle-board-stars') || '{}');
+  delete data[file];
+  localStorage.setItem('puzzle-board-stars', JSON.stringify(data));
+}
+function getBoardStars(file) {
+  const data = JSON.parse(localStorage.getItem('puzzle-board-stars') || '{}');
+  return data[file] || 0;
+}
+function getTotalStars() {
+  const data = JSON.parse(localStorage.getItem('puzzle-board-stars') || '{}');
+  return Object.values(data).reduce((sum, s) => sum + s, 0);
 }
 
 // Load saved state on startup
 loadInventory();
 loadBoardPlacements();
 loadGrantedRewards();
+loadPowerUpUses();
 
 // Remove a player piece and all power-up generated pieces linked to it
 function removePieceWithLinks(row, col) {
@@ -707,6 +754,10 @@ function removePieceWithLinks(row, col) {
     if (rotatedPieces[key]) {
       returnPiece(rotatedPieces[key]); // return original variant
       powerUpUses.rotate = Math.max(0, powerUpUses.rotate - 1); // refund power-up
+      if (currentBoardFile && boardPowerUpsUsed[currentBoardFile]) {
+        boardPowerUpsUsed[currentBoardFile] = boardPowerUpsUsed[currentBoardFile].filter(t => t !== 'rotate');
+      }
+      savePowerUpUses();
       delete rotatedPieces[key];
       updatePowerUpUI();
     } else {
@@ -720,13 +771,29 @@ function removePieceWithLinks(row, col) {
   } else {
     boardState[row][col] = null;
   }
-  // Remove all linked generated pieces
+  // Remove all linked generated pieces and refund the power-up
   if (powerUpLinks[key]) {
+    // Determine which power-up type was used by checking the link pattern
+    const linkCount = powerUpLinks[key].length;
     for (const linkedKey of powerUpLinks[key]) {
       const [lr, lc] = linkedKey.split(',').map(Number);
       if (boardState[lr][lc] && boardState[lr][lc].type === 'preset') {
         history.push({row: lr, col: lc, prev: boardState[lr][lc]});
         boardState[lr][lc] = null;
+      }
+    }
+    // Refund the power-up used on this piece
+    const puTypes = ['fill', 'extend', 'teleport'];
+    if (currentBoardFile && boardPowerUpsUsed[currentBoardFile]) {
+      for (const t of puTypes) {
+        const idx = boardPowerUpsUsed[currentBoardFile].indexOf(t);
+        if (idx >= 0 && powerUpUses[t] > 0) {
+          powerUpUses[t]--;
+          boardPowerUpsUsed[currentBoardFile].splice(idx, 1);
+          savePowerUpUses();
+          updatePowerUpUI();
+          break;
+        }
       }
     }
     delete powerUpLinks[key];
@@ -1220,9 +1287,6 @@ async function loadBoardFile(file) {
   history = [];
   powerUpLinks = {};
   rotatedPieces = boardRotations[file] ? {...boardRotations[file]} : {};
-  resetPowerUpUses();
-  // Re-consume rotate power-up if rotations were restored
-  if (Object.keys(rotatedPieces).length > 0) powerUpUses.rotate = 1;
   document.querySelectorAll('.board-card').forEach(c => c.classList.remove('active'));
   event?.target?.closest?.('.board-card')?.classList?.add('active');
   document.getElementById('stat-level').textContent = data.metadata.name;
@@ -1272,8 +1336,8 @@ function resetBoard() {
   history = [];
   powerUpLinks = {};
   rotatedPieces = {};
-  resetPowerUpUses();
   if (currentBoardFile) {
+    refundBoardPowerUps(currentBoardFile);
     delete boardPlacements[currentBoardFile]; delete boardRotations[currentBoardFile];
     // Remove rewards and un-complete this level
     if (grantedRewards[currentBoardFile]) {
@@ -1283,10 +1347,11 @@ function resetBoard() {
       // Cascade: fix negative inventory, check other boards
       cascadeRewardRemoval(currentBoardFile);
     }
-    // Remove MEM score for this board
+    // Remove MEM score and stars for this board
     const memData = JSON.parse(localStorage.getItem('puzzle-board-mem') || '{}');
     delete memData[currentBoardFile];
     localStorage.setItem('puzzle-board-mem', JSON.stringify(memData));
+    clearBoardStars(currentBoardFile);
     saveBoardPlacements();
   }
   if (PowerUpManager.isActive()) PowerUpManager.cancel();
@@ -1626,15 +1691,17 @@ function checkStars() {
   document.getElementById('star3').className = 'star' + (s3 ? ' earned' : '');
 
   const stars = (s1?1:0)+(s2?1:0)+(s3?1:0);
-  // Unlock next level when IN→OUT path is connected (star 1)
-  if (s1 && currentBoardFile) {
+  // Save star count and check level unlocks
+  if (currentBoardFile && stars > 0) {
+    const prevStars = getBoardStars(currentBoardFile);
+    saveBoardStars(currentBoardFile, stars);
     const alreadyCompleted = getCompletedLevels().includes(currentBoardFile);
-    markLevelCompleted(currentBoardFile);
-    if (!alreadyCompleted) {
+    if (s1) markLevelCompleted(currentBoardFile);
+    if (stars > prevStars && !alreadyCompleted) {
       const idx = BOARDS.findIndex(b => b.file === currentBoardFile);
-      if (idx >= 0 && idx < BOARDS.length - 1) {
+      if (idx >= 0) {
         saveBoardMem(currentBoardFile, scoreData.total);
-        showNextLevelNotification(idx, idx + 2, scoreData.total);
+        showNextLevelNotification(idx, getTotalStars(), scoreData.total);
       }
     }
   }
@@ -2165,7 +2232,7 @@ const LEVEL_REWARDS = {
   6: [{ variant: 'red', count: 1 }], // Level 7: Red (Breaker)
 };
 
-function showNextLevelNotification(levelIdx, nextLevelNum, boardMem) {
+function showNextLevelNotification(levelIdx, totalStars, boardMem) {
   document.querySelectorAll('.next-level-overlay,.next-level-notify').forEach(el => el.remove());
   const overlay = document.createElement('div');
   overlay.className = 'next-level-overlay';
@@ -2193,8 +2260,17 @@ function showNextLevelNotification(levelIdx, nextLevelNum, boardMem) {
   const totalMem = getTotalMem();
   const memHtml = '<div class="notify-mem"><span class="notify-mem-board">' + (boardMem || 0) + ' MEM earned</span><span class="notify-mem-total">Total: ' + totalMem + ' MEM</span></div>';
 
-  notify.innerHTML = '<div class="notify-title">Path Connected!</div>' +
-    '<div class="notify-msg">Level ' + nextLevelNum + ' is now unlocked</div>' +
+  // Find newly unlocked levels
+  let unlockedMsg = '';
+  for (let i = 1; i < BOARDS.length; i++) {
+    if (totalStars >= LEVEL_STAR_THRESHOLDS[i] && totalStars - getBoardStars(currentBoardFile) < LEVEL_STAR_THRESHOLDS[i]) {
+      unlockedMsg = 'Level ' + (i + 1) + ' is now unlocked!';
+    }
+  }
+  if (!unlockedMsg) unlockedMsg = totalStars + ' total stars earned';
+
+  notify.innerHTML = '<div class="notify-title">Stars Earned!</div>' +
+    '<div class="notify-msg">' + unlockedMsg + '</div>' +
     memHtml +
     rewardsHtml +
     '<div class="notify-buttons">' +
@@ -2224,9 +2300,8 @@ function showNextLevelNotification(levelIdx, nextLevelNum, boardMem) {
 }
 
 function isLevelUnlocked(idx) {
-  if (idx === 0) return true; // Level 1 always unlocked
-  const completed = getCompletedLevels();
-  return completed.includes(BOARDS[idx - 1].file); // Previous level must be completed
+  if (idx >= LEVEL_STAR_THRESHOLDS.length) return false;
+  return getTotalStars() >= LEVEL_STAR_THRESHOLDS[idx];
 }
 
 async function initBoardSelector() {
@@ -2246,12 +2321,14 @@ async function initBoardSelector() {
 
       const node = document.createElement('div');
       node.className = 'level-node ' + (done ? 'completed' : (unlocked ? 'unlocked' : 'locked'));
-      if (done) node.innerHTML = '<i class="fa-solid fa-check" style="color:#fff"></i>';
+      if (done) node.innerHTML = '<i class="fa-solid fa-check" style="color:var(--color-text-primary)"></i>';
       else if (!unlocked) node.innerHTML = '<i class="fa-solid fa-lock" style="color:var(--color-text-faint);font-size:8px"></i>';
 
       const card = document.createElement('div');
       card.className = 'board-card' + (!unlocked ? ' locked' : '');
-      card.innerHTML = `<div class="board-card-name">${data.metadata.name}</div><div class="board-card-info">${data.metadata.boardSize}x${data.metadata.boardSize} | ${data.metadata.difficulty}</div>`;
+      const threshold = LEVEL_STAR_THRESHOLDS[i] || 0;
+      const lockInfo = !unlocked ? '<div class="board-card-info" style="color:var(--color-brand-yellow)">' + threshold + '★ needed</div>' : '';
+      card.innerHTML = '<div class="board-card-name">' + data.metadata.name + '</div><div class="board-card-info">' + data.metadata.boardSize + 'x' + data.metadata.boardSize + ' | ' + data.metadata.difficulty + '</div>' + lockInfo;
       if (unlocked) {
         card.addEventListener('click', () => {
           document.querySelectorAll('.board-card').forEach(c=>c.classList.remove('active'));
