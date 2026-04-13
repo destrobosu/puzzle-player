@@ -420,10 +420,11 @@
       <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-preset">White pieces</strong> are pre-set and locked in place.</span></div>
       <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-obstacle">Black cells</strong> are obstacles — blocked slots.</span></div>
       <div class="help-rule"><i class="fa-solid fa-circle"></i><span>Drag player pieces into <strong>empty slots</strong> to build a path.</span></div>
-      <div class="help-rule"><i class="fa-solid fa-circle"></i><span>Only <strong class="kw-connected">connected pieces</strong> count toward stars.</span></div>
-      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-disconnected">Disconnected</strong> pieces score nothing.</span></div>
-      <div class="help-rule"><i class="fa-solid fa-circle"></i><span>Connected pieces earn <strong class="kw-path">MEM points</strong> by rarity: Common <strong>10</strong>, Rare <strong>20</strong>, Epic <strong>30</strong>, Legendary <strong>40</strong>.</span></div>
-      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-path">IN → OUT</strong> path = <strong class="kw-star">1 star</strong>. All filled = <strong class="kw-star">2 stars</strong>. All connected = <strong class="kw-star">3 stars</strong>.</span></div>
+      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-connected">Connected pieces</strong> score full <strong class="kw-path">MEM</strong>: Common <strong>10</strong>, Rare <strong>20</strong>, Epic <strong>30</strong>, Legendary <strong>40</strong>.</span></div>
+      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-disconnected">Disconnected pieces</strong> score <strong>50%</strong> MEM. Power-up pieces score nothing.</span></div>
+      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-path">Combo:</strong> Epic/Legendary pieces with 3+ active connections earn <strong>+15 MEM</strong> per connection.</span></div>
+      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-path">Full Board:</strong> All slots filled = <strong>+50/75/100</strong> bonus. <strong>Perfect Clear:</strong> All connected = <strong>+100/150/200</strong> bonus.</span></div>
+      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-star">Stars:</strong> <strong class="kw-star">1</strong> = IN→OUT path. <strong class="kw-star">2</strong> = score above minimum. <strong class="kw-star">3</strong> = all filled + connected.</span></div>
     </div>
   </div>
 </div>
@@ -1098,6 +1099,7 @@ async function loadBoardFile(file) {
     if (cell.variant) boardState[r][c].variant = cell.variant;
   }
   originalBoard = boardState.map(row => row.map(cell => cell ? {...cell} : null));
+  calcMinPathScore(); // Calculate minimum path score for star thresholds
   // Restore saved player placements for this board
   if (boardPlacements[file]) {
     for (const [key, piece] of Object.entries(boardPlacements[file])) {
@@ -1325,31 +1327,125 @@ function undoLast() {
   renderBoard(); updateStatus(); checkStars();
 }
 
+// Minimum path score for current board (set on load)
+let minPathScore = 0;
+
+// Find cheapest piece variant for a set of required connectors
+function cheapestPieceForPath(needed) {
+  const variants = [
+    ['green',['T','B']],['green2',['L','R']],
+    ['blue',['L','T']],['blue2',['T','R']],['blue3',['R','B']],['blue4',['B','L']],
+    ['purple',['T','L','R']],['purple2',['T','R','B']],['purple3',['B','L','R']],['purple4',['T','B','L']],
+    ['orange',['T','R','B','L']]
+  ];
+  for (const [v, dirs] of variants) {
+    if (needed.every(d => dirs.includes(d))) return v;
+  }
+  return 'orange';
+}
+
+// Calculate minPathScore for the ORIGINAL board (no player pieces)
+function calcMinPathScore() {
+  if (!originalBoard.length) { minPathScore = 0; return; }
+  const s = boardSize;
+  const board = originalBoard;
+  let entry = null, exit = null;
+  for (let r=0;r<s;r++) for (let c=0;c<s;c++) {
+    const cell = board[r]?.[c];
+    if (cell?.type === 'entry') entry = {r,c,variant:cell.variant};
+    if (cell?.type === 'exit') exit = {r,c,variant:cell.variant};
+  }
+  if (!entry || !exit) { minPathScore = 0; return; }
+
+  // BFS with parent tracking (empty cells = all dirs, placed pieces use their connectors)
+  const visited = Array.from({length:s},()=>Array(s).fill(false));
+  const parent = Array.from({length:s},()=>Array(s).fill(null));
+  const queue = [{r:entry.r,c:entry.c}]; visited[entry.r][entry.c] = true;
+  while (queue.length) {
+    const {r,c} = queue.shift();
+    if (r===exit.r && c===exit.c) break;
+    const cell = board[r]?.[c];
+    let dirs;
+    if (cell && cell.variant && CONNECTORS[cell.variant]) dirs = CONNECTORS[cell.variant];
+    else if (!cell) dirs = ['T','B','L','R'];
+    else continue;
+    for (const dir of dirs) {
+      const dr=dir==='T'?-1:dir==='B'?1:0, dc=dir==='L'?-1:dir==='R'?1:0;
+      const nr=r+dr, nc=c+dc;
+      if (nr<0||nr>=s||nc<0||nc>=s||visited[nr][nc]) continue;
+      const n=board[nr]?.[nc];
+      if (n && n.type==='obstacle') continue;
+      if (n && n.variant && CONNECTORS[n.variant] && !CONNECTORS[n.variant].includes(OPPOSITE[dir])) continue;
+      visited[nr][nc]=true; parent[nr][nc]={r,c,dir}; queue.push({r:nr,c:nc});
+    }
+  }
+  if (!visited[exit.r][exit.c]) { minPathScore = 0; return; }
+
+  // Trace path, sum cheapest pieces for empty cells
+  const path = [];
+  let cur = {r:exit.r,c:exit.c};
+  while (cur) { path.unshift(cur); const p=parent[cur.r][cur.c]; cur=p?{r:p.r,c:p.c}:null; }
+  let score = 0;
+  for (let i=0; i<path.length; i++) {
+    const {r,c} = path[i];
+    if (board[r]?.[c]) continue; // skip entry/exit/preset
+    const needed = [];
+    if (i>0) { const prev=path[i-1]; needed.push(prev.r<r?'T':prev.r>r?'B':prev.c<c?'L':'R'); }
+    if (i<path.length-1) { const next=path[i+1]; needed.push(next.r<r?'T':next.r>r?'B':next.c<c?'L':'R'); }
+    const v = cheapestPieceForPath(needed);
+    score += PIECE_POINTS[v] || 10;
+  }
+  minPathScore = score;
+}
+
+// Bonuses by board size
+const FULL_BOARD_BONUS = { 3:25, 4:50, 5:75, 6:100 };
+const PERFECT_BONUS = { 3:50, 4:100, 5:150, 6:200 };
+
 function calculateScore() {
   const connected = getConnectedCells();
-  let score = 0;
+  const connectedSides = getConnectedSides();
+  // Collect all power-up generated cell keys
+  const puGenerated = new Set();
+  for (const links of Object.values(powerUpLinks)) {
+    for (const key of links) puGenerated.add(key);
+  }
+
+  let pathScore = 0, disconnectedScore = 0, comboScore = 0;
   for (let r=0; r<boardSize; r++) for (let c=0; c<boardSize; c++) {
     const cell = boardState[r][c];
     if (!cell || cell.type !== 'piece') continue;
-    if (connected.has(`${r},${c}`) && cell.variant && PIECE_POINTS[cell.variant]) {
-      score += PIECE_POINTS[cell.variant];
+    const key = r+','+c;
+    if (puGenerated.has(key)) continue; // power-up generated pieces score 0
+    const pts = PIECE_POINTS[cell.variant] || 0;
+    if (connected.has(key)) {
+      pathScore += pts;
+      // Combo bonus: +15 per active connection on 3+ connector pieces
+      const cellConns = CONNECTORS[cell.variant];
+      if (cellConns && cellConns.length >= 3 && connectedSides[key]) {
+        comboScore += connectedSides[key].size * 15;
+      }
+    } else {
+      disconnectedScore += Math.floor(pts * 0.5);
     }
   }
-  return score;
+
+  // Board-level bonuses
+  const total = boardSize*boardSize;
+  const filled = boardState.flat().filter(c=>c!==null).length;
+  const allFilled = filled === total;
+  const obstacles = boardState.flat().filter(c=>c&&c.type==='obstacle').length;
+  const allConnected = allFilled && getConnectedCells().size === filled - obstacles;
+  const fullBoardBonus = allFilled ? (FULL_BOARD_BONUS[boardSize] || 0) : 0;
+  const perfectBonus = (allFilled && allConnected) ? (PERFECT_BONUS[boardSize] || 0) : 0;
+
+  const totalScore = pathScore + disconnectedScore + comboScore + fullBoardBonus + perfectBonus;
+  return { total: totalScore, pathScore, disconnectedScore, comboScore, fullBoardBonus, perfectBonus };
 }
 
 function updateStatus() {
-  const total = boardSize*boardSize;
-  const playerPieces = boardState.flat().filter(c=>c&&c.type==='piece').length;
-  const playerSlots = total - boardState.flat().filter(c=>c&&(c.type==='preset'||c.type==='obstacle'||c.type==='entry'||c.type==='exit')).length;
-  const connected = getConnectedCells();
-  const connectedPlayer = boardState.flat().filter((c,i)=>{
-    if (!c||c.type!=='piece') return false;
-    const r=Math.floor(i/boardSize), col=i%boardSize;
-    return connected.has(`${r},${col}`);
-  }).length;
-  const memScore = calculateScore();
-  document.getElementById('stat-mem').textContent = 'MEM: ' + memScore;
+  const scoreData = calculateScore();
+  document.getElementById('stat-mem').textContent = 'MEM: ' + scoreData.total;
 }
 
 // === 3-STAR WIN SYSTEM ===
@@ -1412,12 +1508,13 @@ function checkStars() {
   const allFilled = filled === total;
   const pathExists = findPath();
   const allConnected = allFilled && getConnectedCells().size === filled - obstacles;
+  const scoreData = calculateScore();
 
-  // Star 1: path from entry to exit
+  // Star 1: IN→OUT path connected
   const s1 = pathExists;
-  // Star 2: all cells filled
-  const s2 = allFilled;
-  // Star 3: all filled AND all pieces connect correctly
+  // Star 2: path connected AND score exceeds minimum path score
+  const s2 = pathExists && scoreData.total > minPathScore;
+  // Star 3: all cells filled AND all pieces connected
   const s3 = allFilled && allConnected;
 
   document.getElementById('star1').className = 'star' + (s1 ? ' earned' : '');
@@ -1425,7 +1522,6 @@ function checkStars() {
   document.getElementById('star3').className = 'star' + (s3 ? ' earned' : '');
 
   const stars = (s1?1:0)+(s2?1:0)+(s3?1:0);
-  const memScore = calculateScore();
   // Unlock next level when IN→OUT path is connected (star 1)
   if (s1 && currentBoardFile) {
     const alreadyCompleted = getCompletedLevels().includes(currentBoardFile);
@@ -1433,13 +1529,13 @@ function checkStars() {
     if (!alreadyCompleted) {
       const idx = BOARDS.findIndex(b => b.file === currentBoardFile);
       if (idx >= 0 && idx < BOARDS.length - 1) {
-        saveBoardMem(currentBoardFile, memScore);
-        showNextLevelNotification(idx, idx + 2, memScore); // current index, next level number, score
+        saveBoardMem(currentBoardFile, scoreData.total);
+        showNextLevelNotification(idx, idx + 2, scoreData.total);
       }
     }
   }
-  if (stars === 3) document.getElementById('win-banner').innerHTML = '<div class="win-banner">Perfect! ' + memScore + ' MEM</div>';
-  else if (stars > 0) document.getElementById('win-banner').innerHTML = '<div class="win-banner">' + stars + ' Star' + (stars>1?'s':'') + ' — ' + memScore + ' MEM</div>';
+  if (stars === 3) document.getElementById('win-banner').innerHTML = '<div class="win-banner">Perfect! ' + scoreData.total + ' MEM</div>';
+  else if (stars > 0) document.getElementById('win-banner').innerHTML = '<div class="win-banner">' + stars + ' Star' + (stars>1?'s':'') + ' — ' + scoreData.total + ' MEM</div>';
   else document.getElementById('win-banner').innerHTML = '';
 }
 
