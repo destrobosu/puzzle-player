@@ -317,18 +317,64 @@
   .win-banner { font-family: var(--font-display); font-size: 1.25rem; color: var(--color-positive); font-weight: 800; margin-top: var(--space-200); text-align: center; text-transform: uppercase; letter-spacing: 1px; }
 
 
-  /* How it works content (inside top-bar) */
-  .help-content { display: flex; flex-direction: column; gap: var(--space-200); }
-  .help-content.collapsed { display: none; }
-  .help-rule { font-family: var(--font-body); font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; display: flex; align-items: baseline; gap: var(--space-200); }
-  .help-rule i { font-size: 8px; color: var(--color-text-faint); flex-shrink: 0; margin-top: 4px; }
-  .help-rule strong { font-weight: 700; }
-  .help-rule .kw-preset { color: var(--rarity-common); }
-  .help-rule .kw-obstacle { color: var(--color-text-faint); }
-  .help-rule .kw-connected { color: var(--color-positive); }
-  .help-rule .kw-disconnected { color: var(--color-danger); }
-  .help-rule .kw-star { color: var(--color-brand-yellow); }
-  .help-rule .kw-path { color: var(--color-brand-magenta); }
+  /* How it works carousel */
+  .help-carousel { display: flex; flex-direction: column; gap: var(--space-400); width: 100%; }
+  .help-slides { display: flex; overflow: hidden; width: 100%; }
+  .help-slide { min-width: 100%; display: flex; flex-direction: column; align-items: center; gap: var(--space-300); transition: transform var(--duration-slow) var(--ease-enter); }
+  .slide-visual { width: 280px; height: 180px; background: var(--color-bg-elevated); border-radius: var(--radius-lg); corner-shape: squircle; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-200); border: 1px solid var(--color-border-default); }
+  .slide-visual i { font-size: 48px; color: var(--color-text-faint); }
+  .slide-visual-label { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--color-text-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+  .slide-title { font-family: var(--font-body); font-size: 14px; font-weight: 700; color: var(--color-text-primary); text-align: center; }
+  .slide-desc { font-family: var(--font-body); font-size: 12px; color: var(--color-text-secondary); text-align: center; line-height: 1.5; max-width: 300px; padding: 0 var(--space-200); }
+  .slide-desc strong { font-weight: 700; color: var(--color-text-primary); }
+  .slide-desc .kw-mem { color: var(--color-brand-magenta); }
+  .slide-desc .kw-star { color: var(--color-brand-yellow); }
+  .slide-desc .kw-pos { color: var(--color-positive); }
+  .slide-desc .kw-rare { color: var(--rarity-rare); }
+  .slide-desc .kw-epic { color: var(--rarity-epic); }
+  .slide-desc .kw-leg { color: var(--rarity-legendary); }
+  .slide-desc .kw-myth { color: var(--color-danger); }
+  .help-nav { display: flex; align-items: center; justify-content: center; gap: var(--space-300); }
+  .help-arrow { width: 32px; height: 32px; border-radius: var(--radius-full); corner-shape: squircle; border: 1px solid var(--color-border-default); background: var(--color-bg-elevated); color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all var(--duration-fast) var(--ease-enter); flex-shrink: 0; }
+  .help-arrow:hover { border-color: var(--color-brand-magenta); color: var(--color-text-primary); }
+  .help-arrow:disabled { opacity: 0.2; pointer-events: none; }
+  .help-dots { display: flex; gap: var(--space-100); align-items: center; }
+  .help-dot { width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--color-text-faint); cursor: pointer; transition: background var(--duration-fast) var(--ease-enter); }
+  .help-dot.active { background: var(--color-brand-magenta); }
+  .help-counter { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--color-text-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+  .slide-btn { padding: var(--space-200) var(--space-400); background: var(--color-brand-magenta); color: var(--color-text-primary); border: none; border-radius: var(--radius-lg); corner-shape: squircle; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity var(--duration-fast) var(--ease-enter); margin-top: var(--space-100); }
+  .slide-btn:hover { opacity: 0.85; }
+
+  /* Exchange modal */
+  .exchange-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 910; align-items: center; justify-content: center; }
+  .exchange-modal.open { display: flex; }
+  .exchange-box { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-600); width: 90%; max-width: 360px; display: flex; flex-direction: column; gap: var(--space-400); }
+  .exchange-header { display: flex; align-items: center; justify-content: space-between; }
+  .exchange-title { font-family: var(--font-body); font-size: 1rem; font-weight: 700; color: var(--color-text-primary); }
+  .exchange-close { background: none; border: none; color: var(--color-text-faint); cursor: pointer; font-size: 16px; padding: var(--space-100); transition: color var(--duration-fast) var(--ease-enter); }
+  .exchange-close:hover { color: var(--color-text-primary); }
+  .exchange-targets { display: flex; gap: var(--space-200); justify-content: center; }
+  .exchange-target-btn { padding: var(--space-100) var(--space-300); border: 1px solid var(--color-border-default); background: var(--color-bg-elevated); color: var(--color-text-secondary); border-radius: var(--radius-lg); corner-shape: squircle; cursor: pointer; font-family: var(--font-body); font-size: 12px; font-weight: 700; transition: all var(--duration-fast) var(--ease-enter); }
+  .exchange-target-btn:hover { border-color: var(--color-text-secondary); }
+  .exchange-target-btn.active { background: #E51A4B; border-color: #E51A4B; color: var(--color-text-primary); }
+  .exchange-recipes { display: flex; flex-direction: column; gap: var(--space-200); }
+  .exchange-recipe { display: flex; align-items: center; justify-content: space-between; padding: var(--space-200) var(--space-300); background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-md); corner-shape: squircle; cursor: pointer; transition: border-color var(--duration-fast) var(--ease-enter); }
+  .exchange-recipe:hover { border-color: var(--color-text-secondary); }
+  .exchange-recipe.selected { border-color: var(--color-brand-magenta); }
+  .exchange-recipe.unaffordable { opacity: 0.3; pointer-events: none; }
+  .recipe-cost { display: flex; gap: var(--space-200); align-items: center; font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--color-text-primary); }
+  .recipe-cost-item { display: flex; align-items: center; gap: 2px; }
+  .recipe-arrow { color: var(--color-text-faint); font-size: 12px; }
+  .recipe-result { font-family: var(--font-mono); font-size: 12px; font-weight: 700; }
+  .exchange-confirm { padding: var(--space-200) var(--space-400); background: #E51A4B; color: var(--color-text-primary); border: none; border-radius: var(--radius-lg); corner-shape: squircle; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity var(--duration-fast) var(--ease-enter); width: 100%; height: 40px; }
+  .exchange-confirm:hover { opacity: 0.85; }
+  .exchange-confirm:disabled { opacity: 0.3; pointer-events: none; }
+  .exchange-result { display: flex; align-items: center; justify-content: center; gap: var(--space-200); padding: var(--space-200); background: var(--color-bg-page); border-radius: var(--radius-md); corner-shape: squircle; }
+  .exchange-result-svg { width: 40px; height: 40px; }
+  .exchange-result-svg svg { width: 100%; height: 100%; }
+  .exchange-result-label { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--color-text-secondary); }
+  .exchange-icon-btn { background: none; border: 1px solid var(--color-border-default); border-radius: var(--radius-md); corner-shape: squircle; color: var(--color-text-faint); cursor: pointer; font-size: 10px; padding: var(--space-100); transition: all var(--duration-fast) var(--ease-enter); margin-left: var(--space-100); }
+  .exchange-icon-btn:hover { border-color: var(--color-brand-magenta); color: var(--color-text-primary); }
 
   /* Inventory count badges */
   .palette-item { position: relative; flex-direction: column; align-items: center; }
@@ -342,8 +388,14 @@
   .powerup-item.used .powerup-uses { color: var(--color-danger); }
 
   @media (max-width: 600px) {
-    .help-content { gap: var(--space-100); }
-    .help-rule { font-size: 0.625rem; }
+    .slide-visual { width: 100%; height: 140px; }
+    .slide-title { font-size: 12px; }
+    .slide-desc { font-size: 10px; max-width: 100%; }
+    .help-nav { gap: var(--space-200); }
+    .help-dot { width: 6px; height: 6px; }
+    .help-arrow { width: 28px; height: 28px; font-size: 10px; }
+    .exchange-box { padding: var(--space-400); }
+    .exchange-targets { flex-wrap: wrap; }
   }
 </style>
 </head>
@@ -398,7 +450,7 @@
       </div>
     </div>
     <div class="inventory-section inventory-section-left">
-      <span class="inventory-label">Inventory</span>
+      <span class="inventory-label">Inventory <button class="exchange-icon-btn" onclick="openExchange()" title="Exchange pieces"><i class="fa-light fa-right-left"></i></button></span>
       <div class="pieces-inventory" id="pieces-inventory"></div>
     </div>
   </div>
@@ -406,20 +458,38 @@
 </div>
 
 <div class="levels-modal" id="help-modal" onclick="if(event.target===this)closeHelp()">
-  <div class="levels-modal-box">
+  <div class="levels-modal-box" style="max-width:440px;">
     <div class="levels-modal-header">
       <span class="levels-modal-title"><i class="fa-light fa-circle-question" style="margin-right:4px"></i>How it works</span>
+      <span class="help-counter" id="help-counter">1 / 18</span>
       <button class="levels-modal-close" onclick="closeHelp()"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="help-content">
-      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-preset">White pieces</strong> are pre-set and locked in place.</span></div>
-      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-obstacle">Black cells</strong> are obstacles — blocked slots.</span></div>
-      <div class="help-rule"><i class="fa-solid fa-circle"></i><span>Drag player pieces into <strong>empty slots</strong> to build a path.</span></div>
-      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-connected">Connected pieces</strong> score full <strong class="kw-path">MEM</strong>: Common <strong>10</strong>, Rare <strong>20</strong>, Epic <strong>30</strong>, Legendary <strong>40</strong>.</span></div>
-      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-disconnected">Disconnected pieces</strong> score <strong>50%</strong> MEM. Power-up pieces score nothing.</span></div>
-      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-path">Combo:</strong> Epic/Legendary pieces with 3+ active connections earn <strong>+15 MEM</strong> per connection.</span></div>
-      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-path">Full Board:</strong> All slots filled = <strong>+50/75/100</strong> bonus. <strong>Perfect Clear:</strong> All connected = <strong>+100/150/200</strong> bonus.</span></div>
-      <div class="help-rule"><i class="fa-solid fa-circle"></i><span><strong class="kw-star">Stars:</strong> <strong class="kw-star">1</strong> = IN→OUT path. <strong class="kw-star">2</strong> = score above minimum. <strong class="kw-star">3</strong> = all filled + connected.</span></div>
+    <div class="help-carousel">
+      <div class="help-slides" id="help-slides">
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-hand-pointer"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Moving Pieces</div><div class="slide-desc">Drag pieces from your <strong>inventory</strong> onto empty cells to build a path. Placing pieces grants <strong class="kw-mem">MEM</strong> points.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-block-brick"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Obstacles & Presets</div><div class="slide-desc">Levels may have <strong>black obstacles</strong> that block cells and <strong>white preset pieces</strong> that are locked in place to help guide your path.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-lock"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Pieces Persist</div><div class="slide-desc">Once placed, pieces <strong>stay on the board across all levels</strong>. Your progress is saved automatically.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-trash-can"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Removing Pieces</div><div class="slide-desc"><strong>Right-click</strong> or <strong>long-press</strong> a piece to remove it. The <strong>Reset</strong> button clears all placed pieces on the current board.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-triangle-exclamation"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Cascading Resets</div><div class="slide-desc">Removing pieces from <strong>earlier levels</strong> may reset completed <strong>higher levels</strong> — be careful when backtracking!</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-link"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Connections</div><div class="slide-desc">Adjacent pieces with <strong class="kw-pos">matching connectors</strong> glow. Connected pieces earn <strong>full MEM</strong>. Disconnected pieces earn <strong>50%</strong>.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-solid fa-star" style="color:var(--color-brand-yellow)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Earn 1 Star</div><div class="slide-desc">Connect the <strong class="kw-pos">IN</strong> point to the <strong class="kw-mem">OUT</strong> point to <strong>unlock the next level</strong> and earn <strong class="kw-star">1 MEM star</strong>.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-solid fa-star" style="color:var(--color-brand-yellow)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Earn 2 Stars</div><div class="slide-desc">Score above the <strong>minimum MEM threshold</strong> to earn <strong class="kw-star">2 MEM stars</strong>. Place more pieces and connect them for higher scores.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-grid"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Full Board Bonus</div><div class="slide-desc">Fill every cell for <strong>+50/75/100</strong> bonus. Fill AND connect all pieces for a <strong class="kw-mem">Perfect Clear</strong>: <strong>+100/150/200</strong> bonus MEM.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-gem"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Rarity Tiers</div><div class="slide-desc">Pieces come in rarities: <strong>Common</strong> (10), <strong class="kw-rare">Rare</strong> (20), <strong class="kw-epic">Epic</strong> (30), <strong class="kw-leg">Legendary</strong> (40). Higher rarity = more MEM.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-fire" style="color:var(--color-danger)"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Mythic Pieces</div><div class="slide-desc"><strong class="kw-myth">Mythic</strong> pieces are unique and can <strong>only be placed on obstacle cells</strong>. They turn obstacles into connected paths.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-bolt"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Power-Ups</div><div class="slide-desc"><strong>4 power-ups</strong> help clear levels. Each is limited to <strong>1 use per board</strong>. Use them wisely!</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-rotate-left"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Recovering Power-Ups</div><div class="slide-desc">Remove the piece a power-up was used on to <strong>get the power-up back</strong>. This also removes any pieces the power-up generated.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-arrows-left-right"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Path</div><div class="slide-desc">Fills an entire <strong>row or column</strong> with preset pieces from your piece to the edge or nearest obstacle.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-expand"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Spread</div><div class="slide-desc">Places one <strong>preset piece on each open connector side</strong> of your piece. Great for expanding coverage quickly.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-wand-magic-sparkles"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Warp</div><div class="slide-desc">Jumps <strong>through an obstacle</strong> to place a piece on the other side. Choose which side of the obstacle to land on.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-rotate"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Rotate</div><div class="slide-desc">Transforms a placed piece into a <strong>same-rarity variant</strong> with different connector directions.</div></div>
+        <div class="help-slide"><div class="slide-visual"><i class="fa-light fa-right-left"></i><span class="slide-visual-label">GIF Placeholder</span></div><div class="slide-title">Piece Exchange</div><div class="slide-desc">Trade <strong>lower-rarity pieces</strong> for higher ones. Combine Common, Rare, and Epic pieces to craft the piece you need.</div><button class="slide-btn" onclick="closeHelp();openExchange()">Open Exchange</button></div>
+      </div>
+      <div class="help-nav">
+        <button class="help-arrow" id="help-prev" onclick="helpPrev()"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="help-dots" id="help-dots"></div>
+        <button class="help-arrow" id="help-next" onclick="helpNext()"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
     </div>
   </div>
 </div>
@@ -431,6 +501,19 @@
       <button class="levels-modal-close" onclick="closeLevels()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="board-selector" id="board-selector"></div>
+  </div>
+</div>
+
+<div class="exchange-modal" id="exchange-modal" onclick="if(event.target===this)closeExchange()">
+  <div class="exchange-box">
+    <div class="exchange-header">
+      <span class="exchange-title"><i class="fa-light fa-right-left" style="margin-right:4px"></i>Piece Exchange</span>
+      <button class="exchange-close" onclick="closeExchange()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="exchange-targets" id="exchange-targets"></div>
+    <div class="exchange-recipes" id="exchange-recipes"></div>
+    <div class="exchange-result" id="exchange-result" style="display:none"></div>
+    <button class="exchange-confirm" id="exchange-confirm" disabled onclick="executeExchange()">Select a recipe</button>
   </div>
 </div>
 
@@ -1778,10 +1861,204 @@ function closeLevels() {
   document.getElementById('levels-modal').classList.remove('open');
 }
 function toggleHelp() {
-  document.getElementById('help-modal').classList.toggle('open');
+  const modal = document.getElementById('help-modal');
+  modal.classList.toggle('open');
+  if (modal.classList.contains('open')) initHelpCarousel();
 }
 function closeHelp() {
   document.getElementById('help-modal').classList.remove('open');
+}
+
+// === HELP CAROUSEL ===
+let helpSlideIdx = 0;
+const HELP_SLIDE_COUNT = 18;
+
+function initHelpCarousel() {
+  helpSlideIdx = 0;
+  updateHelpCarousel();
+  // Build dots once
+  const dotsEl = document.getElementById('help-dots');
+  if (dotsEl.children.length === 0) {
+    for (let i = 0; i < HELP_SLIDE_COUNT; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'help-dot' + (i === 0 ? ' active' : '');
+      dot.onclick = () => goToHelpSlide(i);
+      dotsEl.appendChild(dot);
+    }
+  }
+  // Swipe support
+  const slides = document.getElementById('help-slides');
+  if (!slides._swipeInit) {
+    let sx = 0, dx = 0;
+    slides.addEventListener('touchstart', e => { sx = e.touches[0].clientX; dx = 0; }, {passive: true});
+    slides.addEventListener('touchmove', e => { dx = e.touches[0].clientX - sx; }, {passive: true});
+    slides.addEventListener('touchend', () => { if (Math.abs(dx) > 40) { dx < 0 ? helpNext() : helpPrev(); } });
+    slides._swipeInit = true;
+  }
+}
+
+function goToHelpSlide(n) {
+  helpSlideIdx = Math.max(0, Math.min(HELP_SLIDE_COUNT - 1, n));
+  updateHelpCarousel();
+}
+function helpNext() { goToHelpSlide(helpSlideIdx + 1); }
+function helpPrev() { goToHelpSlide(helpSlideIdx - 1); }
+
+function updateHelpCarousel() {
+  const slides = document.querySelectorAll('.help-slide');
+  slides.forEach(s => { s.style.transform = 'translateX(-' + (helpSlideIdx * 100) + '%)'; });
+  document.getElementById('help-counter').textContent = (helpSlideIdx + 1) + ' / ' + HELP_SLIDE_COUNT;
+  document.getElementById('help-prev').disabled = helpSlideIdx === 0;
+  document.getElementById('help-next').disabled = helpSlideIdx === HELP_SLIDE_COUNT - 1;
+  const dots = document.querySelectorAll('.help-dot');
+  dots.forEach((d, i) => d.classList.toggle('active', i === helpSlideIdx));
+}
+
+// Keyboard navigation for help carousel
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('help-modal').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') helpPrev();
+  else if (e.key === 'ArrowRight') helpNext();
+});
+
+// === PIECE EXCHANGE SYSTEM ===
+const EXCHANGE_RECIPES = {
+  Rare: [
+    { cost: { Common: 2 } }
+  ],
+  Epic: [
+    { cost: { Common: 3 } },
+    { cost: { Common: 1, Rare: 1 } }
+  ],
+  Legendary: [
+    { cost: { Common: 4 } },
+    { cost: { Common: 2, Rare: 1 } },
+    { cost: { Rare: 2 } },
+    { cost: { Common: 1, Epic: 1 } }
+  ],
+  Mythic: [
+    { cost: { Common: 5 } },
+    { cost: { Common: 3, Rare: 1 } },
+    { cost: { Common: 1, Rare: 2 } },
+    { cost: { Common: 2, Epic: 1 } },
+    { cost: { Rare: 1, Epic: 1 } },
+    { cost: { Common: 1, Legendary: 1 } }
+  ]
+};
+
+const RARITY_VARIANTS = {
+  Common: ['green', 'green2'],
+  Rare: ['blue', 'blue2', 'blue3', 'blue4'],
+  Epic: ['purple', 'purple2', 'purple3', 'purple4'],
+  Legendary: ['orange'],
+  Mythic: ['red']
+};
+
+const RARITY_COLORS = {
+  Common: 'var(--rarity-common)', Rare: 'var(--rarity-rare)',
+  Epic: 'var(--rarity-epic)', Legendary: 'var(--rarity-legendary)', Mythic: 'var(--color-danger)'
+};
+
+let exchangeTarget = null;
+let exchangeSelectedRecipe = null;
+
+function openExchange() {
+  exchangeTarget = 'Rare';
+  exchangeSelectedRecipe = null;
+  document.getElementById('exchange-modal').classList.add('open');
+  renderExchangeTargets();
+  renderExchangeRecipes();
+}
+function closeExchange() {
+  document.getElementById('exchange-modal').classList.remove('open');
+}
+
+function getInventoryByRarity(rarity) {
+  return RARITY_VARIANTS[rarity].reduce((sum, v) => sum + (inventory[v] || 0), 0);
+}
+
+function canAffordRecipe(recipe) {
+  for (const [rarity, count] of Object.entries(recipe.cost)) {
+    if (getInventoryByRarity(rarity) < count) return false;
+  }
+  return true;
+}
+
+function renderExchangeTargets() {
+  const el = document.getElementById('exchange-targets');
+  el.innerHTML = '';
+  for (const rarity of ['Rare', 'Epic', 'Legendary', 'Mythic']) {
+    const btn = document.createElement('button');
+    btn.className = 'exchange-target-btn' + (rarity === exchangeTarget ? ' active' : '');
+    btn.textContent = rarity;
+    btn.style.color = rarity === exchangeTarget ? 'var(--color-text-primary)' : RARITY_COLORS[rarity];
+    btn.onclick = () => { exchangeTarget = rarity; exchangeSelectedRecipe = null; renderExchangeTargets(); renderExchangeRecipes(); };
+    el.appendChild(btn);
+  }
+}
+
+function renderExchangeRecipes() {
+  const el = document.getElementById('exchange-recipes');
+  const resultEl = document.getElementById('exchange-result');
+  const confirmBtn = document.getElementById('exchange-confirm');
+  el.innerHTML = '';
+  const recipes = EXCHANGE_RECIPES[exchangeTarget] || [];
+  recipes.forEach((recipe, idx) => {
+    const row = document.createElement('div');
+    const affordable = canAffordRecipe(recipe);
+    row.className = 'exchange-recipe' + (!affordable ? ' unaffordable' : '') + (exchangeSelectedRecipe === idx ? ' selected' : '');
+    const costHtml = Object.entries(recipe.cost).map(([r, c]) =>
+      '<span class="recipe-cost-item"><strong>' + c + '</strong> ' + r.charAt(0) + '</span>'
+    ).join(' + ');
+    row.innerHTML = '<div class="recipe-cost">' + costHtml + '</div>' +
+      '<span class="recipe-arrow"><i class="fa-solid fa-arrow-right"></i></span>' +
+      '<span class="recipe-result" style="color:' + RARITY_COLORS[exchangeTarget] + '">1 ' + exchangeTarget.charAt(0) + '</span>';
+    row.onclick = () => { exchangeSelectedRecipe = idx; renderExchangeRecipes(); };
+    el.appendChild(row);
+  });
+
+  // Update result preview
+  if (exchangeSelectedRecipe !== null && canAffordRecipe(recipes[exchangeSelectedRecipe])) {
+    const variants = RARITY_VARIANTS[exchangeTarget];
+    const previewVariant = variants[0];
+    resultEl.style.display = 'flex';
+    resultEl.innerHTML = '<div class="exchange-result-svg">' + (PIECE_SVGS[previewVariant] || '') + '</div>' +
+      '<span class="exchange-result-label">Random <span style="color:' + RARITY_COLORS[exchangeTarget] + '">' + exchangeTarget + '</span> piece</span>';
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = 'Exchange';
+  } else {
+    resultEl.style.display = 'none';
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Select a recipe';
+  }
+}
+
+function executeExchange() {
+  if (exchangeSelectedRecipe === null) return;
+  const recipe = EXCHANGE_RECIPES[exchangeTarget][exchangeSelectedRecipe];
+  if (!canAffordRecipe(recipe)) return;
+
+  // Consume pieces (take from first available variants of each rarity)
+  for (const [rarity, count] of Object.entries(recipe.cost)) {
+    let remaining = count;
+    for (const v of RARITY_VARIANTS[rarity]) {
+      if (remaining <= 0) break;
+      const take = Math.min(inventory[v], remaining);
+      inventory[v] -= take;
+      remaining -= take;
+    }
+  }
+
+  // Grant random variant of target rarity
+  const variants = RARITY_VARIANTS[exchangeTarget];
+  const gained = variants[Math.floor(Math.random() * variants.length)];
+  inventory[gained] = (inventory[gained] || 0) + 1;
+
+  saveInventory();
+  updateInventoryUI();
+  exchangeSelectedRecipe = null;
+  renderExchangeRecipes();
+  renderExchangeTargets();
 }
 
 // === POPULATE PIECE PALETTES ===
