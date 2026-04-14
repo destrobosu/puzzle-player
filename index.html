@@ -331,7 +331,7 @@
   /* Levels modal overlay */
   .levels-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 900; align-items: center; justify-content: center; }
   .levels-modal.open { display: flex; }
-  .levels-modal-box { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-600); width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
+  .levels-modal-box { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-400); width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
   .levels-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-400); width: 100%; }
   .levels-modal-title { font-family: var(--font-body); font-size: 1rem; font-weight: 700; color: var(--color-text-primary); }
   .levels-modal-close { background: none; border: none; color: var(--color-text-faint); cursor: pointer; font-size: 16px; padding: var(--space-100); transition: color var(--duration-fast) var(--ease-enter); }
@@ -349,19 +349,22 @@
   .help-cat-title { font-family: var(--font-body); font-size: 13px; font-weight: 700; color: var(--color-text-primary); flex: 1; text-align: center; }
 
   /* Growth path level selector */
-  .board-selector { position: relative; display: flex; flex-direction: column; gap: 0; width: 100%; }
+  .board-selector { position: relative; display: flex; flex-direction: column; gap: 0; width: 100%; padding-bottom: var(--space-400); }
   /* SVG path line behind everything */
-  .path-line { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-  .path-line line { stroke: var(--color-border-default); stroke-width: 2; }
-  .path-line line.completed { stroke: var(--color-positive); }
-  .level-row { display: flex; align-items: center; gap: var(--space-200); position: relative; z-index: 1; padding: var(--space-100) 0; }
+  .path-line { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+  .path-line line { stroke: #E51E4E; stroke-width: 2; }
+  .path-line line.unlocked { stroke: white; }
+  .level-row { display: flex; align-items: center; gap: var(--space-200); position: relative; padding: var(--space-100) 0; width: 100%; }
   .level-row.align-left { justify-content: flex-start; }
   .level-row.align-left .board-card { order: -1; }
   .level-row.align-right { justify-content: flex-end; }
-  .level-node { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--color-text-faint); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all var(--duration-fast) var(--ease-enter); background: var(--color-bg-surface); }
+  .level-node { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--color-text-faint); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all var(--duration-fast) var(--ease-enter); background: var(--color-bg-surface); position: relative; z-index: 2; }
   .level-node.unlocked { background: var(--color-text-primary); border-color: var(--color-text-primary); }
   .level-node.locked { background: var(--color-bg-surface); border-color: var(--color-text-faint); }
   .level-node.completed { background: var(--color-positive); border-color: var(--color-positive); }
+  .level-node.level-indicator, .level-node.level-boss { width: 24px; height: 24px; border: none; background: transparent; }
+  .level-node.level-midboss { width: 28px; height: 28px; border: none; background: transparent; }
+  .level-node.level-indicator svg, .level-node.level-midboss svg, .level-node.level-boss svg { width: 100%; height: 100%; }
   .level-node i { font-size: 8px; }
   .board-card { display: flex; flex-direction: column; gap: var(--space-100); padding: var(--space-200) var(--space-300); background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; cursor: pointer; transition: all var(--duration-fast) var(--ease-enter); max-width: 200px; }
   .board-card:hover { border-color: var(--color-brand-magenta); }
@@ -478,6 +481,8 @@
   /* Rewards modal */
   .reward-claim-btn { background: #E51A4B; color: var(--color-text-primary); border: none; border-radius: var(--radius-md); corner-shape: squircle; font-family: var(--font-mono); font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: var(--space-100) var(--space-200); cursor: pointer; transition: opacity var(--duration-fast) var(--ease-enter); white-space: nowrap; }
   .reward-claim-btn:hover { opacity: 0.85; }
+  .rewards-continue-btn { width: 100%; margin-top: var(--space-300); padding: var(--space-200) var(--space-400); background: var(--color-bg-elevated); color: var(--color-text-primary); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer; transition: all var(--duration-fast) var(--ease-enter); height: 40px; }
+  .rewards-continue-btn:hover { background: var(--color-bg-surface); border-color: var(--color-border-secondary); }
   .reward-claimed { font-family: var(--font-mono); font-size: 8px; font-weight: 700; color: var(--color-positive); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
 
   /* Inventory count badges */
@@ -616,6 +621,7 @@
       <button class="levels-modal-close" onclick="closeRewards()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div id="rewards-tiers"></div>
+    <button id="rewards-continue-btn" class="rewards-continue-btn" style="display:none" onclick="closeRewards();proceedNextLevel()"><i class="fa-light fa-forward" style="margin-right:4px"></i>Continue to Next Level</button>
   </div>
 </div>
 
@@ -1603,7 +1609,22 @@ function confirmResetAll() {
   overlay.addEventListener('click', dismiss);
 }
 
+let pendingNextLevel = false;
 function goNextLevel() {
+  // Intercept: if unclaimed rewards, show rewards modal with continue button
+  if (hasUnclaimedRewards()) {
+    pendingNextLevel = true;
+    SoundManager.notify();
+    openRewards();
+    document.getElementById('rewards-continue-btn').style.display = '';
+    return;
+  }
+  pendingNextLevel = false;
+  proceedNextLevel();
+}
+function proceedNextLevel() {
+  pendingNextLevel = false;
+  document.getElementById('rewards-continue-btn').style.display = 'none';
   const currentIdx = BOARDS.findIndex(b => b.file === currentBoardFile);
   const nextIdx = currentIdx + 1;
   if (nextIdx >= BOARDS.length) {
@@ -2379,7 +2400,7 @@ function toggleLevels() {
   modal.classList.toggle('open');
   if (modal.classList.contains('open')) {
     SoundManager.modalOpen();
-    requestAnimationFrame(() => drawPathLines(getCompletedLevels()));
+    initBoardSelector().then(() => requestAnimationFrame(() => drawPathLines(getCompletedLevels())));
   } else { SoundManager.modalClose(); }
 }
 function closeLevels() {
@@ -2790,6 +2811,7 @@ function updateRewardsButton() {
 function openRewards() {
   if (!currentBoardFile) return;
   SoundManager.modalOpen();
+  if (!pendingNextLevel) document.getElementById('rewards-continue-btn').style.display = 'none';
   document.getElementById('rewards-modal').classList.add('open');
   renderRewardsTiers();
 }
@@ -2956,6 +2978,7 @@ function isLevelUnlocked(idx) {
 
 async function initBoardSelector() {
   const container = document.getElementById('board-selector');
+  container.innerHTML = '';
   const completed = getCompletedLevels();
   for (let i = 0; i < BOARDS.length; i++) {
     const b = BOARDS[i];
@@ -2970,8 +2993,27 @@ async function initBoardSelector() {
       row.className = 'level-row ' + (i % 2 === 0 ? 'align-left' : 'align-right');
 
       const node = document.createElement('div');
-      node.className = 'level-node ' + (done ? 'completed' : (unlocked ? 'unlocked' : 'locked'));
-      if (done) node.innerHTML = '<i class="fa-solid fa-check" style="color:var(--color-text-primary)"></i>';
+      const isLastLevel = i === BOARDS.length - 1;
+      const isMidBoss = i === 2 || i === 4;
+      const isRegular = i === 1 || i === 3 || i === 5;
+      const isFirst = i === 0;
+      const nodeType = isLastLevel ? 'boss' : isMidBoss ? 'midboss' : isRegular ? 'regular' : 'first';
+      node.className = 'level-node ' + (done ? 'completed' : (unlocked ? 'unlocked' : 'locked')) + (isLastLevel ? ' level-boss' : '') + (isMidBoss ? ' level-midboss' : '') + ((isRegular || isFirst) ? ' level-indicator' : '');
+      const IND4 = '<svg width="16" height="16" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#ci4)"><path d="M16.9434 8.89992C16.9434 13.3274 13.3475 16.9458 8.89748 16.9458C4.4475 16.9458 0.851562 13.3499 0.851562 8.89992C0.851562 4.44995 4.42503 0.854004 8.89748 0.854004C13.3699 0.854004 16.9434 4.44995 16.9434 8.9224V8.89992Z" stroke="#E41B4C" stroke-width="1.6856" stroke-miterlimit="10"/><path d="M13.303 8.81005C13.3929 11.2148 11.4151 13.26 8.98783 13.3274C6.62799 13.3949 4.53785 11.3722 4.47042 8.96737C4.403 6.67496 6.38077 4.56234 8.67318 4.44997C11.0105 4.33759 13.3704 6.31536 13.303 8.81005Z" fill="#E51E4E"/></g><defs><clipPath id="ci4"><rect width="17.7999" height="17.7999" fill="white"/></clipPath></defs></svg>';
+      const IND5 = '<svg width="16" height="16" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#ci5)"><path d="M16.9434 8.89982C16.9434 13.3273 13.3475 16.9457 8.89748 16.9457C4.4475 16.9457 0.851562 13.3498 0.851562 8.89982C0.851562 4.44984 4.42503 0.853897 8.89748 0.853897C13.3699 0.853897 16.9434 4.44984 16.9434 8.92229V8.89982Z" stroke="white" stroke-width="1.6856" stroke-miterlimit="10"/><path d="M13.303 8.80994C13.3929 11.2147 11.4151 13.2599 8.98783 13.3273C6.62799 13.3948 4.53785 11.372 4.47042 8.96726C4.403 6.67485 6.38077 4.56223 8.67318 4.44986C11.0105 4.33749 13.3704 6.31525 13.303 8.80994Z" fill="white"/></g><defs><clipPath id="ci5"><rect width="17.7999" height="17.7999" fill="white"/></clipPath></defs></svg>';
+      const IND3_LOCKED = '<svg viewBox="0 0 28 37" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.0508 1.32046C12.2404 -0.440113 14.8329 -0.44011 16.0225 1.32046L26.5596 16.9152C27.2529 17.9415 27.2445 19.2885 26.5381 20.3058L16.001 35.4787C14.8077 37.1971 12.2657 37.1971 11.0723 35.4787L0.536181 20.3058C-0.170268 19.2885 -0.17952 17.9415 0.51372 16.9152L11.0508 1.32046Z" fill="black"/><path d="M18.3633 18.1414C18.3633 20.6176 16.3521 22.6414 13.8633 22.6414C11.3745 22.6414 9.36328 20.6302 9.36328 18.1414C9.36328 15.6525 11.3619 13.6414 13.8633 13.6414C16.3647 13.6414 18.3633 15.6525 18.3633 18.1539V18.1414Z" fill="#E51E4E"/></svg>';
+      const IND1_UNLOCKED = '<svg viewBox="0 0 28 37" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.0508 1.32046C12.2404 -0.440113 14.8329 -0.44011 16.0225 1.32046L26.5596 16.9152C27.2529 17.9415 27.2445 19.2885 26.5381 20.3058L16.001 35.4787C14.8077 37.1971 12.2657 37.1971 11.0723 35.4787L0.536181 20.3058C-0.170268 19.2885 -0.17952 17.9415 0.51372 16.9152L11.0508 1.32046ZM13.8633 13.6417C11.3619 13.6417 9.36333 15.6529 9.36333 18.1417C9.36348 20.6304 11.3746 22.6417 13.8633 22.6417C16.2744 22.6417 18.2372 20.7422 18.3575 18.3722L18.3633 18.1544C18.3633 15.653 16.3647 13.6417 13.8633 13.6417Z" fill="#D9D9D9"/></svg>';
+      if (isFirst) {
+        node.innerHTML = IND5;
+      } else if (isRegular) {
+        node.innerHTML = unlocked ? IND5 : IND4;
+      } else if (isMidBoss) {
+        node.innerHTML = unlocked ? IND1_UNLOCKED : IND3_LOCKED;
+      } else if (isLastLevel) {
+        const fbIcon = unlocked ? '<svg width="14" height="12" viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21.4334 16.3246H18.4455L15.4549 21.0926C15.114 21.5965 14.5859 21.9017 13.989 21.9061C13.3922 21.9017 12.8641 21.5965 12.5232 21.0926L9.53262 16.3246H6.54469L9.18619 21.3661C10.5124 23.9535 11.9812 24.9935 13.989 25C15.9969 24.9935 17.4656 23.9535 18.7919 21.3661L21.4334 16.3246Z" fill="white"/><path d="M10.5498 17.0208L12.7903 20.6784C12.9167 20.8843 13.0946 21.0545 13.3069 21.1726C13.5192 21.2908 13.7587 21.3528 14.0024 21.3528C14.246 21.3528 14.4855 21.2908 14.6978 21.1726C14.9101 21.0545 15.088 20.8843 15.2145 20.6784L17.455 17.0208C17.455 17.0208 16.8737 16.6692 16.5696 15.6528C15.8486 16.3583 14.9627 16.7754 14.0043 16.7754L14.0024 16.7754L14.0005 16.7754C13.042 16.7754 12.1561 16.3583 11.4351 15.6528C11.131 16.6692 10.5498 17.0208 10.5498 17.0208Z" fill="white"/><path d="M1.56707 9.36265C4.61617 13.0381 11.2186 15.4957 11.2186 15.4957C8.46956 11.0916 10.6783 7.22044 10.6783 7.22044C10.6783 7.22044 9.10429 6.83033 6.30878 5.36232C3.51327 3.89431 2.37886 2.7566 2.37886 2.7566C1.93002 2.31289 1.32998 0 1.32998 0C-0.443663 3.84945 0.0605278 6.97713 0.0830329 7.12393C0.105544 7.27073 0.378644 7.95988 1.56707 9.36265Z" fill="white"/><path d="M16.7815 15.4957C16.7815 15.4957 23.3838 13.0381 26.4329 9.36265C27.6214 7.95988 27.8945 7.27073 27.917 7.12393C27.9395 6.97713 28.4437 3.84945 26.67 0C26.67 0 26.07 2.31289 25.6211 2.7566C25.6211 2.7566 24.4867 3.89431 21.6912 5.36232C18.8957 6.83033 17.3217 7.22044 17.3217 7.22044C17.3217 7.22044 19.5304 11.0916 16.7815 15.4957Z" fill="white"/><path d="M26.3068 22.9671L25.4 20.0444C24.8721 18.3428 23.272 17.1799 21.4587 17.1799L18.3794 22.9671H26.3068Z" fill="white"/><path d="M1.67886 22.9671L2.58565 20.0444C3.11356 18.3428 4.71369 17.1799 6.52702 17.1799L9.60626 22.9671H1.67886Z" fill="white"/><path d="M16.7119 13.9341C17.0879 13.082 17.3086 12.0448 17.3086 10.9257C17.3086 9.43033 16.9148 8.08098 16.2828 7.12464C16.2637 7.09566 16.2443 7.06704 16.2247 7.03878C16.1856 6.98228 16.1456 6.92727 16.1047 6.87374C16.023 6.76673 15.9381 6.66597 15.85 6.57146C15.806 6.52428 15.7613 6.47875 15.7158 6.43488C15.6703 6.39102 15.6241 6.34888 15.5772 6.30844C15.5304 6.26802 15.4828 6.22937 15.4346 6.19248C15.4105 6.17404 15.3862 6.15606 15.3618 6.13853C15.3129 6.10347 15.2635 6.07026 15.2134 6.0389C15.1883 6.02323 15.1632 6.00803 15.1378 5.9933C14.989 5.90622 14.8312 5.83517 14.6671 5.78136C14.6132 5.76387 14.5589 5.74848 14.5041 5.73517C14.4494 5.7219 14.3942 5.71077 14.3386 5.70179C14.1425 5.67015 13.9429 5.66618 13.7458 5.68999C13.5205 5.71789 13.3008 5.77991 13.0946 5.87387C13.0685 5.88567 13.0424 5.89796 13.0165 5.91075C11.6698 6.57559 10.692 8.56938 10.692 10.9257C10.692 12.9148 11.3889 14.6455 12.4162 15.5366C12.4222 15.5417 12.4282 15.5468 12.4342 15.552C12.4952 15.6041 12.5574 15.6532 12.6206 15.6993C12.6511 15.7215 12.6817 15.7433 12.7126 15.764C12.8098 15.8295 12.9114 15.8885 13.0165 15.9406C13.0424 15.9534 13.0685 15.9657 13.0946 15.9775C13.3008 16.0714 13.5205 16.1335 13.7458 16.1614C13.9429 16.1852 14.1425 16.1812 14.3386 16.1496C14.3942 16.1406 14.4494 16.1295 14.5041 16.1162C14.5589 16.1029 14.6132 16.0875 14.6671 16.07C14.8312 16.0162 14.989 15.9451 15.1378 15.858C15.1631 15.8433 15.1883 15.8281 15.2134 15.8124C15.3678 15.7151 15.5129 15.6042 15.647 15.481C15.6701 15.4599 15.693 15.4384 15.7158 15.4165C15.7613 15.3726 15.806 15.3271 15.85 15.2799C15.872 15.2563 15.8938 15.2323 15.9154 15.2079C15.9962 15.1167 16.0742 15.02 16.1494 14.9176C16.1748 14.8831 16.2 14.8482 16.2247 14.8126C16.2835 14.7278 16.3403 14.6398 16.3951 14.5485C16.4133 14.5181 16.4314 14.4874 16.4492 14.4563C16.5301 14.315 16.606 14.1668 16.677 14.0118C16.6887 13.986 16.7004 13.9601 16.7119 13.9341ZM14.0003 14.2927C13.1751 14.2927 12.5061 12.7852 12.5061 10.9257C12.5061 9.06612 13.1751 7.55864 14.0003 7.55864C14.8255 7.55864 15.4945 9.06612 15.4945 10.9257C15.4945 12.7852 14.8255 14.2927 14.0003 14.2927Z" fill="white"/><path d="M13.9979 3.40036L16.0371 0.133922H11.9587L13.9979 3.40036Z" fill="white"/><path d="M17.6385 1.53068L15.1955 4.55089L19.2452 4.99745L17.6385 1.53068Z" fill="white"/><path d="M10.3642 1.53068L12.8072 4.55089L8.75754 4.99745L10.3642 1.53068Z" fill="white"/></svg>' :
+          '<svg width="14" height="12" viewBox="0 0 28 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21.4334 16.3246H18.4455L15.4549 21.0926C15.114 21.5965 14.5859 21.9017 13.989 21.9061C13.3922 21.9017 12.8641 21.5965 12.5232 21.0926L9.53262 16.3246H6.54469L9.18619 21.3661C10.5124 23.9535 11.9812 24.9935 13.989 25C15.9969 24.9935 17.4656 23.9535 18.7919 21.3661L21.4334 16.3246Z" fill="#E51E4E"/><path d="M10.5498 17.0208L12.7903 20.6784C12.9167 20.8843 13.0946 21.0545 13.3069 21.1726C13.5192 21.2908 13.7587 21.3528 14.0024 21.3528C14.246 21.3528 14.4855 21.2908 14.6978 21.1726C14.9101 21.0545 15.088 20.8843 15.2145 20.6784L17.455 17.0208C17.455 17.0208 16.8737 16.6692 16.5696 15.6528C15.8486 16.3583 14.9627 16.7754 14.0043 16.7754L14.0024 16.7754L14.0005 16.7754C13.042 16.7754 12.1561 16.3583 11.4351 15.6528C11.131 16.6692 10.5498 17.0208 10.5498 17.0208Z" fill="#E51E4E"/><path d="M1.56707 9.36265C4.61617 13.0381 11.2186 15.4957 11.2186 15.4957C8.46956 11.0916 10.6783 7.22044 10.6783 7.22044C10.6783 7.22044 9.10429 6.83033 6.30878 5.36232C3.51327 3.89431 2.37886 2.7566 2.37886 2.7566C1.93002 2.31289 1.32998 0 1.32998 0C-0.443663 3.84945 0.0605278 6.97713 0.0830329 7.12393C0.105544 7.27073 0.378644 7.95988 1.56707 9.36265Z" fill="#E51E4E"/><path d="M16.7815 15.4957C16.7815 15.4957 23.3838 13.0381 26.4329 9.36265C27.6214 7.95988 27.8945 7.27073 27.917 7.12393C27.9395 6.97713 28.4437 3.84945 26.67 0C26.67 0 26.07 2.31289 25.6211 2.7566C25.6211 2.7566 24.4867 3.89431 21.6912 5.36232C18.8957 6.83033 17.3217 7.22044 17.3217 7.22044C17.3217 7.22044 19.5304 11.0916 16.7815 15.4957Z" fill="#E51E4E"/><path d="M26.3068 22.9671L25.4 20.0444C24.8721 18.3428 23.272 17.1799 21.4587 17.1799L18.3794 22.9671H26.3068Z" fill="#E51E4E"/><path d="M1.67886 22.9671L2.58565 20.0444C3.11356 18.3428 4.71369 17.1799 6.52702 17.1799L9.60626 22.9671H1.67886Z" fill="#E51E4E"/><path d="M16.7119 13.9341C17.0879 13.082 17.3086 12.0448 17.3086 10.9257C17.3086 9.43033 16.9148 8.08098 16.2828 7.12464C16.2637 7.09566 16.2443 7.06704 16.2247 7.03878C16.1856 6.98228 16.1456 6.92727 16.1047 6.87374C16.023 6.76673 15.9381 6.66597 15.85 6.57146C15.806 6.52428 15.7613 6.47875 15.7158 6.43488C15.6703 6.39102 15.6241 6.34888 15.5772 6.30844C15.5304 6.26802 15.4828 6.22937 15.4346 6.19248C15.4105 6.17404 15.3862 6.15606 15.3618 6.13853C15.3129 6.10347 15.2635 6.07026 15.2134 6.0389C15.1883 6.02323 15.1632 6.00803 15.1378 5.9933C14.989 5.90622 14.8312 5.83517 14.6671 5.78136C14.6132 5.76387 14.5589 5.74848 14.5041 5.73517C14.4494 5.7219 14.3942 5.71077 14.3386 5.70179C14.1425 5.67015 13.9429 5.66618 13.7458 5.68999C13.5205 5.71789 13.3008 5.77991 13.0946 5.87387C13.0685 5.88567 13.0424 5.89796 13.0165 5.91075C11.6698 6.57559 10.692 8.56938 10.692 10.9257C10.692 12.9148 11.3889 14.6455 12.4162 15.5366C12.4222 15.5417 12.4282 15.5468 12.4342 15.552C12.4952 15.6041 12.5574 15.6532 12.6206 15.6993C12.6511 15.7215 12.6817 15.7433 12.7126 15.764C12.8098 15.8295 12.9114 15.8885 13.0165 15.9406C13.0424 15.9534 13.0685 15.9657 13.0946 15.9775C13.3008 16.0714 13.5205 16.1335 13.7458 16.1614C13.9429 16.1852 14.1425 16.1812 14.3386 16.1496C14.3942 16.1406 14.4494 16.1295 14.5041 16.1162C14.5589 16.1029 14.6132 16.0875 14.6671 16.07C14.8312 16.0162 14.989 15.9451 15.1378 15.858C15.1631 15.8433 15.1883 15.8281 15.2134 15.8124C15.3678 15.7151 15.5129 15.6042 15.647 15.481C15.6701 15.4599 15.693 15.4384 15.7158 15.4165C15.7613 15.3726 15.806 15.3271 15.85 15.2799C15.872 15.2563 15.8938 15.2323 15.9154 15.2079C15.9962 15.1167 16.0742 15.02 16.1494 14.9176C16.1748 14.8831 16.2 14.8482 16.2247 14.8126C16.2835 14.7278 16.3403 14.6398 16.3951 14.5485C16.4133 14.5181 16.4314 14.4874 16.4492 14.4563C16.5301 14.315 16.606 14.1668 16.677 14.0118C16.6887 13.986 16.7004 13.9601 16.7119 13.9341ZM14.0003 14.2927C13.1751 14.2927 12.5061 12.7852 12.5061 10.9257C12.5061 9.06612 13.1751 7.55864 14.0003 7.55864C14.8255 7.55864 15.4945 9.06612 15.4945 10.9257C15.4945 12.7852 14.8255 14.2927 14.0003 14.2927Z" fill="#E51E4E"/><path d="M13.9979 3.40036L16.0371 0.133922H11.9587L13.9979 3.40036Z" fill="#E51E4E"/><path d="M17.6385 1.53068L15.1955 4.55089L19.2452 4.99745L17.6385 1.53068Z" fill="#E51E4E"/><path d="M10.3642 1.53068L12.8072 4.55089L8.75754 4.99745L10.3642 1.53068Z" fill="#E51E4E"/></svg>';
+        node.innerHTML = fbIcon;
+      } else if (done) node.innerHTML = '<i class="fa-solid fa-check" style="color:var(--color-text-primary)"></i>';
       else if (!unlocked) node.innerHTML = '<i class="fa-solid fa-lock" style="color:var(--color-text-faint);font-size:8px"></i>';
 
       const card = document.createElement('div');
@@ -2982,8 +3024,7 @@ async function initBoardSelector() {
       const bMemData = JSON.parse(localStorage.getItem('puzzle-board-mem') || '{}');
       const bMem = bMemData[b.file] || 0;
       const bPieces = boardPlacements[b.file] ? Object.keys(boardPlacements[b.file]).length : 0;
-      const hasStats = bStars > 0 || bMem > 0 || bPieces > 0;
-      const statsHtml = hasStats ? '<div class="board-card-stats"><span class="board-card-stars">' + bStars + '/3★</span><span class="board-card-mem">' + bMem + ' MEM</span><span>' + bPieces + ' pcs</span></div>' : '';
+      const statsHtml = '<div class="board-card-stats"><span class="board-card-stars">' + bStars + '/3★</span><span class="board-card-mem">' + bMem + ' MEM</span><span>' + bPieces + ' pcs</span></div>';
       card.innerHTML = '<div class="board-card-name">' + data.metadata.name + '</div><div class="board-card-info">' + data.metadata.boardSize + 'x' + data.metadata.boardSize + ' | ' + data.metadata.difficulty + '</div>' + statsHtml + lockInfo;
       if (unlocked) {
         card.addEventListener('click', () => {
@@ -3022,7 +3063,8 @@ function drawPathLines(completed) {
     line.setAttribute('y1', a.top - rect.top + a.height/2);
     line.setAttribute('x2', b.left - rect.left + b.width/2);
     line.setAttribute('y2', b.top - rect.top + b.height/2);
-    if (completed && completed.includes(BOARDS[i].file)) line.classList.add('completed');
+    // Red line up to last unlocked, white after
+    if (isLevelUnlocked(i) && isLevelUnlocked(i + 1)) line.classList.add('unlocked');
     svg.appendChild(line);
   }
   container.insertBefore(svg, container.firstChild);
