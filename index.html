@@ -635,11 +635,12 @@
 </div>
 
 <div class="drag-ghost" id="drag-ghost"></div>
-<div class="build-info">Build 0.9.0</div>
+<div class="build-info">Build 0.9.1</div>
 
 <script src="shared-piece-data.js"></script>
 <script>
 // === SOUND MANAGER (Web Audio API — no external files) ===
+// Sound system — aligned to FB Design System MCP sound tokens
 const SoundManager = {
   ctx: null,
   enabled: true,
@@ -677,17 +678,38 @@ const SoundManager = {
     src.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
     src.start(); src.stop(this.ctx.currentTime + duration);
   },
-  place()   { this.tone(800, 'square', 0.06, 0.12); },
-  connect() { this.tone(600, 'sine', 0.15, 0.18, 900); },
-  remove()  { this.tone(200, 'triangle', 0.1, 0.12); },
-  star()    { this.tone(800, 'sine', 0.3, 0.2, 1200); },
+  // DS token: click-primary (820 triangle 0.08s)
+  place()      { this.tone(820, 'triangle', 0.08, 0.35); },
+  // DS token: success sweep (custom game feel — connection chime)
+  connect()    { this.tone(600, 'sine', 0.15, 0.18, 900); },
+  // DS token: modal-close (380 sine 0.1s)
+  remove()     { this.tone(380, 'sine', 0.1, 0.25); },
+  // DS token: success (920 sine 0.14s)
+  star()       { this.tone(920, 'sine', 0.14, 0.35); },
+  // Custom: C5-E5-G5 arpeggio (level complete fanfare)
   complete() {
-    this.tone(523, 'sine', 0.12, 0.18); // C5
-    setTimeout(() => this.tone(659, 'sine', 0.12, 0.18), 120); // E5
-    setTimeout(() => this.tone(784, 'sine', 0.25, 0.22), 240); // G5
+    this.tone(523, 'sine', 0.12, 0.22);
+    setTimeout(() => this.tone(659, 'sine', 0.12, 0.22), 120);
+    setTimeout(() => this.tone(784, 'sine', 0.25, 0.28), 240);
   },
-  powerup() { this.noise(0.2, 0.12); },
-  error()   { this.tone(150, 'sawtooth', 0.08, 0.08); }
+  // Custom: filtered noise whoosh (power-up activation)
+  powerup()    { this.noise(0.2, 0.12); },
+  // DS token: error (220 square 0.12s)
+  error()      { this.tone(220, 'square', 0.12, 0.35); },
+  // DS token: modal-open (620 sine 0.1s)
+  modalOpen()  { this.tone(620, 'sine', 0.1, 0.3); },
+  // DS token: modal-close (380 sine 0.1s)
+  modalClose() { this.tone(380, 'sine', 0.1, 0.25); },
+  // DS token: tab-switch (500 triangle 0.05s)
+  tabSwitch()  { this.tone(500, 'triangle', 0.05, 0.2); },
+  // DS token: nav-forward (680 sine 0.07s)
+  navForward() { this.tone(680, 'sine', 0.07, 0.25); },
+  // DS token: nav-select (560 sine 0.06s)
+  navSelect()  { this.tone(560, 'sine', 0.06, 0.25); },
+  // DS token: notification (720 sine 0.12s)
+  notify()     { this.tone(720, 'sine', 0.12, 0.3); },
+  // DS token: warning (440 sawtooth 0.1s)
+  warning()    { this.tone(440, 'sawtooth', 0.1, 0.3); },
 };
 // Init AudioContext on first user interaction
 document.addEventListener('mousedown', () => SoundManager.init(), { once: true });
@@ -898,6 +920,12 @@ function saveBoardStars(file, count) {
   data[file] = Math.max(data[file] || 0, count);
   localStorage.setItem('puzzle-board-stars', JSON.stringify(data));
 }
+function saveBoardStarsExact(file, count) {
+  const data = JSON.parse(localStorage.getItem('puzzle-board-stars') || '{}');
+  if (count <= 0) delete data[file];
+  else data[file] = count;
+  localStorage.setItem('puzzle-board-stars', JSON.stringify(data));
+}
 function clearBoardStars(file) {
   const data = JSON.parse(localStorage.getItem('puzzle-board-stars') || '{}');
   delete data[file];
@@ -910,6 +938,29 @@ function getBoardStars(file) {
 function getTotalStars() {
   const data = JSON.parse(localStorage.getItem('puzzle-board-stars') || '{}');
   return Object.values(data).reduce((sum, s) => sum + s, 0);
+}
+// Revoke rewards for stars the player no longer has
+function revokeExcessRewards(file, currentStars) {
+  const prev = grantedRewards[file];
+  if (!prev || prev.maxStars <= currentStars) return;
+  // Find rewards for tiers above current stars and subtract them
+  const levelIdx = BOARDS.findIndex(b => b.file === file);
+  const tiers = LEVEL_REWARDS[levelIdx] || {};
+  for (let s = currentStars + 1; s <= prev.maxStars; s++) {
+    const tierRewards = tiers[s] || [];
+    tierRewards.forEach(r => {
+      inventory[r.variant] = (inventory[r.variant] || 0) - r.count;
+      // Remove from granted pieces list
+      const idx = prev.pieces.findIndex(p => p.variant === r.variant && p.count === r.count);
+      if (idx >= 0) prev.pieces.splice(idx, 1);
+    });
+  }
+  prev.maxStars = currentStars;
+  if (currentStars <= 0) { delete grantedRewards[file]; }
+  else { grantedRewards[file] = prev; }
+  // Fix any negative inventory from revocation
+  cascadeRewardRemoval(file);
+  saveGrantedRewards(); saveInventory(); updateInventoryUI();
 }
 
 // Load saved state on startup
@@ -993,12 +1044,19 @@ const ES_SVGS = {
 };
 
 // Connection light SVGs — keyed by active connected sides (NESW compass)
-// Connection light path segments (N/E/S/W)
+// Connection light path segments (N/E/S/W) — bump style for player/preset pieces
 const CL_PATHS = {
   N: '<path d="M11.2539 4C11.2539 4.41421 11.5897 4.75 12.0039 4.75C12.4181 4.75 12.7539 4.41421 12.7539 4L12.0039 4L11.2539 4ZM12.0039 4L12.7539 4L12.7539 1L12.0039 1L11.2539 1L11.2539 4L12.0039 4Z" fill="#FFC400"/>',
   E: '<path d="M20.0039 11.24C19.5897 11.24 19.2539 11.5758 19.2539 11.99C19.2539 12.4042 19.5897 12.74 20.0039 12.74V11.99V11.24ZM20.0039 11.99V12.74H23.0039V11.99V11.24H20.0039V11.99Z" fill="#FFC400"/>',
   S: '<path d="M12.7539 20C12.7539 19.5858 12.4181 19.25 12.0039 19.25C11.5897 19.25 11.2539 19.5858 11.2539 20L12.0039 20L12.7539 20ZM12.0039 20L11.2539 20L11.2539 23L12.0039 23L12.7539 23L12.7539 20L12.0039 20Z" fill="#FFC400"/>',
   W: '<path d="M4.00391 12.75C4.41812 12.75 4.75391 12.4142 4.75391 12C4.75391 11.5858 4.41812 11.25 4.00391 11.25L4.00391 12L4.00391 12.75ZM4.00391 12L4.00391 11.25L1.00391 11.25L1.00391 12L1.00391 12.75L4.00391 12.75L4.00391 12Z" fill="#FFC400"/>'
+};
+// DOT style light paths — full transistor arm + center ring (for entry/exit pieces)
+const CL_DOT_PATHS = {
+  N: '<path d="M13 2L13 3L13 8.12598C14.7251 8.5701 16 10.1362 16 12C16 14.2091 14.209 15.9999 12 16C9.79086 16 8 14.2091 8 12C8 10.1361 9.27465 8.56994 11 8.12598L11 3L11 2L13 2ZM9.00376 11.8449L8.99985 11.9992C8.99985 13.6043 10.2604 14.915 11.8456 14.9953L11.9999 14.9992C13.6567 14.9992 14.9999 13.6561 14.9999 11.9992C14.9999 10.3424 13.6567 8.99924 11.9999 8.99924L11.8456 9.00315C10.3115 9.08087 9.08148 10.3109 9.00376 11.8449Z" fill="#FFC400"/>',
+  E: '<path d="M22 13L21 13H15.874C15.4299 14.7251 13.8638 16 12 16C9.79094 16 8.00013 14.209 8 12C8 9.79086 9.79086 8 12 8C13.8639 8 15.4301 9.27466 15.874 11H21L22 11V13ZM12.1551 9.00376L12.0008 8.99985C10.3957 8.99985 9.08497 10.2604 9.00467 11.8456L9.00076 11.9999C9.00076 13.6567 10.3439 14.9999 12.0008 14.9999C13.6576 14.9999 15.0008 13.6567 15.0008 11.9999L14.9969 11.8456C14.9191 10.3115 13.6891 9.08148 12.1551 9.00376Z" fill="#FFC400"/>',
+  S: '<path d="M11 22L11 21L11 15.874C9.27488 15.4299 8 13.8638 8 12C8 9.79094 9.79097 8.00013 12 8C14.2091 8 16 9.79086 16 12C16 13.8639 14.7253 15.4301 13 15.874L13 21L13 22L11 22ZM14.9962 12.1551L15.0001 12.0008C15.0001 10.3957 13.7396 9.08497 12.1544 9.00466L12.0001 9.00076C10.3433 9.00076 9.00015 10.3439 9.00015 12.0008C9.00015 13.6576 10.3433 15.0008 12.0001 15.0008L12.1544 14.9969C13.6885 14.9191 14.9185 13.6891 14.9962 12.1551Z" fill="#FFC400"/>',
+  W: '<path d="M2 11L3 11L8.12598 11C8.5701 9.27489 10.1362 8 12 8C14.2091 8 15.9999 9.79098 16 12C16 14.2091 14.2091 16 12 16C10.1361 16 8.56994 14.7253 8.12598 13L3 13L2 13L2 11ZM11.8449 14.9962L11.9992 15.0002C13.6043 15.0002 14.915 13.7396 14.9953 12.1544L14.9992 12.0002C14.9992 10.3433 13.6561 9.00015 11.9992 9.00015C10.3424 9.00015 8.99924 10.3433 8.99924 12.0001L9.00315 12.1544C9.08087 13.6885 10.3109 14.9185 11.8449 14.9962Z" fill="#FFC400"/>'
 };
 
 // Rarity stroke color for connection light center circle
@@ -1017,8 +1075,14 @@ const VARIANT_STROKE = {
 function buildConnectionLight(sides, variant) {
   const map = { T:'N', R:'E', B:'S', L:'W' };
   const dirs = [...sides].map(d => map[d]);
-  const paths = dirs.map(d => CL_PATHS[d]).filter(Boolean).join('');
+  const isEntryExit = variant && (variant.startsWith('entry') || variant.startsWith('exit'));
+  const pathSet = isEntryExit ? CL_DOT_PATHS : CL_PATHS;
+  const paths = dirs.map(d => pathSet[d]).filter(Boolean).join('');
   const stroke = VARIANT_STROKE[variant] || '#FFC400';
+  if (isEntryExit) {
+    // DOT style: full arm paths already include center ring; add filled center dot
+    return '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' + paths + '<circle cx="12" cy="12" r="2" fill="#FFC400"/></svg>';
+  }
   return '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' + paths + '<circle cx="12.0312" cy="12.0347" r="2" fill="#FFC400"/><circle cx="12.0312" cy="12.0347" r="2" stroke="' + stroke + '"/></svg>';
 }
 
@@ -1545,9 +1609,11 @@ function goNextLevel() {
     return;
   }
   if (isLevelUnlocked(nextIdx)) {
+    SoundManager.navForward();
     loadBoardFile(BOARDS[nextIdx].file);
   } else {
     // Show unlock condition
+    SoundManager.warning();
     const needed = LEVEL_STAR_THRESHOLDS[nextIdx];
     const have = getTotalStars();
     document.querySelectorAll('.next-level-overlay,.next-level-notify').forEach(el => el.remove());
@@ -2058,14 +2124,19 @@ function checkStars() {
   const hiddenBonus = s3 && origObstacles > 0 && mythicOnObstacles >= origObstacles;
 
   // Save star count and check level unlocks
-  if (currentBoardFile && stars > 0) {
+  if (currentBoardFile) {
     const prevStars = getBoardStars(currentBoardFile);
-    saveBoardStars(currentBoardFile, stars);
-    if (s1) markLevelCompleted(currentBoardFile);
-    saveBoardMem(currentBoardFile, scoreData.total);
-    if (stars > prevStars) {
-      updateRewardsButton();
+    if (stars > 0) {
+      saveBoardStarsExact(currentBoardFile, stars);
+      if (s1) markLevelCompleted(currentBoardFile);
+      saveBoardMem(currentBoardFile, scoreData.total);
+    } else if (prevStars > 0) {
+      // Stars lost — clear stored stars and revoke granted rewards
+      saveBoardStarsExact(currentBoardFile, 0);
+      revokeExcessRewards(currentBoardFile, 0);
     }
+    // Always sync reward button glow with current star state
+    updateRewardsButton();
   }
   document.getElementById('win-banner').innerHTML = '';
 }
@@ -2289,19 +2360,23 @@ function toggleLevels() {
   const modal = document.getElementById('levels-modal');
   modal.classList.toggle('open');
   if (modal.classList.contains('open')) {
+    SoundManager.modalOpen();
     requestAnimationFrame(() => drawPathLines(getCompletedLevels()));
-  }
+  } else { SoundManager.modalClose(); }
 }
 function closeLevels() {
   document.getElementById('levels-modal').classList.remove('open');
+  SoundManager.modalClose();
 }
 function toggleHelp() {
   const modal = document.getElementById('help-modal');
   modal.classList.toggle('open');
-  if (modal.classList.contains('open')) backToHelpMenu();
+  if (modal.classList.contains('open')) { SoundManager.modalOpen(); backToHelpMenu(); }
+  else { SoundManager.modalClose(); }
 }
 function closeHelp() {
   document.getElementById('help-modal').classList.remove('open');
+  SoundManager.modalClose();
 }
 
 // === HELP CAROUSEL WITH SUBMENU ===
@@ -2345,6 +2420,7 @@ function backToHelpMenu() {
 function openHelpCategory(catIdx) {
   const cat = HELP_CATEGORIES[catIdx];
   if (!cat) return;
+  SoundManager.tabSwitch();
   document.getElementById('help-menu').style.display = 'none';
   document.getElementById('help-carousel-view').style.display = '';
   document.getElementById('help-cat-title').textContent = cat.title;
@@ -2445,6 +2521,7 @@ let exchangeTarget = null;
 let exchangeSelectedRecipe = null;
 
 function openExchange() {
+  SoundManager.modalOpen();
   exchangeTarget = 'Rare';
   exchangeSelectedRecipe = null;
   document.getElementById('exchange-modal').classList.add('open');
@@ -2453,6 +2530,7 @@ function openExchange() {
 }
 function closeExchange() {
   document.getElementById('exchange-modal').classList.remove('open');
+  SoundManager.modalClose();
 }
 
 function getInventoryByRarity(rarity) {
@@ -2684,17 +2762,22 @@ function hasUnclaimedRewards() {
 function updateRewardsButton() {
   const btn = document.getElementById('rewards-btn');
   if (!btn) return;
-  if (hasUnclaimedRewards()) btn.classList.add('has-unclaimed');
-  else btn.classList.remove('has-unclaimed');
+  const wasGlowing = btn.classList.contains('has-unclaimed');
+  if (hasUnclaimedRewards()) {
+    btn.classList.add('has-unclaimed');
+    if (!wasGlowing) SoundManager.notify();
+  } else { btn.classList.remove('has-unclaimed'); }
 }
 
 function openRewards() {
   if (!currentBoardFile) return;
+  SoundManager.modalOpen();
   document.getElementById('rewards-modal').classList.add('open');
   renderRewardsTiers();
 }
 function closeRewards() {
   document.getElementById('rewards-modal').classList.remove('open');
+  SoundManager.modalClose();
 }
 
 function renderRewardsTiers() {
@@ -2768,21 +2851,15 @@ function showNextLevelNotification(levelIdx, totalStars, boardMem) {
   const notify = document.createElement('div');
   notify.className = 'next-level-notify';
 
-  // Tiered rewards — grant only NEW star tiers
+  // Display-only: show which tiers are NEW (unclaimed) — actual granting is via Rewards button only
   const currentStars = getBoardStars(currentBoardFile);
   const prevGranted = grantedRewards[currentBoardFile] || { maxStars: 0, pieces: [] };
   const newRewards = [];
   for (let s = prevGranted.maxStars + 1; s <= Math.min(currentStars, 3); s++) {
     const tierRewards = (LEVEL_REWARDS[levelIdx] || {})[s] || [];
-    tierRewards.forEach(r => {
-      inventory[r.variant] = (inventory[r.variant] || 0) + r.count;
-      newRewards.push({ variant: r.variant, count: r.count, star: s });
-      prevGranted.pieces.push({ variant: r.variant, count: r.count });
-    });
+    tierRewards.forEach(r => { newRewards.push({ variant: r.variant, count: r.count, star: s }); });
   }
-  prevGranted.maxStars = Math.max(prevGranted.maxStars, Math.min(currentStars, 3));
-  grantedRewards[currentBoardFile] = prevGranted;
-  if (newRewards.length > 0) { saveGrantedRewards(); saveInventory(); updateInventoryUI(); }
+  updateRewardsButton();
 
   // Stars visual (filled/empty)
   const starSvgFull = '<svg viewBox="0 0 236 236" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 198.691V16.7137C6 10.7967 10.7969 6 16.7143 6H39.4489C42.0594 6 44.5802 6.95305 46.5377 8.68016L124.918 77.8359C129.94 82.2662 137.749 81.0563 141.195 75.3145L179.665 11.2015C181.601 7.97452 185.089 6 188.852 6H220.286C226.203 6 231 10.7967 231 16.7137V80.9958C231 86.9129 226.203 91.7095 220.286 91.7095H198.857C192.94 91.7095 188.143 96.5062 188.143 102.423V177.419C188.143 183.336 192.94 188.133 198.857 188.133H220.286C226.203 188.133 231 192.929 231 198.846V220.286C231 226.203 226.203 231 220.286 231H113.13C107.212 231 102.415 226.203 102.415 220.286V192.323C102.415 186.313 105.246 180.654 110.055 177.049C128.648 163.108 130.354 135.704 113.921 119.272C98.8085 104.16 73.9107 104.155 58.7978 119.267C42.3609 135.703 44.0764 163.109 62.6783 177.048C67.4899 180.654 70.322 186.315 70.322 192.327V220.286C70.322 226.203 65.5251 231 59.6077 231H46.9349C44.7009 231 42.5229 230.302 40.7054 229.003L10.4848 207.408C7.67026 205.397 6 202.151 6 198.691Z" fill="#FAE932"/><path d="M107 146.5C107 158.374 97.3741 168 85.5 168C73.6259 168 64 158.374 64 146.5C64 134.626 73.6259 125 85.5 125C97.3741 125 107 134.626 107 146.5Z" fill="#E51A4B"/></svg>';
@@ -2892,6 +2969,7 @@ async function initBoardSelector() {
       card.innerHTML = '<div class="board-card-name">' + data.metadata.name + '</div><div class="board-card-info">' + data.metadata.boardSize + 'x' + data.metadata.boardSize + ' | ' + data.metadata.difficulty + '</div>' + statsHtml + lockInfo;
       if (unlocked) {
         card.addEventListener('click', () => {
+          SoundManager.navSelect();
           document.querySelectorAll('.board-card').forEach(c=>c.classList.remove('active'));
           card.classList.add('active');
           loadBoardFile(b.file);
