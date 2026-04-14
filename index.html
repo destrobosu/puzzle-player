@@ -363,20 +363,26 @@
   /* Exchange modal */
   .exchange-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 910; align-items: center; justify-content: center; }
   .exchange-modal.open { display: flex; }
-  .exchange-box { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-600); width: 90%; max-width: 360px; display: flex; flex-direction: column; gap: var(--space-400); }
+  .exchange-box { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-600); width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: var(--space-400); }
   .exchange-header { display: flex; align-items: center; justify-content: space-between; }
   .exchange-title { font-family: var(--font-body); font-size: 1rem; font-weight: 700; color: var(--color-text-primary); }
   .exchange-close { background: none; border: none; color: var(--color-text-faint); cursor: pointer; font-size: 16px; padding: var(--space-100); transition: color var(--duration-fast) var(--ease-enter); }
   .exchange-close:hover { color: var(--color-text-primary); }
   .exchange-targets { display: flex; gap: var(--space-200); justify-content: center; }
-  .exchange-target-btn { padding: var(--space-100) var(--space-300); border: 1px solid var(--color-border-default); background: var(--color-bg-elevated); color: var(--color-text-secondary); border-radius: var(--radius-lg); corner-shape: squircle; cursor: pointer; font-family: var(--font-body); font-size: 12px; font-weight: 700; transition: all var(--duration-fast) var(--ease-enter); }
+  .exchange-target-btn { padding: var(--space-200) var(--space-300); border: 1px solid var(--color-border-default); background: var(--color-bg-elevated); color: var(--color-text-secondary); border-radius: var(--radius-lg); corner-shape: squircle; cursor: pointer; font-family: var(--font-body); font-size: 12px; font-weight: 700; transition: all var(--duration-fast) var(--ease-enter); flex: 1; text-align: center; }
   .exchange-target-btn:hover { border-color: var(--color-text-secondary); }
   .exchange-target-btn.active { background: #E51A4B; border-color: #E51A4B; color: var(--color-text-primary); }
+  .exchange-section-label { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--color-text-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--space-100); }
   .exchange-recipes { display: flex; flex-direction: column; gap: var(--space-200); }
-  .exchange-recipe { display: flex; align-items: center; justify-content: space-between; padding: var(--space-200) var(--space-300); background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-md); corner-shape: squircle; cursor: pointer; transition: border-color var(--duration-fast) var(--ease-enter); }
+  .exchange-recipe { display: flex; align-items: center; gap: var(--space-300); padding: var(--space-300); background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; cursor: pointer; transition: border-color var(--duration-fast) var(--ease-enter); }
   .exchange-recipe:hover { border-color: var(--color-text-secondary); }
-  .exchange-recipe.selected { border-color: var(--color-brand-magenta); }
+  .exchange-recipe.selected { border-color: var(--color-brand-magenta); background: var(--color-bg-page); }
   .exchange-recipe.unaffordable { opacity: 0.3; pointer-events: none; }
+  .recipe-cost-item { display: flex; align-items: center; gap: var(--space-100); }
+  .recipe-cost-item strong { font-family: var(--font-mono); font-size: 12px; }
+  .recipe-svg { width: 28px; height: 28px; flex-shrink: 0; }
+  .recipe-svg svg { width: 100%; height: 100%; }
+  .recipe-have { font-family: var(--font-mono); font-size: 8px; color: var(--color-text-faint); }
   .recipe-cost { display: flex; gap: var(--space-200); align-items: center; font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--color-text-primary); }
   .recipe-cost-item { display: flex; align-items: center; gap: 2px; }
   .recipe-arrow { color: var(--color-text-faint); font-size: 12px; }
@@ -384,10 +390,10 @@
   .exchange-confirm { padding: var(--space-200) var(--space-400); background: #E51A4B; color: var(--color-text-primary); border: none; border-radius: var(--radius-lg); corner-shape: squircle; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity var(--duration-fast) var(--ease-enter); width: 100%; height: 40px; }
   .exchange-confirm:hover { opacity: 0.85; }
   .exchange-confirm:disabled { opacity: 0.3; pointer-events: none; }
-  .exchange-result { display: flex; align-items: center; justify-content: center; gap: var(--space-200); padding: var(--space-200); background: var(--color-bg-page); border-radius: var(--radius-md); corner-shape: squircle; }
-  .exchange-result-svg { width: 40px; height: 40px; }
+  .exchange-result { display: flex; align-items: center; justify-content: center; gap: var(--space-300); padding: var(--space-300); background: var(--color-bg-page); border-radius: var(--radius-lg); corner-shape: squircle; border: 1px solid var(--color-border-subtle); }
+  .exchange-result-svg { width: 48px; height: 48px; }
   .exchange-result-svg svg { width: 100%; height: 100%; }
-  .exchange-result-label { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--color-text-secondary); }
+  .exchange-result-label { font-family: var(--font-body); font-size: 13px; font-weight: 700; color: var(--color-text-secondary); }
   .exchange-icon-btn { background: none; border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; color: var(--color-text-secondary); cursor: pointer; font-size: 10px; font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: var(--space-100) var(--space-300); transition: all var(--duration-fast) var(--ease-enter); margin-left: auto; }
   .exchange-icon-btn:hover { border-color: var(--color-brand-magenta); color: var(--color-text-primary); }
 
@@ -2196,7 +2202,7 @@ function renderExchangeRecipes() {
   const el = document.getElementById('exchange-recipes');
   const resultEl = document.getElementById('exchange-result');
   const confirmBtn = document.getElementById('exchange-confirm');
-  el.innerHTML = '';
+  el.innerHTML = '<div class="exchange-section-label">Select Recipe</div>';
   const recipes = EXCHANGE_RECIPES[exchangeTarget] || [];
   recipes.forEach((recipe, idx) => {
     const row = document.createElement('div');
@@ -2204,14 +2210,13 @@ function renderExchangeRecipes() {
     row.className = 'exchange-recipe' + (!affordable ? ' unaffordable' : '') + (exchangeSelectedRecipe === idx ? ' selected' : '');
     const costHtml = Object.entries(recipe.cost).map(([r, c]) => {
       const v = RARITY_VARIANTS[r][0];
-      const svg = PIECE_SVGS[v] ? PIECE_SVGS[v].replace(/width="[^"]*"/,'width="20"').replace(/height="[^"]*"/,'height="20"') : '';
-      return '<span class="recipe-cost-item"><strong>' + c + 'x</strong><span style="width:20px;height:20px;display:inline-block;vertical-align:middle">' + svg + '</span></span>';
-    }).join('<span style="color:var(--color-text-faint);margin:0 2px">+</span>');
+      const have = getInventoryByRarity(r);
+      return '<span class="recipe-cost-item"><div class="recipe-svg">' + (PIECE_SVGS[v] || '') + '</div><div><strong>' + c + 'x</strong><div class="recipe-have">' + have + ' owned</div></div></span>';
+    }).join('<span style="color:var(--color-text-faint);font-size:14px">+</span>');
     const tv = RARITY_VARIANTS[exchangeTarget][0];
-    const tsvg = PIECE_SVGS[tv] ? PIECE_SVGS[tv].replace(/width="[^"]*"/,'width="20"').replace(/height="[^"]*"/,'height="20"') : '';
-    row.innerHTML = '<div class="recipe-cost">' + costHtml + '</div>' +
-      '<span class="recipe-arrow"><i class="fa-solid fa-arrow-right"></i></span>' +
-      '<span class="recipe-cost-item"><strong>1x</strong><span style="width:20px;height:20px;display:inline-block;vertical-align:middle">' + tsvg + '</span></span>';
+    row.innerHTML = '<div class="recipe-cost" style="display:flex;align-items:center;gap:var(--space-200);flex:1">' + costHtml + '</div>' +
+      '<span class="recipe-arrow" style="color:var(--color-text-faint)"><i class="fa-solid fa-arrow-right"></i></span>' +
+      '<span class="recipe-cost-item"><div class="recipe-svg">' + (PIECE_SVGS[tv] || '') + '</div><strong>1x</strong></span>';
     row.onclick = () => { exchangeSelectedRecipe = idx; renderExchangeRecipes(); };
     el.appendChild(row);
   });
