@@ -2688,10 +2688,11 @@ function showNextLevelNotification(levelIdx, totalStars, boardMem) {
       const tierClass = isEarned ? 'earned' : 'locked';
       const badge = isNew ? 'NEW!' : (isEarned ? 'Earned' : 'Locked');
       const tierMemSvg = isEarned ? starSvgFull : starSvgEmpty;
+      const criteria = { 1: 'Connect IN → OUT', 2: 'Score above ' + minPathScore + ' MEM', 3: 'Fill all cells + connect all' };
       tiersHtml += '<div class="notify-tier ' + tierClass + '">' +
         '<span class="notify-tier-star">' + tierMemSvg + '</span>' +
         '<div class="notify-tier-piece">' + (PIECE_SVGS[r.variant] || '') + '</div>' +
-        '<div class="notify-tier-info"><span class="notify-tier-name">' + r.count + 'x ' + name + '</span><span class="notify-tier-rarity" style="color:' + (rarityColors[rarity] || 'var(--color-text-faint)') + '">' + rarity + '</span></div>' +
+        '<div class="notify-tier-info"><span class="notify-tier-name">' + r.count + 'x ' + name + '</span><span class="notify-tier-rarity" style="color:' + (rarityColors[rarity] || 'var(--color-text-faint)') + '">' + rarity + '</span><span style="font-family:var(--font-mono);font-size:8px;color:var(--color-text-faint);letter-spacing:0.04em">' + criteria[s] + '</span></div>' +
         '<span class="notify-tier-badge">' + badge + '</span>' +
         '</div>';
     });
