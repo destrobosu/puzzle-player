@@ -256,12 +256,23 @@
   .notify-mem-total { font-family: var(--font-mono); font-size: 0.875rem; font-weight: 700; color: var(--color-brand-yellow); }
   .notify-divider { width: 100%; height: 1px; background: var(--color-border-default); margin: var(--space-300) 0; }
   .notify-reward-title { font-family: var(--font-mono); font-size: 0.625rem; font-weight: 700; color: var(--color-text-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--space-200); }
-  .notify-rewards { display: flex; gap: var(--space-400); justify-content: center; margin-bottom: var(--space-400); }
-  .notify-reward-item { display: flex; flex-direction: column; align-items: center; gap: var(--space-100); }
-  .notify-reward-svg { width: 48px; height: 48px; }
-  .notify-reward-svg svg { width: 100%; height: 100%; }
-  .notify-reward-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-secondary); white-space: nowrap; }
-  .notify-reward-rarity { color: var(--color-text-faint); }
+  .notify-rewards { display: flex; flex-direction: column; gap: var(--space-200); margin-bottom: var(--space-400); width: 100%; }
+  .notify-tier { display: flex; align-items: center; gap: var(--space-300); padding: var(--space-200) var(--space-300); background: var(--color-bg-elevated); border-radius: var(--radius-lg); corner-shape: squircle; border: 1px solid var(--color-border-default); }
+  .notify-tier.earned { border-color: var(--color-positive); background: var(--color-positive-secondary); }
+  .notify-tier.locked { opacity: 0.35; }
+  .notify-tier-star { font-size: 14px; color: var(--color-brand-yellow); flex-shrink: 0; width: 20px; text-align: center; }
+  .notify-tier.locked .notify-tier-star { color: var(--color-text-faint); }
+  .notify-tier-piece { width: 32px; height: 32px; flex-shrink: 0; }
+  .notify-tier-piece svg { width: 100%; height: 100%; }
+  .notify-tier-info { display: flex; flex-direction: column; gap: 2px; }
+  .notify-tier-name { font-family: var(--font-body); font-size: 12px; font-weight: 700; color: var(--color-text-primary); }
+  .notify-tier-rarity { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.04em; }
+  .notify-tier-badge { font-family: var(--font-mono); font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-positive); margin-left: auto; flex-shrink: 0; }
+  .notify-tier.locked .notify-tier-badge { color: var(--color-text-faint); }
+  .notify-stars-earned { display: flex; gap: var(--space-100); justify-content: center; margin-bottom: var(--space-300); }
+  .notify-star-icon { width: 24px; height: 24px; }
+  .notify-star-icon svg { width: 100%; height: 100%; }
+  .notify-star-icon.dim { opacity: 0.2; }
   .next-level-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; transition: opacity var(--duration-normal) var(--ease-enter); pointer-events: none; }
   .next-level-overlay.show { opacity: 1; pointer-events: auto; }
 
@@ -2553,16 +2564,38 @@ function showNextLevelNotification(levelIdx, totalStars, boardMem) {
   prevGranted.maxStars = Math.max(prevGranted.maxStars, Math.min(currentStars, 3));
   grantedRewards[currentBoardFile] = prevGranted;
   if (newRewards.length > 0) { saveGrantedRewards(); saveInventory(); updateInventoryUI(); }
-  let rewardsHtml = '';
-  if (newRewards.length > 0) {
-    rewardsHtml = '<div class="notify-divider"></div><div class="notify-reward-title">Reward</div><div class="notify-rewards">';
-    newRewards.forEach(r => {
-      const name = PIECE_NAMES[r.variant] || r.variant;
-      const rarity = PIECE_RARITY[r.variant] || '';
-      rewardsHtml += '<div class="notify-reward-item"><div class="notify-reward-svg">' + (PIECE_SVGS[r.variant] || '') + '</div><div class="notify-reward-label">' + r.count + 'x ' + name + ' <span class="notify-reward-rarity">' + rarity + '</span></div></div>';
-    });
-    rewardsHtml += '</div>';
+
+  // Stars visual (filled/empty)
+  const starSvgFull = '<svg viewBox="0 0 236 236" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 198.691V16.7137C6 10.7967 10.7969 6 16.7143 6H39.4489C42.0594 6 44.5802 6.95305 46.5377 8.68016L124.918 77.8359C129.94 82.2662 137.749 81.0563 141.195 75.3145L179.665 11.2015C181.601 7.97452 185.089 6 188.852 6H220.286C226.203 6 231 10.7967 231 16.7137V80.9958C231 86.9129 226.203 91.7095 220.286 91.7095H198.857C192.94 91.7095 188.143 96.5062 188.143 102.423V177.419C188.143 183.336 192.94 188.133 198.857 188.133H220.286C226.203 188.133 231 192.929 231 198.846V220.286C231 226.203 226.203 231 220.286 231H113.13C107.212 231 102.415 226.203 102.415 220.286V192.323C102.415 186.313 105.246 180.654 110.055 177.049C128.648 163.108 130.354 135.704 113.921 119.272C98.8085 104.16 73.9107 104.155 58.7978 119.267C42.3609 135.703 44.0764 163.109 62.6783 177.048C67.4899 180.654 70.322 186.315 70.322 192.327V220.286C70.322 226.203 65.5251 231 59.6077 231H46.9349C44.7009 231 42.5229 230.302 40.7054 229.003L10.4848 207.408C7.67026 205.397 6 202.151 6 198.691Z" fill="#FAE932"/><path d="M107 146.5C107 158.374 97.3741 168 85.5 168C73.6259 168 64 158.374 64 146.5C64 134.626 73.6259 125 85.5 125C97.3741 125 107 134.626 107 146.5Z" fill="#E51A4B"/></svg>';
+  const starSvgEmpty = '<svg viewBox="0 0 236 236" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 198.691V16.7137C6 10.7967 10.7969 6 16.7143 6H39.4489C42.0594 6 44.5802 6.95305 46.5377 8.68016L124.918 77.8359C129.94 82.2662 137.749 81.0563 141.195 75.3145L179.665 11.2015C181.601 7.97452 185.089 6 188.852 6H220.286C226.203 6 231 10.7967 231 16.7137V80.9958C231 86.9129 226.203 91.7095 220.286 91.7095H198.857C192.94 91.7095 188.143 96.5062 188.143 102.423V177.419C188.143 183.336 192.94 188.133 198.857 188.133H220.286C226.203 188.133 231 192.929 231 198.846V220.286C231 226.203 226.203 231 220.286 231H113.13C107.212 231 102.415 226.203 102.415 220.286V192.323C102.415 186.313 105.246 180.654 110.055 177.049C128.648 163.108 130.354 135.704 113.921 119.272C98.8085 104.16 73.9107 104.155 58.7978 119.267C42.3609 135.703 44.0764 163.109 62.6783 177.048C67.4899 180.654 70.322 186.315 70.322 192.327V220.286C70.322 226.203 65.5251 231 59.6077 231H46.9349C44.7009 231 42.5229 230.302 40.7054 229.003L10.4848 207.408C7.67026 205.397 6 202.151 6 198.691Z" fill="#424263"/><path d="M107 146.5C107 158.374 97.3741 168 85.5 168C73.6259 168 64 158.374 64 146.5C64 134.626 73.6259 125 85.5 125C97.3741 125 107 134.626 107 146.5Z" fill="#242445"/></svg>';
+  let starsHtml = '<div class="notify-stars-earned">';
+  for (let s = 1; s <= 3; s++) {
+    starsHtml += '<div class="notify-star-icon' + (s > currentStars ? ' dim' : '') + '">' + (s <= currentStars ? starSvgFull : starSvgEmpty) + '</div>';
   }
+  starsHtml += '</div>';
+
+  // All 3 reward tiers — earned highlighted, unearned greyed
+  const tiers = LEVEL_REWARDS[levelIdx] || {};
+  const rarityColors = { Common:'var(--rarity-common)', Rare:'var(--rarity-rare)', Epic:'var(--rarity-epic)', Legendary:'var(--rarity-legendary)', Mythic:'var(--color-danger)' };
+  let tiersHtml = '<div class="notify-divider"></div><div class="notify-reward-title">Level Rewards</div><div class="notify-rewards">';
+  for (let s = 1; s <= 3; s++) {
+    const tierItems = tiers[s] || [];
+    const isEarned = s <= currentStars;
+    const isNew = newRewards.some(r => r.star === s);
+    tierItems.forEach(r => {
+      const name = PIECE_NAMES[r.variant] || r.variant;
+      const rarity = PIECE_RARITY[r.variant] || 'Common';
+      const tierClass = isEarned ? 'earned' : 'locked';
+      const badge = isNew ? 'NEW!' : (isEarned ? 'Earned' : 'Locked');
+      tiersHtml += '<div class="notify-tier ' + tierClass + '">' +
+        '<span class="notify-tier-star"><i class="fa-solid fa-star"></i></span>' +
+        '<div class="notify-tier-piece">' + (PIECE_SVGS[r.variant] || '') + '</div>' +
+        '<div class="notify-tier-info"><span class="notify-tier-name">' + r.count + 'x ' + name + '</span><span class="notify-tier-rarity" style="color:' + (rarityColors[rarity] || 'var(--color-text-faint)') + '">' + rarity + '</span></div>' +
+        '<span class="notify-tier-badge">' + badge + '</span>' +
+        '</div>';
+    });
+  }
+  tiersHtml += '</div>';
 
   // MEM score section
   const totalMem = getTotalMem();
@@ -2578,9 +2611,10 @@ function showNextLevelNotification(levelIdx, totalStars, boardMem) {
   if (!unlockedMsg) unlockedMsg = totalStars + ' total stars earned';
 
   notify.innerHTML = '<div class="notify-title">Stars Earned!</div>' +
+    starsHtml +
     '<div class="notify-msg">' + unlockedMsg + '</div>' +
     memHtml +
-    rewardsHtml +
+    tiersHtml +
     '<div class="notify-buttons">' +
     '<button class="notify-btn notify-btn-primary" data-action="next">Next Level</button>' +
     '<button class="notify-btn notify-btn-neutral" data-action="continue">Continue Level</button>' +
