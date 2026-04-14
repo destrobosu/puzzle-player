@@ -228,6 +228,22 @@
   }
   .conn-spark { position: absolute; pointer-events: none; z-index: 3; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%); animation: connSpark 300ms var(--ease-exit) forwards; }
 
+  /* Entry/exit pulse on path connect */
+  @keyframes entryExitPulse {
+    0% { filter: none; transform: scale(1); }
+    50% { filter: drop-shadow(0 0 8px var(--color-positive)); transform: scale(1.2); }
+    100% { filter: none; transform: scale(1); }
+  }
+  .board-label.path-connected { animation: entryExitPulse 600ms var(--ease-enter); }
+
+  /* Inventory count tick */
+  @keyframes countTick {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.4); color: var(--color-brand-magenta); }
+    100% { transform: scale(1); }
+  }
+  .piece-count.count-tick { animation: countTick 300ms var(--ease-enter); display: inline-block; }
+
   /* Rotate power-up selector */
   .rotate-selector { position: absolute; z-index: 800; background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-200); display: flex; gap: var(--space-100); box-shadow: var(--shadow-heavy); }
   .rotate-option { width: 48px; height: 48px; cursor: pointer; border: 2px solid transparent; border-radius: var(--radius-md); corner-shape: squircle; background: transparent; padding: 2px; transition: border-color var(--duration-fast) var(--ease-enter); }
@@ -597,6 +613,60 @@
 
 <script src="shared-piece-data.js"></script>
 <script>
+// === SOUND MANAGER (Web Audio API — no external files) ===
+const SoundManager = {
+  ctx: null,
+  enabled: true,
+  init() {
+    if (!this.ctx) {
+      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    }
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+  },
+  tone(freq, type, duration, vol, freqEnd) {
+    if (!this.ctx || !this.enabled) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+    if (freqEnd) osc.frequency.linearRampToValueAtTime(freqEnd, this.ctx.currentTime + duration);
+    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(); osc.stop(this.ctx.currentTime + duration);
+  },
+  noise(duration, vol) {
+    if (!this.ctx || !this.enabled) return;
+    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * duration, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass'; filter.frequency.setValueAtTime(2000, this.ctx.currentTime);
+    filter.frequency.linearRampToValueAtTime(200, this.ctx.currentTime + duration);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+    src.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+    src.start(); src.stop(this.ctx.currentTime + duration);
+  },
+  place()   { this.tone(800, 'square', 0.06, 0.12); },
+  connect() { this.tone(600, 'sine', 0.15, 0.18, 900); },
+  remove()  { this.tone(200, 'triangle', 0.1, 0.12); },
+  star()    { this.tone(800, 'sine', 0.3, 0.2, 1200); },
+  complete() {
+    this.tone(523, 'sine', 0.12, 0.18); // C5
+    setTimeout(() => this.tone(659, 'sine', 0.12, 0.18), 120); // E5
+    setTimeout(() => this.tone(784, 'sine', 0.25, 0.22), 240); // G5
+  },
+  powerup() { this.noise(0.2, 0.12); },
+  error()   { this.tone(150, 'sawtooth', 0.08, 0.08); }
+};
+// Init AudioContext on first user interaction
+document.addEventListener('mousedown', () => SoundManager.init(), { once: true });
+document.addEventListener('touchstart', () => SoundManager.init(), { once: true });
+
 // === GAME STATE ===
 let boardSize = 0;
 let boardState = [];
@@ -783,6 +853,7 @@ function usePowerUp(type) {
   }
   savePowerUpUses();
   updatePowerUpUI();
+  SoundManager.powerup();
   return true;
 }
 function refundBoardPowerUps(file) {
@@ -823,6 +894,7 @@ loadPowerUpUses();
 
 // Remove a player piece and all power-up generated pieces linked to it
 function removePieceWithLinks(row, col) {
+  SoundManager.remove();
   const key = row+','+col;
   // Return piece to inventory (original variant if rotated)
   const cell = boardState[row][col];
@@ -1766,7 +1838,7 @@ function updateStatus() {
     if (xpDropTarget) {
       showXpDrop(xpDropTarget.row, xpDropTarget.col, delta, xpDropTarget.variant);
       // Piece snap on placement (positive delta = piece placed)
-      if (delta > 0) snapPieceAt(xpDropTarget.row, xpDropTarget.col);
+      if (delta > 0) { snapPieceAt(xpDropTarget.row, xpDropTarget.col); SoundManager.place(); }
       xpDropTarget = null;
     }
   }
@@ -1805,12 +1877,22 @@ function showXpDrop(row, col, delta, variant) {
 }
 
 function celebrateStar(id) {
+  SoundManager.star();
   const el = document.getElementById(id);
   if (!el) return;
   el.classList.remove('star-celebrate');
   void el.offsetWidth;
   el.classList.add('star-celebrate');
   el.addEventListener('animationend', () => el.classList.remove('star-celebrate'), { once: true });
+}
+
+function pulseEntryExit() {
+  document.querySelectorAll('.board-label').forEach(label => {
+    label.classList.remove('path-connected');
+    void label.offsetWidth;
+    label.classList.add('path-connected');
+    label.addEventListener('animationend', () => label.classList.remove('path-connected'), { once: true });
+  });
 }
 
 function snapPieceAt(row, col) {
@@ -1828,8 +1910,10 @@ function showConnectionSparks() {
   const board = document.getElementById('board');
   const cells = board.querySelectorAll('.cell');
   // Find newly connected cells
+  let hasNewConn = false;
   currentConnected.forEach(key => {
     if (!prevConnectedKeys.has(key)) {
+      hasNewConn = true;
       const [r, c] = key.split(',').map(Number);
       const cell = cells[r * boardSize + c];
       if (!cell) return;
@@ -1844,6 +1928,7 @@ function showConnectionSparks() {
       spark.addEventListener('animationend', () => spark.remove());
     }
   });
+  if (hasNewConn) SoundManager.connect();
   prevConnectedKeys = currentConnected;
 }
 
@@ -1923,7 +2008,7 @@ function checkStars() {
   document.getElementById('star2').className = 'star' + (s2 ? ' earned' : '');
   document.getElementById('star3').className = 'star' + (s3 ? ' earned' : '');
   // Celebrate newly earned stars
-  if (s1 && !prevS1) celebrateStar('star1');
+  if (s1 && !prevS1) { celebrateStar('star1'); pulseEntryExit(); }
   if (s2 && !prevS2) celebrateStar('star2');
   if (s3 && !prevS3) celebrateStar('star3');
 
@@ -2010,6 +2095,7 @@ document.addEventListener('mouseup', e => {
     if (target) { const pu=powerUpMap[dragColor]; if (pu.canActivate(target)) PowerUpManager.activate(pu,target); }
   } else {
     // Palette to board — consume from inventory
+    if (target && !canDrop(target.row,target.col,dragColor)) SoundManager.error();
     if (target&&canDrop(target.row,target.col,dragColor)&&consumePiece(dragColor)) {
       const colorMap={green2:'green',blue2:'blue',blue3:'blue',blue4:'blue',purple2:'purple',purple3:'purple',purple4:'purple'};
       const variant = PIECE_SVGS[dragColor] ? dragColor : null;
@@ -2119,6 +2205,7 @@ document.addEventListener('touchend', e => {
     if (target) { const pu=powerUpMap[dragColor]; if (pu.canActivate(target)) PowerUpManager.activate(pu,target); }
   } else {
     // Touch: palette to board — consume from inventory
+    if (target && !canDrop(target.row,target.col,dragColor)) SoundManager.error();
     if (target&&canDrop(target.row,target.col,dragColor)&&consumePiece(dragColor)) {
       const colorMap={green2:'green',blue2:'blue',blue3:'blue',blue4:'blue',purple2:'purple',purple3:'purple',purple4:'purple'};
       const variant = PIECE_SVGS[dragColor] ? dragColor : null;
@@ -2473,10 +2560,22 @@ function populatePieces() {
   updateInventoryUI();
 }
 
+let prevInventoryCounts = {};
 function updateInventoryUI() {
   for (const v of ALL_VARIANTS) {
     const countEl = document.getElementById('count-' + v);
-    if (countEl) countEl.textContent = 'x' + inventory[v];
+    if (countEl) {
+      const oldCount = prevInventoryCounts[v];
+      const newCount = inventory[v];
+      countEl.textContent = 'x' + newCount;
+      // Tick animation on count change
+      if (oldCount !== undefined && newCount !== oldCount) {
+        countEl.classList.remove('count-tick');
+        void countEl.offsetWidth;
+        countEl.classList.add('count-tick');
+      }
+      prevInventoryCounts[v] = newCount;
+    }
     const item = countEl?.parentElement;
     if (item) {
       if (inventory[v] <= 0) item.classList.add('depleted');
@@ -2543,6 +2642,7 @@ function getRewardsForStars(levelIdx, starCount) {
 }
 
 function showNextLevelNotification(levelIdx, totalStars, boardMem) {
+  SoundManager.complete();
   document.querySelectorAll('.next-level-overlay,.next-level-notify').forEach(el => el.remove());
   const overlay = document.createElement('div');
   overlay.className = 'next-level-overlay';
