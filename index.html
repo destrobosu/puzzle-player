@@ -109,9 +109,10 @@
     .top-bar-title { font-size: 0.7rem; }
     .top-bar-content { padding: 0 var(--space-200) var(--space-200); }
     .board-selector { gap: 2px; }
-    .board-card { padding: var(--space-100) var(--space-200); }
-    .board-card-name { font-size: 0.65rem; }
-    .board-card-info { font-size: 0.5rem; }
+    .board-card { padding: var(--space-100) var(--space-200); max-width: 160px; }
+    .board-card-name { font-size: 11px; }
+    .board-card-info { font-size: 8px; }
+    .board-card-stats { font-size: 8px; }
     .info-panel { padding: var(--space-100) var(--space-200); max-width: 100%; gap: var(--space-100); }
     .stat-level, .stat-mem { font-size: 0.75rem; }
     .star { width: 14px; height: 14px; }
@@ -294,13 +295,16 @@
   .level-node.locked { background: var(--color-bg-surface); border-color: var(--color-text-faint); }
   .level-node.completed { background: var(--color-positive); border-color: var(--color-positive); }
   .level-node i { font-size: 8px; }
-  .board-card { display: flex; flex-direction: column; gap: 2px; padding: var(--space-100) var(--space-300); background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; cursor: pointer; transition: all var(--duration-fast) var(--ease-enter); max-width: 120px; }
+  .board-card { display: flex; flex-direction: column; gap: var(--space-100); padding: var(--space-200) var(--space-300); background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; cursor: pointer; transition: all var(--duration-fast) var(--ease-enter); max-width: 200px; }
   .board-card:hover { border-color: var(--color-brand-magenta); }
   .board-card.active { border-color: var(--color-positive); background: var(--color-positive-secondary); }
   .board-card.locked { opacity: 0.4; pointer-events: none; cursor: default; }
   .board-card.locked:hover { border-color: var(--color-border-default); }
-  .board-card-name { font-family: var(--font-body); font-size: 0.7rem; color: var(--color-text-primary); font-weight: 700; }
-  .board-card-info { font-family: var(--font-mono); font-size: 0.4375rem; color: var(--color-text-secondary); letter-spacing: 0.04em; }
+  .board-card-name { font-family: var(--font-body); font-size: 13px; color: var(--color-text-primary); font-weight: 700; }
+  .board-card-info { font-family: var(--font-mono); font-size: 10px; color: var(--color-text-secondary); letter-spacing: 0.04em; }
+  .board-card-stats { display: flex; gap: var(--space-200); font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--color-text-faint); letter-spacing: 0.04em; }
+  .board-card-stars { color: var(--color-brand-yellow); }
+  .board-card-mem { color: var(--color-brand-magenta); }
 
   /* Power-ups */
   .powerup-item { display: flex; align-items: center; gap: var(--space-100); padding: var(--space-100) var(--space-200); border-radius: var(--radius-md); corner-shape: squircle; cursor: grab; border: 2px solid transparent; transition: border-color var(--duration-normal) var(--ease-enter); }
@@ -2476,7 +2480,13 @@ async function initBoardSelector() {
       card.className = 'board-card' + (!unlocked ? ' locked' : '');
       const threshold = LEVEL_STAR_THRESHOLDS[i] || 0;
       const lockInfo = !unlocked ? '<div class="board-card-info" style="color:var(--color-brand-yellow)">' + threshold + '★ needed</div>' : '';
-      card.innerHTML = '<div class="board-card-name">' + data.metadata.name + '</div><div class="board-card-info">' + data.metadata.boardSize + 'x' + data.metadata.boardSize + ' | ' + data.metadata.difficulty + '</div>' + lockInfo;
+      const bStars = getBoardStars(b.file);
+      const bMemData = JSON.parse(localStorage.getItem('puzzle-board-mem') || '{}');
+      const bMem = bMemData[b.file] || 0;
+      const bPieces = boardPlacements[b.file] ? Object.keys(boardPlacements[b.file]).length : 0;
+      const hasStats = bStars > 0 || bMem > 0 || bPieces > 0;
+      const statsHtml = hasStats ? '<div class="board-card-stats"><span class="board-card-stars">' + bStars + '/3★</span><span class="board-card-mem">' + bMem + ' MEM</span><span>' + bPieces + ' pcs</span></div>' : '';
+      card.innerHTML = '<div class="board-card-name">' + data.metadata.name + '</div><div class="board-card-info">' + data.metadata.boardSize + 'x' + data.metadata.boardSize + ' | ' + data.metadata.difficulty + '</div>' + statsHtml + lockInfo;
       if (unlocked) {
         card.addEventListener('click', () => {
           document.querySelectorAll('.board-card').forEach(c=>c.classList.remove('active'));
