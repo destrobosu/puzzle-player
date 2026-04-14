@@ -459,13 +459,9 @@
     </div>
     <div id="win-banner"></div>
   </div>
-  <div class="inventory-panel" style="flex-direction:column;">
-    <div style="display:flex;gap:var(--space-400);width:100%;">
-      <span class="inventory-label" style="flex-shrink:0;">Power Ups</span>
-      <span class="inventory-label" style="flex:1;">Inventory <button class="exchange-icon-btn" onclick="openExchange()" title="Exchange pieces"><i class="fa-light fa-right-left"></i> Exchange</button></span>
-    </div>
-    <div style="display:flex;gap:var(--space-400);width:100%;">
+  <div class="inventory-panel">
     <div class="inventory-section inventory-section-right">
+      <span class="inventory-label">Power Ups</span>
       <div class="powerups-row">
         <div class="powerup-item" data-color="fill"><div class="palette-swatch swatch-white powerup-swatch"></div><span class="powerup-name" data-tip="Fills an entire row or column with preset pieces from your piece to the edge">Extend</span><span class="powerup-uses">x1</span></div>
         <div class="powerup-item" data-color="extend"><div class="palette-swatch swatch-white powerup-swatch"></div><span class="powerup-name" data-tip="Places one preset piece on each open connector side of your piece">Spread</span><span class="powerup-uses">x1</span></div>
@@ -474,8 +470,8 @@
       </div>
     </div>
     <div class="inventory-section inventory-section-left">
+      <span class="inventory-label">Inventory <button class="exchange-icon-btn" onclick="openExchange()" title="Exchange pieces"><i class="fa-light fa-right-left"></i> Exchange</button></span>
       <div class="pieces-inventory" id="pieces-inventory"></div>
-    </div>
     </div>
   </div>
 
