@@ -202,6 +202,32 @@
   }
   .mem-punch { animation: memPunch 400ms var(--ease-enter); display: inline-block; }
 
+  /* Star earn celebration */
+  @keyframes starBounce {
+    0% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(240,232,0,0.5)); }
+    25% { transform: scale(1.6); filter: drop-shadow(0 0 16px rgba(240,232,0,0.9)) drop-shadow(0 0 32px rgba(240,232,0,0.4)); }
+    50% { transform: scale(0.9); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(240,232,0,0.5)); }
+  }
+  .star.star-celebrate { animation: starBounce 500ms var(--ease-enter); }
+
+  /* Piece snap into place */
+  @keyframes pieceSnap {
+    0% { transform: scale(0.8); opacity: 0.7; }
+    40% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .board .cell.cell-snap { animation: pieceSnap 200ms var(--ease-enter); }
+
+  /* Connection spark pulse */
+  @keyframes connSpark {
+    0% { opacity: 1; transform: scale(0.5); }
+    50% { opacity: 0.8; transform: scale(1.2); }
+    100% { opacity: 0; transform: scale(1.5); }
+  }
+  .conn-spark { position: absolute; pointer-events: none; z-index: 3; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%); animation: connSpark 300ms var(--ease-exit) forwards; }
+
   /* Rotate power-up selector */
   .rotate-selector { position: absolute; z-index: 800; background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-200); display: flex; gap: var(--space-100); box-shadow: var(--shadow-heavy); }
   .rotate-option { width: 48px; height: 48px; cursor: pointer; border: 2px solid transparent; border-radius: var(--radius-md); corner-shape: squircle; background: transparent; padding: 2px; transition: border-color var(--duration-fast) var(--ease-enter); }
@@ -1722,16 +1748,20 @@ function updateStatus() {
   if (delta !== 0 && lastScore !== 0) {
     // MEM counter punch
     memEl.classList.remove('mem-punch');
-    void memEl.offsetWidth; // force reflow to re-trigger animation
+    void memEl.offsetWidth;
     memEl.classList.add('mem-punch');
 
     // XP drop at piece location
     if (xpDropTarget) {
       showXpDrop(xpDropTarget.row, xpDropTarget.col, delta, xpDropTarget.variant);
+      // Piece snap on placement (positive delta = piece placed)
+      if (delta > 0) snapPieceAt(xpDropTarget.row, xpDropTarget.col);
       xpDropTarget = null;
     }
   }
   lastScore = scoreData.total;
+  // Connection sparks for newly connected pieces
+  showConnectionSparks();
 }
 
 function showXpDrop(row, col, delta, variant) {
@@ -1761,6 +1791,49 @@ function showXpDrop(row, col, delta, variant) {
   el.style.transform = 'translateX(-50%)';
   document.body.appendChild(el);
   el.addEventListener('animationend', () => el.remove());
+}
+
+function celebrateStar(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('star-celebrate');
+  void el.offsetWidth;
+  el.classList.add('star-celebrate');
+  el.addEventListener('animationend', () => el.classList.remove('star-celebrate'), { once: true });
+}
+
+function snapPieceAt(row, col) {
+  const board = document.getElementById('board');
+  const cells = board.querySelectorAll('.cell');
+  const cell = cells[row * boardSize + col];
+  if (!cell) return;
+  cell.classList.add('cell-snap');
+  cell.addEventListener('animationend', () => cell.classList.remove('cell-snap'), { once: true });
+}
+
+let prevConnectedKeys = new Set();
+function showConnectionSparks() {
+  const currentConnected = getConnectedCells();
+  const board = document.getElementById('board');
+  const cells = board.querySelectorAll('.cell');
+  // Find newly connected cells
+  currentConnected.forEach(key => {
+    if (!prevConnectedKeys.has(key)) {
+      const [r, c] = key.split(',').map(Number);
+      const cell = cells[r * boardSize + c];
+      if (!cell) return;
+      const spark = document.createElement('div');
+      spark.className = 'conn-spark';
+      const size = Math.round(cellSize * 0.7);
+      spark.style.width = size + 'px';
+      spark.style.height = size + 'px';
+      spark.style.left = (cellSize - size) / 2 + 'px';
+      spark.style.top = (cellSize - size) / 2 + 'px';
+      cell.appendChild(spark);
+      spark.addEventListener('animationend', () => spark.remove());
+    }
+  });
+  prevConnectedKeys = currentConnected;
 }
 
 // === 3-STAR WIN SYSTEM ===
@@ -1832,9 +1905,16 @@ function checkStars() {
   // Star 3: all cells filled AND all pieces connected
   const s3 = allFilled && allConnected;
 
+  const prevS1 = document.getElementById('star1').classList.contains('earned');
+  const prevS2 = document.getElementById('star2').classList.contains('earned');
+  const prevS3 = document.getElementById('star3').classList.contains('earned');
   document.getElementById('star1').className = 'star' + (s1 ? ' earned' : '');
   document.getElementById('star2').className = 'star' + (s2 ? ' earned' : '');
   document.getElementById('star3').className = 'star' + (s3 ? ' earned' : '');
+  // Celebrate newly earned stars
+  if (s1 && !prevS1) celebrateStar('star1');
+  if (s2 && !prevS2) celebrateStar('star2');
+  if (s3 && !prevS3) celebrateStar('star3');
 
   const stars = (s1?1:0)+(s2?1:0)+(s3?1:0);
 
