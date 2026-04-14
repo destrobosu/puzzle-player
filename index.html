@@ -262,7 +262,7 @@
   /* Levels modal overlay */
   .levels-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 900; align-items: center; justify-content: center; }
   .levels-modal.open { display: flex; }
-  .levels-modal-box { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-600); width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+  .levels-modal-box { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); corner-shape: squircle; padding: var(--space-600); width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
   .levels-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-400); width: 100%; }
   .levels-modal-title { font-family: var(--font-body); font-size: 1rem; font-weight: 700; color: var(--color-text-primary); }
   .levels-modal-close { background: none; border: none; color: var(--color-text-faint); cursor: pointer; font-size: 16px; padding: var(--space-100); transition: color var(--duration-fast) var(--ease-enter); }
@@ -329,7 +329,7 @@
 
 
   /* How it works carousel */
-  .help-carousel { display: flex; flex-direction: column; gap: var(--space-400); width: 100%; }
+  .help-carousel { display: flex; flex-direction: column; gap: var(--space-400); width: 100%; overflow: hidden; }
   .help-slides { display: flex; overflow: hidden; width: 100%; }
   .help-slide { min-width: 100%; display: flex; flex-direction: column; align-items: center; gap: var(--space-300); transition: transform var(--duration-slow) var(--ease-enter); }
   .slide-visual { width: 280px; height: 180px; background: var(--color-bg-elevated); border-radius: var(--radius-lg); corner-shape: squircle; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-200); border: 1px solid var(--color-border-default); }
@@ -487,7 +487,7 @@
       <div class="help-menu-item" onclick="openHelpCategory(2)"><span class="help-menu-icon"><i class="fa-light fa-star"></i></span><span class="help-menu-label">Points, Stars & Level Rewards</span><span class="help-menu-chevron"><i class="fa-solid fa-chevron-right"></i></span></div>
       <div class="help-menu-item" onclick="openHelpCategory(3)"><span class="help-menu-icon"><i class="fa-light fa-right-left"></i></span><span class="help-menu-label">Piece Exchange</span><span class="help-menu-chevron"><i class="fa-solid fa-chevron-right"></i></span></div>
     </div>
-    <div id="help-carousel-view" style="display:none;">
+    <div id="help-carousel-view" style="display:none;width:100%;overflow:hidden;">
       <div style="display:flex;align-items:center;gap:var(--space-200);margin-bottom:var(--space-300);width:100%;">
         <button class="help-back" onclick="backToHelpMenu()"><i class="fa-solid fa-chevron-left"></i> Back</button>
         <span class="help-cat-title" id="help-cat-title"></span>
