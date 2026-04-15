@@ -1106,7 +1106,8 @@ function buildConnectionLight(sides, variant, openingDir) {
 }
 
 // Available boards
-const BOARDS = [
+// Default boards (fallback for Vercel / offline)
+let BOARDS = [
   { file: 'boards/level-1-3x3.json' },
   { file: 'boards/level-2-4x4.json' },
   { file: 'boards/level-3-5x5.json' },
@@ -1115,6 +1116,17 @@ const BOARDS = [
   { file: 'boards/level-6-5x5.json' },
   { file: 'boards/level-7-6x6.json' },
 ];
+// Try loading level config from server (admin-managed)
+async function loadLevelConfig() {
+  try {
+    const resp = await fetch('boards/level-config.json');
+    if (!resp.ok) return;
+    const config = await resp.json();
+    if (config.levels && config.levels.length === 7) {
+      BOARDS = config.levels.filter(f => f).map(f => ({ file: f }));
+    }
+  } catch(e) { /* use defaults */ }
+}
 
 // === SHARED UTILITIES (same as admin) ===
 function findPresetVariant(needed, forbidden) {
@@ -3075,7 +3087,7 @@ window.addEventListener('resize', () => { if (boardSize > 0) renderBoard(); });
 
 // === INIT ===
 populatePieces();
-initBoardSelector().then(() => {
+loadLevelConfig().then(() => initBoardSelector()).then(() => {
   // Auto-load Level 1
   const firstCard = document.querySelector('.board-card');
   if (firstCard) { firstCard.classList.add('active'); loadBoardFile(BOARDS[0].file); }
