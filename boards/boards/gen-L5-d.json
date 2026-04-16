@@ -1,0 +1,132 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Crossroads",
+    "boardSize": 5,
+    "difficulty": "hard",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 7,
+    "pieceCounts": {
+      "common": 1,
+      "rare": 2,
+      "epic": 1,
+      "legendary": 0,
+      "preset": 4,
+      "obstacle": 4,
+      "entry": 1,
+      "exit": 1
+    }
+  },
+  "board": [
+    [
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null,
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryE4",
+        "code": "ENEE"
+      }
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white3",
+        "code": "PSRNW"
+      },
+      null,
+      null
+    ],
+    [
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white9",
+        "code": "PSEESW"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      }
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white",
+        "code": "PSCNS"
+      },
+      null,
+      null
+    ],
+    [
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitC1",
+        "code": "EXCW"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white4",
+        "code": "PSRNE"
+      },
+      null
+    ]
+  ],
+  "connectors": {
+    "entryE2": [
+      "N",
+      "E",
+      "S",
+      "W"
+    ],
+    "exitC2": [
+      "N",
+      "S",
+      "W"
+    ],
+    "white3": [
+      "N",
+      "W"
+    ],
+    "white9": [
+      "E",
+      "S",
+      "W"
+    ],
+    "white": [
+      "N",
+      "S"
+    ],
+    "white4": [
+      "N",
+      "E"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

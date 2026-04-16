@@ -1,0 +1,87 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Narrow Passage",
+    "boardSize": 4,
+    "difficulty": "medium-hard",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 5,
+    "pieceCounts": {
+      "common": 0,
+      "rare": 1,
+      "epic": 0,
+      "legendary": 0,
+      "preset": 1,
+      "obstacle": 3,
+      "entry": 1,
+      "exit": 1
+    }
+  },
+  "board": [
+    [
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryR7",
+        "code": "ENRS2"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      }
+    ],
+    [
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white4",
+        "code": "PSRNE"
+      },
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitR2",
+        "code": "EXRS1"
+      }
+    ]
+  ],
+  "connectors": {
+    "entryR4": [
+      "S",
+      "W"
+    ],
+    "exitR2": [
+      "E",
+      "S"
+    ],
+    "white4": [
+      "N",
+      "E"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

@@ -1,0 +1,25 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Level 6",
+    "boardSize": 5,
+    "difficulty": "hard",
+    "notes": "",
+    "createdAt": "2026-04-09T12:00:00.000Z",
+    "updatedAt": "2026-04-09T12:00:00.000Z",
+    "shortestPath": 8,
+    "pieceCounts": {
+      "common": 0, "rare": 0, "epic": 0, "legendary": 0,
+      "preset": 4, "obstacle": 2, "entry": 1, "exit": 1
+    }
+  },
+  "board": [
+    [{"type":"entry","color":"yellow","variant":"entryR2","code":"ENRUR"},null,{"type":"obstacle","color":"black"},null,null],
+    [null,null,null,{"type":"preset","color":"white","variant":"white10","code":"PSEUDR"},null],
+    [null,{"type":"preset","color":"white","variant":"white","code":"PSCUD"},{"type":"obstacle","color":"black"},null,null],
+    [null,null,null,{"type":"preset","color":"white","variant":"white9","code":"PSEDLR"},null],
+    [null,null,{"type":"preset","color":"white","variant":"white2","code":"PSCLR"},null,{"type":"exit","color":"yellow","variant":"exitC3","code":"EXCUDR"}]
+  ],
+  "connectors": {"entryR2":["T","R"],"white10":["T","B","L"],"white":["T","B"],"white9":["B","L","R"],"white2":["L","R"],"exitC3":["T","B"]},
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

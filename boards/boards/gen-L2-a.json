@@ -1,0 +1,27 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Wide Open",
+    "boardSize": 4,
+    "difficulty": "medium",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 4,
+    "pieceCounts": {
+      "common": 0, "rare": 0, "epic": 0, "legendary": 0,
+      "preset": 0, "obstacle": 2, "entry": 1, "exit": 1
+    }
+  },
+  "board": [
+    [null, null, null, null],
+    [{"type":"entry","color":"yellow","variant":"entryC2","code":"ENCW"}, null, {"type":"obstacle","color":"black"}, null],
+    [null, null, null, {"type":"exit","color":"yellow","variant":"exitC3","code":"EXCE"}],
+    [null, {"type":"obstacle","color":"black"}, null, null]
+  ],
+  "connectors": {
+    "entryC2": ["N","S","W"],
+    "exitC3": ["N","E","S"]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

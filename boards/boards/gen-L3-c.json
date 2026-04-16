@@ -1,0 +1,28 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Bottleneck",
+    "boardSize": 4,
+    "difficulty": "medium-hard",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 5,
+    "pieceCounts": {
+      "common": 1, "rare": 0, "epic": 0, "legendary": 0,
+      "preset": 1, "obstacle": 3, "entry": 1, "exit": 1
+    }
+  },
+  "board": [
+    [null, {"type":"obstacle","color":"black"}, null, {"type":"exit","color":"yellow","variant":"exitR8","code":"EXRW1"}],
+    [null, null, null, null],
+    [{"type":"obstacle","color":"black"}, {"type":"preset","color":"white","variant":"white","code":"PSCNS"}, null, {"type":"obstacle","color":"black"}],
+    [{"type":"entry","color":"yellow","variant":"entryC1","code":"ENCS"}, null, null, null]
+  ],
+  "connectors": {
+    "entryC1": ["E","S","W"],
+    "exitR8": ["N","W"],
+    "white": ["N","S"]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

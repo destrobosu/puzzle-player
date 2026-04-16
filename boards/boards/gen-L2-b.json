@@ -1,0 +1,82 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Guided Drop",
+    "boardSize": 4,
+    "difficulty": "medium",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 4,
+    "pieceCounts": {
+      "common": 1,
+      "rare": 0,
+      "epic": 0,
+      "legendary": 0,
+      "preset": 1,
+      "obstacle": 1,
+      "entry": 1,
+      "exit": 1
+    }
+  },
+  "board": [
+    [
+      null,
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryR7",
+        "code": "ENRN1"
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null
+    ],
+    [
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white",
+        "code": "PSCNS"
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitC1",
+        "code": "EXCS"
+      },
+      null
+    ]
+  ],
+  "connectors": {
+    "entryR1": [
+      "N",
+      "S"
+    ],
+    "exitC1": [
+      "E",
+      "S",
+      "W"
+    ],
+    "white": [
+      "N",
+      "S"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

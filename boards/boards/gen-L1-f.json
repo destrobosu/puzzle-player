@@ -1,0 +1,48 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Side Step",
+    "boardSize": 3,
+    "difficulty": "easy",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 0,
+    "pieceCounts": {
+      "common": 0,
+      "rare": 0,
+      "epic": 0,
+      "legendary": 0,
+      "preset": 0
+    }
+  },
+  "board": [
+    [
+      null,
+      null,
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitR8"
+      }
+    ],
+    [
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryE1"
+      },
+      {
+        "type": "obstacle",
+        "color": "black"
+      }
+    ]
+  ],
+  "connectors": {}
+}

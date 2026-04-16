@@ -1,0 +1,131 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Minefield",
+    "boardSize": 6,
+    "difficulty": "expert",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 8,
+    "pieceCounts": {
+      "common": 1,
+      "rare": 0,
+      "epic": 1,
+      "legendary": 0,
+      "preset": 2,
+      "obstacle": 6,
+      "entry": 1,
+      "exit": 1
+    }
+  },
+  "board": [
+    [
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null,
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitR8",
+        "code": "EXRW2"
+      }
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null
+    ],
+    [
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white7",
+        "code": "PSENEW"
+      },
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      }
+    ],
+    [
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryC1",
+        "code": "ENCS"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white",
+        "code": "PSCNS"
+      },
+      null
+    ]
+  ],
+  "connectors": {
+    "entryC1": [
+      "E",
+      "S",
+      "W"
+    ],
+    "exitR5": [
+      "E",
+      "W"
+    ],
+    "white7": [
+      "N",
+      "E",
+      "W"
+    ],
+    "white": [
+      "N",
+      "S"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

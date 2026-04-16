@@ -1,0 +1,139 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "River Crossing",
+    "boardSize": 6,
+    "difficulty": "expert",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 9,
+    "pieceCounts": {
+      "common": 1,
+      "rare": 1,
+      "epic": 1,
+      "legendary": 0,
+      "preset": 3,
+      "obstacle": 5,
+      "entry": 1,
+      "exit": 1
+    }
+  },
+  "board": [
+    [
+      null,
+      null,
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitR8",
+        "code": "EXRE1"
+      }
+    ],
+    [
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white10",
+        "code": "PSENSW"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null
+    ],
+    [
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white2",
+        "code": "PSCEW"
+      },
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white5",
+        "code": "PSRES"
+      }
+    ],
+    [
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryR1",
+        "code": "ENRE1"
+      },
+      null,
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null
+    ]
+  ],
+  "connectors": {
+    "entryR6": [
+      "N",
+      "E"
+    ],
+    "exitR6": [
+      "N",
+      "E"
+    ],
+    "white10": [
+      "N",
+      "S",
+      "W"
+    ],
+    "white2": [
+      "E",
+      "W"
+    ],
+    "white5": [
+      "E",
+      "S"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

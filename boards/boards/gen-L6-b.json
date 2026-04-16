@@ -1,0 +1,144 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Double Cross",
+    "boardSize": 6,
+    "difficulty": "expert",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 8,
+    "pieceCounts": {
+      "common": 0,
+      "rare": 3,
+      "epic": 1,
+      "legendary": 0,
+      "preset": 4,
+      "obstacle": 4,
+      "entry": 1,
+      "exit": 1
+    }
+  },
+  "board": [
+    [
+      null,
+      null,
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryC4",
+        "code": "ENCN"
+      },
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white5",
+        "code": "PSRES"
+      },
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white3",
+        "code": "PSRNW"
+      },
+      null,
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      }
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white9",
+        "code": "PSEESW"
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white4",
+        "code": "PSRNE"
+      },
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitC1",
+        "code": "EXCE"
+      }
+    ]
+  ],
+  "connectors": {
+    "entryC4": [
+      "N",
+      "E",
+      "W"
+    ],
+    "exitC3": [
+      "N",
+      "E",
+      "S"
+    ],
+    "white5": [
+      "E",
+      "S"
+    ],
+    "white3": [
+      "N",
+      "W"
+    ],
+    "white9": [
+      "E",
+      "S",
+      "W"
+    ],
+    "white4": [
+      "N",
+      "E"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

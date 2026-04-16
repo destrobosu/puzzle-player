@@ -1,0 +1,152 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Master Plan",
+    "boardSize": 6,
+    "difficulty": "expert",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 8,
+    "pieceCounts": {
+      "common": 1,
+      "rare": 2,
+      "epic": 1,
+      "legendary": 0,
+      "preset": 4,
+      "obstacle": 6,
+      "entry": 1,
+      "exit": 1
+    }
+  },
+  "board": [
+    [
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryE4",
+        "code": "ENEN"
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null
+    ],
+    [
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white6",
+        "code": "PSRSW"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white8",
+        "code": "PSENES"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      }
+    ],
+    [
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitE1",
+        "code": "EXES"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white4",
+        "code": "PSRNE"
+      },
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white2",
+        "code": "PSCEW"
+      }
+    ]
+  ],
+  "connectors": {
+    "entryE1": [
+      "N",
+      "E",
+      "S",
+      "W"
+    ],
+    "exitE3": [
+      "N",
+      "E",
+      "S",
+      "W"
+    ],
+    "white6": [
+      "S",
+      "W"
+    ],
+    "white8": [
+      "N",
+      "E",
+      "S"
+    ],
+    "white4": [
+      "N",
+      "E"
+    ],
+    "white2": [
+      "E",
+      "W"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

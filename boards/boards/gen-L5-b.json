@@ -1,0 +1,132 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Labyrinth",
+    "boardSize": 5,
+    "difficulty": "hard",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 7,
+    "pieceCounts": {
+      "common": 2,
+      "rare": 2,
+      "epic": 0,
+      "legendary": 0,
+      "preset": 4,
+      "obstacle": 5,
+      "entry": 1,
+      "exit": 1
+    }
+  },
+  "board": [
+    [
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitR8",
+        "code": "EXRW1"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white4",
+        "code": "PSRNE"
+      },
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      }
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white",
+        "code": "PSCNS"
+      },
+      null
+    ],
+    [
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white6",
+        "code": "PSRSW"
+      }
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white2",
+        "code": "PSCEW"
+      },
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryR1",
+        "code": "ENCE"
+      }
+    ]
+  ],
+  "connectors": {
+    "entryC3": [
+      "N",
+      "E",
+      "S"
+    ],
+    "exitR8": [
+      "N",
+      "W"
+    ],
+    "white4": [
+      "N",
+      "E"
+    ],
+    "white": [
+      "N",
+      "S"
+    ],
+    "white6": [
+      "S",
+      "W"
+    ],
+    "white2": [
+      "E",
+      "W"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

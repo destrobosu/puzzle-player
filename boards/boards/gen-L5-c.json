@@ -1,0 +1,31 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Spiral Path",
+    "boardSize": 5,
+    "difficulty": "hard",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 5,
+    "pieceCounts": {
+      "common": 2, "rare": 0, "epic": 1, "legendary": 0,
+      "preset": 3, "obstacle": 3, "entry": 1, "exit": 1
+    }
+  },
+  "board": [
+    [null, null, null, {"type":"exit","color":"yellow","variant":"exitC4","code":"EXCN"}, null],
+    [null, {"type":"obstacle","color":"black"}, {"type":"preset","color":"white","variant":"white8","code":"PSENES"}, null, null],
+    [null, null, null, {"type":"obstacle","color":"black"}, null],
+    [{"type":"entry","color":"yellow","variant":"entryC2","code":"ENCW"}, null, null, {"type":"preset","color":"white","variant":"white2","code":"PSCEW"}, null],
+    [null, null, {"type":"obstacle","color":"black"}, null, {"type":"preset","color":"white","variant":"white5","code":"PSRES"}]
+  ],
+  "connectors": {
+    "entryC2": ["N","S","W"],
+    "exitC4": ["N","E","W"],
+    "white8": ["N","E","S"],
+    "white2": ["E","W"],
+    "white5": ["E","S"]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

@@ -1,0 +1,105 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Open Field",
+    "boardSize": 5,
+    "difficulty": "hard",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 6,
+    "pieceCounts": {
+      "common": 1,
+      "rare": 0,
+      "epic": 1,
+      "legendary": 0,
+      "preset": 2,
+      "obstacle": 2,
+      "entry": 1,
+      "exit": 1
+    }
+  },
+  "board": [
+    [
+      null,
+      null,
+      null,
+      null,
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitR7",
+        "code": "EXRW2"
+      }
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white10",
+        "code": "PSENSW"
+      },
+      null
+    ],
+    [
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryR1",
+        "code": "ENRE1"
+      },
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white2",
+        "code": "PSCEW"
+      },
+      null
+    ]
+  ],
+  "connectors": {
+    "entryR6": [
+      "N",
+      "E"
+    ],
+    "exitR5": [
+      "E",
+      "W"
+    ],
+    "white10": [
+      "N",
+      "S",
+      "W"
+    ],
+    "white2": [
+      "E",
+      "W"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

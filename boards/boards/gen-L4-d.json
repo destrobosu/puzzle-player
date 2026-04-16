@@ -1,0 +1,118 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Serpentine",
+    "boardSize": 5,
+    "difficulty": "hard",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 7,
+    "pieceCounts": {
+      "common": 2,
+      "rare": 0,
+      "epic": 1,
+      "legendary": 0,
+      "preset": 3,
+      "obstacle": 3,
+      "entry": 1,
+      "exit": 1
+    }
+  },
+  "board": [
+    [
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null,
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitR8",
+        "code": "EXRE2"
+      }
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white5",
+        "code": "PSRES"
+      },
+      null,
+      null
+    ],
+    [
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white7",
+        "code": "PSENEW"
+      },
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryC1",
+        "code": "ENCS"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white",
+        "code": "PSCNS"
+      },
+      null
+    ]
+  ],
+  "connectors": {
+    "entryC1": [
+      "E",
+      "S",
+      "W"
+    ],
+    "exitR3": [
+      "E",
+      "W"
+    ],
+    "white5": [
+      "E",
+      "S"
+    ],
+    "white7": [
+      "N",
+      "E",
+      "W"
+    ],
+    "white": [
+      "N",
+      "S"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

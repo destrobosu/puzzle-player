@@ -1,0 +1,124 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Obstacle Course",
+    "boardSize": 5,
+    "difficulty": "hard",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 7,
+    "pieceCounts": {
+      "common": 0,
+      "rare": 2,
+      "epic": 0,
+      "legendary": 1,
+      "preset": 3,
+      "obstacle": 5,
+      "entry": 1,
+      "exit": 1
+    }
+  },
+  "board": [
+    [
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitR7",
+        "code": "EXRE1"
+      }
+    ],
+    [
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white11",
+        "code": "PSLNESW"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      }
+    ],
+    [
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryR1",
+        "code": "ENRE1"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white6",
+        "code": "PSRSW"
+      },
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white4",
+        "code": "PSRNE"
+      }
+    ]
+  ],
+  "connectors": {
+    "entryR6": [
+      "N",
+      "E"
+    ],
+    "exitR6": [
+      "N",
+      "E"
+    ],
+    "white11": [
+      "N",
+      "E",
+      "S",
+      "W"
+    ],
+    "white6": [
+      "S",
+      "W"
+    ],
+    "white4": [
+      "N",
+      "E"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}

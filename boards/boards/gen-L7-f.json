@@ -1,0 +1,112 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Master Maze",
+    "boardSize": 6,
+    "difficulty": "expert",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 0,
+    "pieceCounts": {
+      "common": 0,
+      "rare": 0,
+      "epic": 0,
+      "legendary": 0,
+      "preset": 4
+    }
+  },
+  "board": [
+    [
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white5"
+      }
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white4"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white2"
+      },
+      null
+    ],
+    [
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white"
+      },
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryR2"
+      },
+      null,
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitR1"
+      },
+      null,
+      null
+    ]
+  ],
+  "connectors": {}
+}

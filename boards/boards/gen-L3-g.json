@@ -1,0 +1,67 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Pinch Point",
+    "boardSize": 4,
+    "difficulty": "medium-hard",
+    "notes": "",
+    "createdAt": "2026-04-16T00:00:00Z",
+    "updatedAt": "2026-04-16T00:00:00Z",
+    "shortestPath": 0,
+    "pieceCounts": {
+      "common": 0,
+      "rare": 0,
+      "epic": 0,
+      "legendary": 0,
+      "preset": 1
+    }
+  },
+  "board": [
+    [
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitR8"
+      },
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null
+    ],
+    [
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryR4"
+      },
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white5"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      }
+    ]
+  ],
+  "connectors": {}
+}
