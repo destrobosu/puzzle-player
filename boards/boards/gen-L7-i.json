@@ -5,16 +5,16 @@
     "boardSize": 6,
     "difficulty": "expert",
     "notes": "",
-    "createdAt": "2026-04-16T09:34:00.650Z",
-    "updatedAt": "2026-04-16T09:34:00.650Z",
-    "shortestPath": 10,
+    "createdAt": "2026-04-16T11:19:05.986Z",
+    "updatedAt": "2026-04-16T11:19:05.986Z",
+    "shortestPath": 9,
     "pieceCounts": {
       "common": 0,
       "rare": 0,
       "epic": 0,
       "legendary": 0,
       "preset": 3,
-      "obstacle": 6,
+      "obstacle": 4,
       "entry": 1,
       "exit": 1
     }
@@ -40,10 +40,7 @@
     ],
     [
       null,
-      {
-        "type": "obstacle",
-        "color": "black"
-      },
+      null,
       null,
       {
         "type": "obstacle",
@@ -78,8 +75,8 @@
       {
         "type": "preset",
         "color": "white",
-        "variant": "white",
-        "code": "PSCUD"
+        "variant": "white11",
+        "code": "PSLUDLR"
       },
       null,
       null
@@ -93,10 +90,7 @@
       },
       null,
       null,
-      {
-        "type": "obstacle",
-        "color": "black"
-      }
+      null
     ],
     [
       null,
@@ -125,9 +119,11 @@
       "L",
       "T"
     ],
-    "white": [
+    "white11": [
       "T",
-      "B"
+      "R",
+      "B",
+      "L"
     ],
     "exitE1": [
       "T",
@@ -136,5 +132,5 @@
     ]
   },
   "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions",
-  "id": "1776332040769"
+  "id": "1776338346085"
 }

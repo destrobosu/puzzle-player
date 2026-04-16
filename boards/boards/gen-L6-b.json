@@ -5,15 +5,15 @@
     "boardSize": 6,
     "difficulty": "expert",
     "notes": "",
-    "createdAt": "2026-04-16T00:00:00Z",
-    "updatedAt": "2026-04-16T00:00:00Z",
-    "shortestPath": 8,
+    "createdAt": "2026-04-16T11:20:52.035Z",
+    "updatedAt": "2026-04-16T11:20:52.035Z",
+    "shortestPath": 7,
     "pieceCounts": {
       "common": 0,
-      "rare": 3,
-      "epic": 1,
+      "rare": 0,
+      "epic": 0,
       "legendary": 0,
-      "preset": 4,
+      "preset": 2,
       "obstacle": 4,
       "entry": 1,
       "exit": 1
@@ -27,7 +27,7 @@
         "type": "entry",
         "color": "yellow",
         "variant": "entryC4",
-        "code": "ENCN"
+        "code": "ENCULR"
       },
       null,
       null,
@@ -41,12 +41,7 @@
       },
       null,
       null,
-      {
-        "type": "preset",
-        "color": "white",
-        "variant": "white5",
-        "code": "PSRES"
-      },
+      null,
       null
     ],
     [
@@ -65,8 +60,8 @@
       {
         "type": "preset",
         "color": "white",
-        "variant": "white3",
-        "code": "PSRNW"
+        "variant": "white11",
+        "code": "PSLUDLR"
       },
       null,
       null,
@@ -84,7 +79,7 @@
         "type": "preset",
         "color": "white",
         "variant": "white9",
-        "code": "PSEESW"
+        "code": "PSEDLR"
       },
       null,
       null
@@ -97,48 +92,36 @@
         "color": "black"
       },
       null,
-      {
-        "type": "preset",
-        "color": "white",
-        "variant": "white4",
-        "code": "PSRNE"
-      },
+      null,
       {
         "type": "exit",
         "color": "yellow",
         "variant": "exitC1",
-        "code": "EXCE"
+        "code": "EXCLRD"
       }
     ]
   ],
   "connectors": {
     "entryC4": [
-      "N",
-      "E",
-      "W"
+      "L",
+      "R"
     ],
-    "exitC3": [
-      "N",
-      "E",
-      "S"
-    ],
-    "white5": [
-      "E",
-      "S"
-    ],
-    "white3": [
-      "N",
-      "W"
+    "white11": [
+      "T",
+      "R",
+      "B",
+      "L"
     ],
     "white9": [
-      "E",
-      "S",
-      "W"
+      "B",
+      "L",
+      "R"
     ],
-    "white4": [
-      "N",
-      "E"
+    "exitC1": [
+      "L",
+      "R"
     ]
   },
-  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions",
+  "id": "1776338452123"
 }
