@@ -1,0 +1,133 @@
+{
+  "format": "puzzle-board-v1",
+  "metadata": {
+    "name": "Handmade 6x6",
+    "boardSize": 6,
+    "difficulty": "expert",
+    "notes": "",
+    "createdAt": "2026-04-08T08:55:19.226Z",
+    "updatedAt": "2026-04-08T08:55:19.226Z",
+    "shortestPath": 10,
+    "pieceCounts": {
+      "common": 0,
+      "rare": 0,
+      "epic": 0,
+      "legendary": 0,
+      "preset": 2,
+      "obstacle": 6,
+      "entry": 1,
+      "exit": 1
+    }
+  },
+  "board": [
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryE2",
+        "code": "ENEUDLR2"
+      },
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      }
+    ],
+    [
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white11",
+        "code": "PSLUDLR"
+      },
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white8",
+        "code": "PSEUDR"
+      },
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitC3",
+        "code": "EXCUDR"
+      }
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  ],
+  "connectors": {
+    "entryE2": [
+      "T",
+      "R",
+      "B"
+    ],
+    "white11": [
+      "T",
+      "R",
+      "B",
+      "L"
+    ],
+    "white8": [
+      "T",
+      "R",
+      "B"
+    ],
+    "exitC3": [
+      "T",
+      "B"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+}
