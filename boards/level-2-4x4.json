@@ -5,20 +5,77 @@
     "boardSize": 4,
     "difficulty": "medium",
     "notes": "",
-    "createdAt": "2026-04-08T08:51:16.038Z",
-    "updatedAt": "2026-04-08T08:51:16.038Z",
+    "createdAt": "2026-04-16T10:45:00.298Z",
+    "updatedAt": "2026-04-16T10:45:00.298Z",
     "shortestPath": 5,
     "pieceCounts": {
-      "common": 0, "rare": 0, "epic": 0, "legendary": 0,
-      "preset": 0, "obstacle": 2, "entry": 1, "exit": 1
+      "common": 0,
+      "rare": 0,
+      "epic": 0,
+      "legendary": 0,
+      "preset": 1,
+      "obstacle": 1,
+      "entry": 1,
+      "exit": 1
     }
   },
   "board": [
-    [{"type":"obstacle","color":"black"},null,null,{"type":"exit","color":"yellow","variant":"exitR5","code":"EXRLR2"}],
-    [null,null,null,null],
-    [{"type":"entry","color":"yellow","variant":"entryC2","code":"ENCUDL"},{"type":"obstacle","color":"black"},null,null],
-    [null,null,null,null]
+    [
+      {
+        "type": "entry",
+        "color": "yellow",
+        "variant": "entryR7",
+        "code": "ENRUD2"
+      },
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      {
+        "type": "obstacle",
+        "color": "black"
+      },
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      {
+        "type": "preset",
+        "color": "white",
+        "variant": "white2",
+        "code": "PSCLR"
+      },
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "type": "exit",
+        "color": "yellow",
+        "variant": "exitS3",
+        "code": "exitS3"
+      }
+    ]
   ],
-  "connectors": {"exitR5":["L","T"],"entryC2":["T","B"]},
-  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions"
+  "connectors": {
+    "entryR7": [
+      "R",
+      "B"
+    ],
+    "white2": [
+      "L",
+      "R"
+    ],
+    "exitS3": [
+      "T"
+    ]
+  },
+  "pieceReference": "See PIECE-NAMING-MASTERSHEET.md for code definitions",
+  "id": "1776336300352"
 }
