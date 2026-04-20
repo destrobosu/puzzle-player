@@ -1,11 +1,11 @@
 {
   "levels": [
     "boards/level-1-3x3.json",
-    "boards/gen-L2-d.json",
     "boards/level-2-4x4.json",
-    "boards/level-3-5x5.json",
-    "boards/level-4-6x6.json",
+    "boards/level-3-4x4.json",
+    "boards/gen-L4-a.json",
+    "boards/level-5-5x5.json",
     "boards/gen-L6-b.json",
-    "boards/gen-L7-a.json"
+    "boards/gen-L7-i.json"
   ]
 }
